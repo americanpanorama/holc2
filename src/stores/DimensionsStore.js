@@ -7,6 +7,7 @@ const DimensionsStore = {
 	data: {
 		containerPadding: 20,
 		headerHeight: 100,
+		mobileHeaderHeight: 35,
 		tilesHeight: window.innerHeight - 140, // two paddings + headerHeight
 		sidebarTitleBottomMargin: 10,
 		adNavHeight: 20,
@@ -24,15 +25,32 @@ const DimensionsStore = {
 		this.data.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : this.data.windowWidth * 0.644 - 2*this.data.containerPadding;
 		this.data.sidebarTitleHeight = (document.getElementsByClassName('sidebarTitle').length > 0) ? document.getElementsByClassName('sidebarTitle')[0].offsetHeight: 30;
 
+		if (this.data.windowWidth <= 480) {
+			this.data.size = 'mobile';
+		} else if (this.data.windowWidth <= 800) {
+			this.data.size = 'tablet';
+		} else {
+			this.data.size = 'desktop';
+		}
+
+		this.data.mobileSidebarHeight = 150;
+
 		this.emit(AppActionTypes.storeChanged);
 	},
+
+	setMobileSidebarHeight: function(height) {
+		this.data.mobileSidebarHeight = height;
+		this.emit(AppActionTypes.storeChanged);
+	},
+
+	isMobile() { return this.data.windowWidth <= 750; },
 
 	getDimensions () {
 		return this.data;
 	},
 
 	getMainPaneStyle: function() {
-		return { height: this.data.tilesHeight + 'px' };
+		return { height: (this.isMobile()) ? (this.data.windowHeight - this.data.mobileHeaderHeight) + 'px' : this.data.tilesHeight + 'px' };
 	},
 
 	getSidebarHeightStyle: function() {
@@ -75,7 +93,8 @@ const DimensionsStore = {
 	getSidebarMapStyle: function() {
 		return {
 			width: (this.data.sidebarWidth - 2*this.data.adNavHeight) + 'px',
-			height: (this.data.tilesHeight - this.data.sidebarTitleHeight - this.data.sidebarTitleBottomMargin - 2*this.data.containerPadding) + 'px'
+			height: (this.data.tilesHeight - this.data.sidebarTitleHeight - this.data.sidebarTitleBottomMargin - 2*this.data.containerPadding) + 'px',
+
 		}
 	}
 
@@ -94,7 +113,13 @@ DimensionsStore.dispatchToken = AppDispatcher.register((action) => {
 		case AppActionTypes.windowResized:
 			DimensionsStore.computeComponentDimensions();
 			break;
+
+		case AppActionTypes.mobileSidebarResized:
+			DimensionsStore.setMobileSidebarHeight(action.height);
+			break;
 	}
+
+
 });
 
 export default DimensionsStore;

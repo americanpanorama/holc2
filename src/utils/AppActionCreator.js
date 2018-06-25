@@ -29,7 +29,8 @@ export const AppActionTypes = {
 	stateSelected: 'stateSelected',
 	countrySelected: 'countrySelected',
 	mapClicked: 'mapClicked',
-	toggleADView: 'toggleADView'
+	toggleADView: 'toggleADView',
+	mobileSidebarResized: 'mobileSidebarResized'
 
 };
 
@@ -190,6 +191,13 @@ export const AppActions = {
 	toggleADView: () => {
 		AppDispatcher.dispatch({
 			type: AppActionTypes.toggleADView
+		});
+	},
+
+	mobileSidebarResized: (height) => {
+		AppDispatcher.dispatch({
+			type: AppActionTypes.mobileSidebarResized,
+			height: height 
 		});
 	}
 };

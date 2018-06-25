@@ -1,0 +1,60 @@
+.typeahead-selector a { 
+	text-decoration: none; 
+	font-weight: light;
+	line-height: 1.4;
+
+}
+
+.adSearchInput {
+	width: 100%;
+}
+
+.adSearchResult {
+	margin-top: 20px;
+	
+	li {
+		font-weight: normal;
+
+
+		strong {
+			color: purple;
+			font-weight: bolder;
+		}
+	}
+
+
+
+	
+	h4 {
+		text-align: center;
+		color: white;
+		font-weight: normal;
+		font-size: 1.2em;
+		margin-bottom: 10px;
+	}
+
+	&.gradeA {
+		h4 {
+			background-color: $gradeA;
+		}
+	}
+
+	&.gradeB h4 {
+		background-color: $gradeB;
+	}
+
+	&.gradeC h4 {
+		background-color: $gradeCDark;
+	}
+
+	&.gradeD h4 {
+		background-color: $gradeD;
+	}
+
+
+	* {
+		pointer-events: none;
+		text-decoration: none !important;
+		
+	}
+}

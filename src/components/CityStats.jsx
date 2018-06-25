@@ -2,7 +2,10 @@ import React, { PropTypes } from 'react';
 import { render } from 'react-dom';
 import * as d3 from 'd3';
 import { AppActions } from '../utils/AppActionCreator';
+
 import Downloader from './Downloader.jsx';
+import ADSearch from './ADSearch.jsx';
+import TypeAheadADSnippet from './TypeAheadADSnippet.jsx';
 
 export default class CityStats extends React.Component {
 
@@ -38,7 +41,7 @@ export default class CityStats extends React.Component {
 	};
 
 	shouldComponentUpdate(nextProps, nextState) {
-		if (nextProps.hasADs !== this.props.hasADs || nextProps.popStats !== this.props.popStats || nextProps.downloadOpen !== this.props.downloadOpen) {
+		if (nextProps.hasADs !== this.props.hasADs || nextProps.popStats !== this.props.popStats || nextProps.downloadOpen !== this.props.downloadOpen || (this.props.forAdSearch.length == 0 && nextProps.forAdSearch.length > 0)) {
 			return true;
 		}
 		// don't know why this is necessary, but the component is updating on mouseover--this prevents that.
@@ -109,27 +112,24 @@ export default class CityStats extends React.Component {
 					>
 						{ this.props.state }
 					</span>
-
-					<span className='downloadicon' onClick={ this.props.onDownloadClicked }></span>
 				</h1>
-
-				{ (this.props.downloadOpen) ?
-					<Downloader 
-						rasters={ this.props.rasters }
-						hasADData={ this.props.hasADData }
-						hasPolygons={ this.props.hasPolygons }
-						downloadGeojson={ this.props.downloadGeojson }
-						bucketPath={ this.props.bucketPath }
-						name={ this.props.name }
-						id={ this.props.adId }
-					/> :
-					null
-				}
 				
 
 				{ (this.props.hasADData || this.props.hasADImages) ?
-					<div className='adInstructions'>click on neighborhoods to read their area descriptions</div> : 
+					<div className='adInstructions'>click on neighborhoods to read their area descriptions</div> :
 					<div className='adInstructions'>area descriptions aren't available for this city, but will be soon</div>
+				}
+
+				{ (this.props.hasADData) ?
+					<ADSearch
+						forAdSearch={ this.props.forAdSearch }
+						formId={ this.props.formId }
+						onNeighborhoodClick={ this.props.onNeighborhoodClick}
+						onNeighborhoodHighlighted={ this.props.onNeighborhoodHighlighted }
+						onNeighborhoodUnhighlighted={ this.props.onNeighborhoodUnhighlighted }
+						onSearchingADs={ this.props.onSearchingADs }
+						ref='adsearch'
+					/> : ''
 				}
 
 				{ (this.props.popStats && this.props.popStats[1930].total && this.props.popStats[1940].total) ? 
@@ -176,6 +176,16 @@ export default class CityStats extends React.Component {
 					}
 					
 				</div>
+
+				<Downloader 
+					rasters={ this.props.rasters }
+					hasADData={ this.props.hasADData }
+					hasPolygons={ this.props.hasPolygons }
+					downloadGeojson={ this.props.downloadGeojson }
+					bucketPath={ this.props.bucketPath }
+					name={ this.props.name }
+					id={ this.props.adId }
+				/>
 			</div>
 		);
 	}

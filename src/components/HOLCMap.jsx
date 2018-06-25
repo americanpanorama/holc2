@@ -274,6 +274,40 @@ export default class HOLCMap extends React.Component {
 					null
 				}
 
+				{/* inverted polygons if ADs shown in AD search */}
+				{ (this.props.isSearchingADs) ?
+					<LayerGroup>
+						<GeoJson
+							data={ CityStore.getInvertedGeoJsonForCity() }
+							fillOpacity={ 0.75 } 
+							fillColor= { '#b8cdcb' } 
+							weight={0}
+						/> 
+						{ Object.keys(ADs).map(adId => {
+							return (
+								Object.keys(ADs[adId]).map((areaId) => {
+									if (true || !this.props.searchingADsAreas.includes(areaId)) {
+										return (
+											<GeoJson
+												data={ ADs[adId][areaId].area_geojson }
+												fillOpacity={ 0.75 } 
+												fillColor= { this.props.searchingADsAreas.includes(areaId) ? 'transparent' : '#b8cdcb' } 
+												color= { this.props.searchingADsAreas.includes(areaId) ? 'black' : 'transparent' } 
+												weight={ this.props.searchingADsAreas.includes(areaId) ? 2 : 0}
+												opacity={1}
+											/>
+										);
+									}
+
+								})
+							);
+							
+						})}
+					</LayerGroup> : '' 
+				}
+
+
+
 				{/* cartogram marker for city: shown below zoom level 10; it's invisible but used for selection */}
 				{(!aboveThreshold) ?
 					CitiesStore.getADsList().map((item, i) => {

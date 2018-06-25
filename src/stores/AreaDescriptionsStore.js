@@ -41,9 +41,7 @@ const AreaDescriptionsStore = {
 					});
 				}
 			}
-		});
-
-		
+		});		
 
 		this.dataLoader.query(queries).then((responses) => {
 			// separate the ad responses from the map_id responses
@@ -64,6 +62,7 @@ const AreaDescriptionsStore = {
 						formId: response[0].form_id,
 						byNeighborhood: this.parseAreaDescriptions(response)
 					};
+					this.data.areaDescriptions[adId].forSearch = this.parseADforSearch(this.data.areaDescriptions[adId].byNeighborhood);
 					this.data.areaDescriptions[adId].byCategory = this.parseADsByCat(this.data.areaDescriptions[adId].byNeighborhood);
 					this.data.areaDescriptions[adId].area = Object.keys(this.data.areaDescriptions[adId].byNeighborhood).map((HOLCId, i) => this.data.areaDescriptions[adId].byNeighborhood[HOLCId].sqmi ).reduce((a,b) => a+b, 0);
 				}
@@ -81,6 +80,8 @@ const AreaDescriptionsStore = {
 					});
 				}
 			});
+
+			console.log(this.data.areaDescriptions);
 
 			this.emit(AppActionTypes.storeChanged);
 
@@ -190,6 +191,22 @@ const AreaDescriptionsStore = {
 		return ADsByCat;
 	},
 
+	parseADforSearch: function(ADs) {
+		const searchDown = function(obj) {
+			let concat = '';
+			if (typeof obj == 'string') {
+				concat = obj;
+			} else if (typeof obj == 'object') {
+				Object.keys(obj).forEach(aKey => concat = concat + ' ' + searchDown(obj[aKey]));
+			}
+			return concat;
+		};
+		let ADsForSearch = {};
+		Object.keys(ADs).forEach(neighborhoodId => ADsForSearch[neighborhoodId] = searchDown(ADs[neighborhoodId].areaDesc));
+
+		return ADsForSearch;
+	},
+
 	parseInvertedGeoJson: function(geojson) {
 		//Create a new set of latlngs, adding our world-sized ring first
 		let NWHemisphere = [[0,0], [0, 90], [-180, 90], [-180, 0], [0,0]],
@@ -288,6 +305,72 @@ const AreaDescriptionsStore = {
 
 	getADsForNeighborhood: function(adId, holcId) { return (this.data.areaDescriptions[adId] && this.data.areaDescriptions[adId].byNeighborhood[holcId]) ? this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc : false; },
 
+	getADsForSearch: function(adId) { 
+		if (adId && this.data.areaDescriptions[adId]) {
+			return Object.keys(this.data.areaDescriptions[adId].forSearch).map(holcId => {
+				return {
+					holcId: holcId,
+					grade: this.data.areaDescriptions[adId].byNeighborhood[holcId].holc_grade,
+					name: this.data.areaDescriptions[adId].byNeighborhood[holcId].name,
+					areaDesc: this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc,
+					value: this.data.areaDescriptions[adId].forSearch[holcId]
+				};
+			});
+		} else {
+			return [];
+		}
+	},
+
+	getADsForSearchOld: function(adId) {
+		let searchObj = [];
+
+		console.log(adId, this.data.areaDescriptions);
+		if (adId && this.data.areaDescriptions[adId]) {
+			Object.keys(this.data.areaDescriptions[adId].byNeighborhood).forEach(holcId => {
+				Object.keys(this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc).forEach(cat => {
+					if (typeof this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat] == 'string') {
+						searchObj.push({
+							holcId: holcId,
+							grade: this.data.areaDescriptions[adId].byNeighborhood[holcId].holc_grade,
+							name: this.data.areaDescriptions[adId].byNeighborhood[holcId].name,
+							cat: cat,
+							subcat: null,
+							subitem: null,
+							value: this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat]
+						});
+					} else {
+						Object.keys(this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat]).forEach(subcat => {
+							if (typeof this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat][subcat] == 'string') {
+								searchObj.push({
+									holcId: holcId,
+									grade: this.data.areaDescriptions[adId].byNeighborhood[holcId].holc_grade,
+									name: this.data.areaDescriptions[adId].byNeighborhood[holcId].name,
+									cat: cat,
+									subcat: subcat,
+									subitem: null,
+									value: this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat][subcat]
+								});
+							} else {
+								Object.keys(this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat][subcat]).forEach(subitem => {
+									searchObj.push({
+										holcId: holcId,
+										grade: this.data.areaDescriptions[adId].byNeighborhood[holcId].holc_grade,
+										name: this.data.areaDescriptions[adId].byNeighborhood[holcId].name,
+										cat: cat,
+										subcat: subcat,
+										subitem: subitem,
+										value: this.data.areaDescriptions[adId].byNeighborhood[holcId].areaDesc[cat][subcat][subitem]
+									});
+								});
+							}
+						});
+					}
+				});
+			});
+		}
+
+		return searchObj;
+	},
 
 	getAdTileUrl: function(adId, HOLCId) { return (this.data.areaDescriptions[adId] && this.data.areaDescriptions[adId].byNeighborhood && this.data.areaDescriptions[adId].byNeighborhood[HOLCId]) ? this.data.areaDescriptions[adId].byNeighborhood[HOLCId].tileUrl : null; },
 

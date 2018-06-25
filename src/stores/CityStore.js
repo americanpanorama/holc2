@@ -65,7 +65,8 @@ const CityStore = {
 		},
 		selectedByUser: false,
 		hasLoaded: false,
-		bucketPath: null
+		bucketPath: null,
+		inverted_geojson: null
 	},
 
 	cache: {},
@@ -112,6 +113,10 @@ const CityStore = {
 			{
 				query: 'Select round(st_x(st_centroid(ST_SetSRID(st_extent(the_geom),4326)))::numeric, 3) as centerLng, round(st_y(st_centroid(ST_SetSRID(st_extent(the_geom),4326)))::numeric, 3) as centerLat, round(st_xmin(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as minlng, round(st_ymin(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as minlat, round(st_xmax(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as maxlng, round(st_ymax(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as maxlat from digitalscholarshiplab.holc_polygons where ad_id =' + cityId,
 				format: 'JSON'
+			}, 
+			{
+				query: 'SELECT ST_AsGeoJSON(ST_Transform(st_union(the_geom_webmercator), 4326)) as the_geom from holc_polygons where ad_id = ' + cityId,
+				format: 'JSON' 
 			}
 		];
 
@@ -144,6 +149,8 @@ const CityStore = {
 				this.data.polygonBoundingBox = null;
 				this.data.polygonsCenter = null;
 			}
+
+			this.data.inverted_geojson = this.parseInvertedGeoJson(JSON.parse(response[2][0].the_geom));
 
 			this.data.hasLoaded = true;
 
@@ -193,6 +200,25 @@ const CityStore = {
 				percent: this.data.gradedAreaByGrade[grade] / this.data.gradedArea
 			};
 		});
+	},
+
+	parseInvertedGeoJson: function(geojson) {
+		//Create a new set of latlngs, adding our world-sized ring first
+		let NWHemisphere = [[0,0], [0, 90], [-180, 90], [-180, 0], [0,0]],
+			newLatLngs = [ NWHemisphere ],
+			holes =[];
+
+		geojson.coordinates.forEach((polygon, i) => {
+			polygon.forEach((polygonpieces, i2) => {
+				if (i2 == 0) {
+					newLatLngs.push(polygonpieces);
+				} else {
+					holes.push(polygonpieces);
+				}
+			});
+		});
+		geojson.coordinates = (holes.length > 0) ? [newLatLngs.concat(holes)] : [newLatLngs]
+		return geojson;
 	},
 
 	parseRingAreaGeometry: function(geometries) {
@@ -340,6 +366,8 @@ const CityStore = {
 	getHighlightedHolcId: function() { return this.data.highlightedHolcId; },
 
 	getId: function() { return this.data.id; },
+
+	getInvertedGeoJsonForCity: function() { return this.data.inverted_geojson; },
 
 	getInvertedGeoJsonForSelectedRingArea: function(ring, grade) { return this.data.ringAreasGeometry[ring][grade].inverted_geojson; },
 

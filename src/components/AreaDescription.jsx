@@ -701,7 +701,7 @@ export default class AreaDescription extends React.Component {
 							<span className='catName'> Nationalities</span>
 							<span className='subcatData'> { this.renderSimpleData(1, 'c', 2) }</span>
 						</li>
-						{ this.renderSimpleSubcategory(2, 'd', 'Negro') }
+						{ this.renderSimpleSubcategory(1, 'd', 'Negro') }
 						{ this.renderSimpleSubcategory(1, 'b', 'Class and Occupation') }
 					</ul>
 				</li>
@@ -739,7 +739,7 @@ export default class AreaDescription extends React.Component {
 							<span className='catName'> Nationalities</span>
 							<span className='subcatData'> { this.renderSimpleData(1, 'c', 2) }</span>
 						</li>
-						{ this.renderSimpleSubcategory(2, 'd', 'Negro') }
+						{ this.renderSimpleSubcategory(1, 'd', 'Negro') }
 						{ this.renderSimpleSubcategory(1, 'e', 'Shifting or Infiltration') }
 					</ul>
 				</li>
@@ -945,7 +945,10 @@ export default class AreaDescription extends React.Component {
 			<li key={'AD-' + catNum}>
 				<span className='catNum catSelectable' onClick={ this.props.onCategoryClick } id={ catNum }>{ catNum }</span>
 				<span className='catName catSelectable' onClick={ this.props.onCategoryClick } id={ catNum }>{ catName }</span>
-				<span className='catData'>{ (AD[catNum] ) ? AD[catNum] : <span className='empty'>empty</span>}</span>
+				<span className='catData'>{ (AD[catNum] ) ? 
+					<span>{ AD[catNum].split('\n').map((item, key) => <p key={key}>{item}</p> )}</span>
+					: <span className='empty'>empty</span>}
+				</span>
 			</li>
 		);
 	}

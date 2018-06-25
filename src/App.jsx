@@ -50,7 +50,7 @@ export default class App extends React.Component {
 		this.state = this.getDefaultState();
 
 		// bind handlers
-		const handlers = ['changeHash', 'downloadGeojson', 'getLeafletElementForMap', 'onAdImageClicked', 'onAreaChartHover', 'onAreaChartOff', 'onBringToFrontClick', 'onBurgessChartHover', 'onBurgessChartOff', 'onCategoryClick', 'onCategoryClose', 'onCityMarkerSelected', 'onCitySelected', 'onContactUsToggle', 'onCountrySelected', 'onDownloadClicked', 'onGradeHover', 'onGradeUnhover', 'onHOLCIDClick', 'onMapMoved', 'onModalClick', 'onNeighborhoodClose', 'onNeighborhoodHighlighted', 'onNeighborhoodPolygonClick', 'onNeighborhoodUnhighlighted', 'onPanoramaMenuClick', 'onSliderChange', 'onStateSelected', 'onToggleADView', 'onUserCityResponse', 'onWindowResize', 'storeChanged','onMapClick','onDismissIntroModal'];
+		const handlers = ['changeHash', 'downloadGeojson', 'getLeafletElementForMap', 'onAdImageClicked', 'onAreaChartHover', 'onAreaChartOff', 'onBringToFrontClick', 'onBurgessChartHover', 'onBurgessChartOff', 'onCategoryClick', 'onCategoryClose', 'onCityMarkerSelected', 'onCitySelected', 'onContactUsToggle', 'onCountrySelected', 'onDownloadClicked', 'onGradeHover', 'onGradeUnhover', 'onHOLCIDClick', 'onMapMoved', 'onModalClick', 'onNeighborhoodClose', 'onNeighborhoodHighlighted', 'onNeighborhoodPolygonClick', 'onNeighborhoodUnhighlighted', 'onPanoramaMenuClick', 'onSliderChange', 'onStateSelected', 'onToggleADView', 'onUserCityResponse', 'onWindowResize', 'storeChanged','onMapClick','onDismissIntroModal','onNeighborhoodClick','onSearchingADs', 'onMobileHandleDown', 'onMobileHandleDrag', 'onMobileHandleUp'];
 		handlers.map(handler => { this[handler] = this[handler].bind(this); });
 	}
 
@@ -67,6 +67,22 @@ export default class App extends React.Component {
 				console.warn('Geolocation error occurred. Error code: ' + error.code);
 			});
 		}
+
+		document.addEventListener('touchstart', (e) => {
+			console.log('is moving');
+			if (this.dragging) {
+				console.log('is dragging');
+				e.preventDefault();
+			}
+		});
+
+		document.addEventListener('touchmove', (e) => {
+			console.log('is moving');
+			if (this.dragging) {
+				console.log('is dragging');
+				e.preventDefault();
+			}
+		});
 	}
 
 	componentDidMount () {
@@ -111,6 +127,8 @@ export default class App extends React.Component {
 			},
 			showIntroModal: window.localStorage.getItem('hasViewedIntroModal-redlining') !== 'true',
 			rasterOpacity: (hashState.opacity) ? parseFloat(hashState.opacity) : 0.8,
+			searchingADs: false,
+			searchingADsAreas: [],
 			selectedCategory: (hashState.category) ? hashState.category : null,
 			selectedCity: null, 
 			selectedGrade: null,
@@ -180,6 +198,11 @@ export default class App extends React.Component {
 		this.closeADImage();
 		AppActions.onModalClick(null);
 		AppActions.citySelected(event.target.id, true);
+
+		this.setState({ 
+			searchingADs: false,
+			searchingADsAreas: []
+		});
 	}
 
 	onContactUsToggle () {
@@ -229,6 +252,13 @@ export default class App extends React.Component {
 		AppActions.neighborhoodHighlighted(null);
 	}
 
+	onNeighborhoodClick (event) {
+		const neighborhoodId = event.target.id,
+			adId = this.state.selectedCity;
+		AppActions.neighborhoodSelected(neighborhoodId, adId);
+		this.bringMapForNeighborhoodToFront(adId, neighborhoodId);
+	}
+
 	onNeighborhoodPolygonClick (event) {
 		let neighborhoodId = event.target.options.neighborhoodId,
 			adId = parseInt(event.target.options.adId);
@@ -252,6 +282,13 @@ export default class App extends React.Component {
 	onSliderChange (value) {
 		this.setState({
 			rasterOpacity: value / 100
+		});
+	}
+
+	onSearchingADs(e) {
+		this.setState({ 
+			searchingADs: true,
+			searchingADsAreas: this.refs.citystats.refs.adsearch.refs.adSearch.getOptionsForValue(this.refs.citystats.refs.adsearch.refs.adSearch.refs.entry.value, AreaDescriptionsStore.getADsForSearch(this.state.selectedCity)).map(a => a.holcId)
 		});
 	}
 
@@ -303,6 +340,28 @@ export default class App extends React.Component {
 			showIntroModal: false
 		});
 	}
+
+	onMobileHandleDown (e) {
+		this.dragging = true;
+		this.yCoord = e.changedTouches[0].pageY;
+	}
+
+	onMobileHandleDrag (e) {
+		e.stopPropagation();
+		e.preventDefault();
+		if (this.dragging && e.changedTouches) {
+			const yDiff = this.yCoord - e.changedTouches[e.changedTouches.length - 1].pageY;
+			this.yCoord = e.changedTouches[e.changedTouches.length - 1].pageY;
+			const newHeight = DimensionsStore.getDimensions().mobileSidebarHeight + yDiff;
+			AppActions.mobileSidebarResized(newHeight);
+		}
+	}
+
+	onMobileHandleUp () {
+		this.dragging = false;
+		this.yCoord = null;
+	}
+
 
 	/* manage hash */
 
@@ -390,9 +449,10 @@ export default class App extends React.Component {
 	}
 
 	render () {
+		const dimensions = DimensionsStore.getDimensions();
 
 		return (
-			<div className='container full-height'>
+			<div className={`container full-height ${dimensions.size}`}>
 				<Navigation 
 					show_menu={ this.state.show_panorama_menu } 
 					on_hamburger_click={ this.onPanoramaMenuClick } 
@@ -420,6 +480,7 @@ export default class App extends React.Component {
 						<div 
 							className='row template-tile leaflet-container main-pane' 
 							style={ DimensionsStore.getMainPaneStyle() }
+							id='main'
 						>
 
 							{ (!this.state.adImageOpen) ?
@@ -434,6 +495,8 @@ export default class App extends React.Component {
 									onSliderChange={ this.onSliderChange }
 									onCountryClick={ this.onCountrySelected }
 									onMapClick={ this.onMapClick }
+									isSearchingADs={ this.state.searchingADs }
+									searchingADsAreas={ this.state.searchingADsAreas }
 								/> :
 								(AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood)) ?
 									<Map 
@@ -507,7 +570,13 @@ export default class App extends React.Component {
 					</div>
 
 
-					<div className='columns four full-height'>
+					<div 
+						className='columns four full-height'
+						id='sidebar'
+						style={{ 
+							height: (dimensions.size === 'mobile') ? dimensions.mobileSidebarHeight : 'auto'
+						}}
+					>
 
 						<div 
 							className='row template-tile city-selector' 
@@ -524,10 +593,37 @@ export default class App extends React.Component {
 							/>
 						</div>
 
+						{ (dimensions.size === 'mobile') &&
+							<svg
+								width={dimensions.windowWidth}
+								height={16}
+								onMouseDown={this.onMobileHandleDown}
+								onMouseMove={this.onMobileHandleDrag}
+								onMouseUp={this.onMobileHandleUp}
+								onTouchStart={this.onMobileHandleDown}
+								onTouchMove={this.onMobileHandleDrag}
+								onTouchEnd={this.onMobileHandleUp}
+							>
+								<line
+									x1={dimensions.windowWidth / 2 - 30}
+									x2={dimensions.windowWidth / 2 + 30}
+									y1={6}
+									y2={6}
+									stroke='grey'
+									strokeWidth={4}
+									strokeLinecap='round'
+								/>
+
+							</svg>
+						}
+
 						<div 
 							className='row full-height template-tile dataViewer' 
 							style={ DimensionsStore.getSidebarHeightStyle() }
 						>
+
+
+
 
 							{ (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity) ?
 								<CityStats 
@@ -547,13 +643,20 @@ export default class App extends React.Component {
 									hasPolygons={ CitiesStore.hasPolygons(this.state.selectedCity) }
 									hasADData={ CitiesStore.hasADData(this.state.selectedCity) }
 									hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
+									forAdSearch={ AreaDescriptionsStore.getADsForSearch(this.state.selectedCity) }
+									formId={ CityStore.getFormId() } 
 									onDownloadClicked={ this.onDownloadClicked }
+									onNeighborhoodClick={ this.onNeighborhoodClick }
+									onNeighborhoodHighlighted={ this.onNeighborhoodHighlighted }
+									onNeighborhoodUnhighlighted={ this.onNeighborhoodUnhighlighted }
 									onCitySelected={ this. onCitySelected }
 									onStateSelected={ this.onStateSelected }
+									onSearchingADs={ this.onSearchingADs }
 									downloadOpen={ this.state.downloadOpen }
 									rasters={ RasterStore.getMapsFromIds(CitiesStore.getMapIds(this.state.selectedCity)) }
 									downloadGeojson = { this.downloadGeojson }
 									bucketPath={ CityStore.getBucketPath(this.state.selectedCity) }
+									ref='citystats'
 								/> :
 								''
 							}
