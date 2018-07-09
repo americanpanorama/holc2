@@ -1,6 +1,6 @@
-import { PropTypes } from 'react';
+import PropTypes from 'prop-types';
 import { tileLayer } from 'leaflet';
-import { BaseTileLayer } from 'react-leaflet';
+import { TileLayer } from 'react-leaflet';
 
 // Not possible until CartoDB releases an npm package for the Core API.
 // import { Tiles } from 'cartodb';
@@ -9,7 +9,7 @@ import { BaseTileLayer } from 'react-leaflet';
 // e.g. in index.html as <script src="http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.core.js"></script>
 
 
-export default class CartoDBTileLayer extends BaseTileLayer {
+export default class CartoDBTileLayer extends TileLayer {
 
 	static propTypes = {
 		userId: PropTypes.string,

@@ -11,24 +11,26 @@ import MapStateStore from './stores/MapStateStore';
 import RasterStore from './stores/RasterStore';
 import UserLocationStore from './stores/UserLocationStore';
 import TextsStore from './stores/TextsStore';
+import HashManager from './stores/HashManager';
 
 // components (views)
 import ADCat from './components/ADCat.jsx';
 import AreaDescription from './components/AreaDescription.jsx';
 import Burgess from './components/Burgess.jsx';
-import { CartoDBTileLayer, HashManager, Legend, Navigation } from '@panorama/toolkit';
+//import { Navigation } from '@panorama/toolkit';
 import CitySnippet from './components/CitySnippet.jsx';
 import CityStats from './components/CityStats.jsx';
 import ContactUs from './components/ContactUs.jsx';
 import { icon } from 'leaflet';
 import { Map, LayerGroup, TileLayer } from 'react-leaflet';
-import Slider from 'rc-slider';
+import Masthead from './components/Masthead.jsx';
 import StateList from './components/StateList.jsx';
 import { Typeahead } from 'react-typeahead';
 import TypeAheadCitySnippet from './components/TypeAheadCitySnippet.jsx';
 import HOLCMap from './components/HOLCMap.jsx';
 import SidebarMap from './components/SidebarMap.jsx';
 import IntroModal from './components/IntroModal.jsx';
+import MapToggleControl from './components/MapToggleControl.jsx';
 
 
 // utils
@@ -50,7 +52,7 @@ export default class App extends React.Component {
 		this.state = this.getDefaultState();
 
 		// bind handlers
-		const handlers = ['changeHash', 'downloadGeojson', 'getLeafletElementForMap', 'onAdImageClicked', 'onAreaChartHover', 'onAreaChartOff', 'onBringToFrontClick', 'onBurgessChartHover', 'onBurgessChartOff', 'onCategoryClick', 'onCategoryClose', 'onCityMarkerSelected', 'onCitySelected', 'onContactUsToggle', 'onCountrySelected', 'onDownloadClicked', 'onGradeHover', 'onGradeUnhover', 'onHOLCIDClick', 'onMapMoved', 'onModalClick', 'onNeighborhoodClose', 'onNeighborhoodHighlighted', 'onNeighborhoodPolygonClick', 'onNeighborhoodUnhighlighted', 'onPanoramaMenuClick', 'onSliderChange', 'onStateSelected', 'onToggleADView', 'onUserCityResponse', 'onWindowResize', 'storeChanged','onMapClick','onDismissIntroModal','onNeighborhoodClick','onSearchingADs', 'onMobileHandleDown', 'onMobileHandleDrag', 'onMobileHandleUp'];
+		const handlers = ['changeHash', 'downloadGeojson', 'getLeafletElementForMap', 'onAdImageClicked', 'onAreaChartHover', 'onAreaChartOff', 'onBringToFrontClick', 'onBurgessChartHover', 'onBurgessChartOff', 'onCategoryClick', 'onCategoryClose', 'onCityMarkerSelected', 'onCitySelected', 'onContactUsToggle', 'onCountrySelected', 'onDownloadClicked', 'onGradeHover', 'onGradeUnhover', 'onHOLCIDClick', 'onMapMoved', 'onModalClick', 'onNeighborhoodClose', 'onNeighborhoodHighlighted', 'onNeighborhoodPolygonClick', 'onNeighborhoodUnhighlighted', 'onPanoramaMenuClick', 'onSliderChange', 'onStateSelected', 'onToggleADView', 'onUserCityResponse', 'onWindowResize', 'storeChanged','onMapClick','onDismissIntroModal','onNeighborhoodClick','onSearchingADs', 'onMobileHandleDown', 'onMobileHandleDrag', 'onMobileHandleUp', 'toggleHOLCMap'];
 		handlers.map(handler => { this[handler] = this[handler].bind(this); });
 	}
 
@@ -69,17 +71,13 @@ export default class App extends React.Component {
 		}
 
 		document.addEventListener('touchstart', (e) => {
-			console.log('is moving');
 			if (this.dragging) {
-				console.log('is dragging');
 				e.preventDefault();
 			}
 		});
 
 		document.addEventListener('touchmove', (e) => {
-			console.log('is moving');
 			if (this.dragging) {
-				console.log('is dragging');
 				e.preventDefault();
 			}
 		});
@@ -126,7 +124,7 @@ export default class App extends React.Component {
 				center: (hashState.loc && hashState.loc.center) ? hashState.loc.center : [39.1045,-94.5832] 
 			},
 			showIntroModal: window.localStorage.getItem('hasViewedIntroModal-redlining') !== 'true',
-			rasterOpacity: (hashState.opacity) ? parseFloat(hashState.opacity) : 0.8,
+			rasterOpacity: (hashState.opacity) ? parseFloat(hashState.opacity) : 1,
 			searchingADs: false,
 			searchingADsAreas: [],
 			selectedCategory: (hashState.category) ? hashState.category : null,
@@ -260,6 +258,7 @@ export default class App extends React.Component {
 	}
 
 	onNeighborhoodPolygonClick (event) {
+		console.log(event);
 		let neighborhoodId = event.target.options.neighborhoodId,
 			adId = parseInt(event.target.options.adId);
 
@@ -282,6 +281,12 @@ export default class App extends React.Component {
 	onSliderChange (value) {
 		this.setState({
 			rasterOpacity: value / 100
+		});
+	}
+
+	toggleHOLCMap () {
+		this.setState({
+			rasterOpacity: (this.state.rasterOpacity > 0) ? 0 : 1
 		});
 	}
 
@@ -387,13 +392,17 @@ export default class App extends React.Component {
 			return null;
 		}
 
-		const adLE = this.getLeafletElementForAD(),
-			zoom = adLE.getZoom(),
-			center = adLE.getCenter(),
-			x = Math.round(center.lng),
-			y = Math.round(center.lat);
+		const adLE = this.getLeafletElementForAD();
+		if (adLE) {
+			const zoom = adLE.getZoom(),
+				center = adLE.getCenter(),
+				x = Math.round(center.lng),
+				y = Math.round(center.lat);
 
-		return zoom + '/' + y + '/' + x;
+			return zoom + '/' + y + '/' + x;
+		}
+		return null;
+
 	}
 
 	getADZoom() {
@@ -453,317 +462,333 @@ export default class App extends React.Component {
 
 		return (
 			<div className={`container full-height ${dimensions.size}`}>
-				<Navigation 
-					show_menu={ this.state.show_panorama_menu } 
-					on_hamburger_click={ this.onPanoramaMenuClick } 
-					nav_data={ panoramaNavData.filter((item, i) => item.url.indexOf('holc') === -1) } 
-					links={ [
-						{ name: 'Digital Scholarship Lab', url: '//dsl.richmond.edu' },
-						{ name: 'University of Richmond', url: '//www.richmond.edu' }
-					] }
-					link_separator=', '
+				<Masthead
+					style={dimensions.headerStyle}
+					onModalClick={this.onModalClick}
+					onContactUsToggle={this.onContactUsToggle}
 				/>
-				<div className='row full-height'>
-					<div className='columns eight full-height'>
-						<header className='row u-full-width'>
-							<h1>
-								<span className='header-main'>Mapping Inequality</span>
-								<span className='header-sub'>Redlining in New Deal America</span>
-							</h1>
-							<h4 onClick={ this.onModalClick } id={ 'intro' }>Introduction</h4>
-							<h4 onClick={ this.onModalClick } id={ 'bibliograph' }>Bibliographic Note & Bibliography</h4>
-							<h4 onClick={ this.onModalClick } id={ 'about' }>About</h4>
-							<h4 onClick={ this.onContactUsToggle }>Contact Us</h4>
-							<hr className='style-eight' />
-						</header>
-
-						<div 
-							className='row template-tile leaflet-container main-pane' 
-							style={ DimensionsStore.getMainPaneStyle() }
-							id='main'
-						>
-
-							{ (!this.state.adImageOpen) ?
-								<HOLCMap
-									ref='holc_map'
-									state={ this.state }
-									selectedCity = { this.state.selectedCity }
-									onMapMoved={ this.onMapMoved }
-									onNeighborhoodPolygonClick={ this.onNeighborhoodPolygonClick }
-									onNeighborhoodInvertedPolygonClick={ this.onNeighborhoodClose }
-									onCityMarkerSelected= { this.onCityMarkerSelected }
-									onSliderChange={ this.onSliderChange }
-									onCountryClick={ this.onCountrySelected }
-									onMapClick={ this.onMapClick }
-									isSearchingADs={ this.state.searchingADs }
-									searchingADsAreas={ this.state.searchingADsAreas }
-								/> :
-								(AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood)) ?
-									<Map 
-										ref='the_ad_tiles' 
-										center={ [this.getADY(),this.getADX()] } 
-										zoom={ this.getADZoom() }
-										minZoom={ 3 }
-										maxZoom={ 5 }
-										maxBounds={ this.getADMaxBounds() }
-										className='the_ad'
-										style={ DimensionsStore.getADViewerStyle() }
-										onMoveend={ this.changeHash }
-									>
-										{ (CitiesStore.hasADImages(this.state.selectedCity) && AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)) ? 
-											<TileLayer
-												key='AD'
-												url={ AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
-												zIndex={ 1000 }
-											/>:
-											null
-										}
-
-										<Legend 
-											items={ [ 'Close' ] }
-											className='adClose' 
-											onItemSelected={ this.onAdImageClicked } 
-										/>
-									</Map>:
-									<div className='longishForm noAD'>
-										<p>An area description is not available for this neighborhood.</p>
-									</div>
-
-							}
-
-							{ TextsStore.mainModalIsOpen() && TextsStore.getSubject() !== 'burgess' ?
-								<div className='longishform'>
-									<button className='close' onClick={ this.onModalClick }><span>×</span></button>
-									<div className='content' dangerouslySetInnerHTML={ TextsStore.getModalContent() } />
-								</div> :
-								null
-							}
-
-							{ TextsStore.mainModalIsOpen() && TextsStore.getSubject() == 'burgess' ?
-								<div className='longishform'>
-									<Burgess 
-										onCitySelected={ this.onCitySelected } 
-										onModalClick={ this.onModalClick }
-									/>
-								</div> :
-								null
-							}
-
-							{ (this.state.contactUs) ?
-								<ContactUs onContactUsToggle={ this.onContactUsToggle }/> :
-								''
-							}
-
-							{ UserLocationStore.getOfferZoomTo() ?
-								
-								<div className='arealocation'>
-									<div className='arealocationPrompt'>
-										<p>Would you like to zoom to { UserLocationStore.getCity() }?</p>
-										<button className='sure' onClick={ this.onUserCityResponse } value={ 'yes' }>Sure</button>
-										<button className='nope' onClick={ this.onUserCityResponse } value={ 'no' }>No thanks</button>
-									</div>
-								</div> :
-								null
-							}
-
-						</div>
-					</div>
 
 
-					<div 
-						className='columns four full-height'
-						id='sidebar'
-						style={{ 
-							height: (dimensions.size === 'mobile') ? dimensions.mobileSidebarHeight : 'auto'
-						}}
-					>
-
-						<div 
-							className='row template-tile city-selector' 
-							style={ DimensionsStore.getSearchStyle() }
-						>
-							<Typeahead
-								options={ CitiesStore.getADsList() }
-								placeholder={ 'Search by city or state' }
-								filterOption={ 'searchName' }
-								displayOption={(city, i) => city.ad_id }
-								onOptionSelected={ this.onCitySelected }
-								customListComponent={ TypeAheadCitySnippet }
-								maxVisible={ 8 }
-							/>
-						</div>
-
-						{ (dimensions.size === 'mobile') &&
-							<svg
-								width={dimensions.windowWidth}
-								height={16}
-								onMouseDown={this.onMobileHandleDown}
-								onMouseMove={this.onMobileHandleDrag}
-								onMouseUp={this.onMobileHandleUp}
-								onTouchStart={this.onMobileHandleDown}
-								onTouchMove={this.onMobileHandleDrag}
-								onTouchEnd={this.onMobileHandleUp}
-							>
-								<line
-									x1={dimensions.windowWidth / 2 - 30}
-									x2={dimensions.windowWidth / 2 + 30}
-									y1={6}
-									y2={6}
-									stroke='grey'
-									strokeWidth={4}
-									strokeLinecap='round'
-								/>
-
-							</svg>
-						}
-
-						<div 
-							className='row full-height template-tile dataViewer' 
-							style={ DimensionsStore.getSidebarHeightStyle() }
-						>
-
-
-
-
-							{ (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity) ?
-								<CityStats 
-									adId={ this.state.selectedCity }
-									name={ CityStore.getName() }
-									state={ CityStore.getState() }
-									slug={ CityStore.getSlug() }
-									area={ AreaDescriptionsStore.getArea(this.state.selectedCity) } 
-									gradeStats={ CityStore.getGradeStats() } 
-									ringStats={ CityStore.getRingStats() } 
-									popStats={ CitiesStore.getDisplayPopStats(this.state.selectedCity) }
-									areaSelected={ this.onBurgessChartHover } 
-									areaUnselected={ this.onBurgessChartOff } 
-									gradeSelected={ this.onAreaChartHover } 
-									gradeUnselected={ this.onAreaChartOff } 
-									openBurgess={ this.onModalClick }
-									hasPolygons={ CitiesStore.hasPolygons(this.state.selectedCity) }
-									hasADData={ CitiesStore.hasADData(this.state.selectedCity) }
-									hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
-									forAdSearch={ AreaDescriptionsStore.getADsForSearch(this.state.selectedCity) }
-									formId={ CityStore.getFormId() } 
-									onDownloadClicked={ this.onDownloadClicked }
-									onNeighborhoodClick={ this.onNeighborhoodClick }
-									onNeighborhoodHighlighted={ this.onNeighborhoodHighlighted }
-									onNeighborhoodUnhighlighted={ this.onNeighborhoodUnhighlighted }
-									onCitySelected={ this. onCitySelected }
-									onStateSelected={ this.onStateSelected }
-									onSearchingADs={ this.onSearchingADs }
-									downloadOpen={ this.state.downloadOpen }
-									rasters={ RasterStore.getMapsFromIds(CitiesStore.getMapIds(this.state.selectedCity)) }
-									downloadGeojson = { this.downloadGeojson }
-									bucketPath={ CityStore.getBucketPath(this.state.selectedCity) }
-									ref='citystats'
-								/> :
-								''
-							}
-
-							{ (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && this.state.unselectedVisibleCities.length > 0) ?
-								<div>
-									<h4>Other Visible Cities</h4>
-									{ Object.keys(this.state.unselectedVisibleCities).map(i => {
-										return (
-											<CitySnippet 
-												cityData={ this.state.unselectedVisibleCities[i] } 
-												onCityClick={ this.onCitySelected } 
-												key={ 'city' + this.state.unselectedVisibleCities[i].ad_id } 
-											/> 
-										)
-									})} 
-								</div> :
-								''
-							}
-							
-							{ (this.state.selectedNeighborhood && !this.state.adImageOpen) ? 
-								<AreaDescription 
-									areaId={ this.state.selectedNeighborhood } 
-									previousAreaId={ AreaDescriptionsStore.getPreviousHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
-									nextAreaId={ AreaDescriptionsStore.getNextHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
-									neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
-									areaDescriptions={ AreaDescriptionsStore.getADsForNeighborhood(this.state.selectedCity, this.state.selectedNeighborhood) } 
-									thumbnailUrl={ AreaDescriptionsStore.getThumbnailUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
-									sheets={ AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood) }
-									formId={ CityStore.getFormId() } 
-									cityId={ this.state.selectedCity }
-									citySlug={ CityStore.getSlug() }
-									hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
-									onCategoryClick={ this.onCategoryClick } 
-									onHOLCIDClick={ this.onHOLCIDClick } 
-									onAdImageClicked={ this.onAdImageClicked }
-									onToggleADView={ this.onToggleADView }
-									onClose={ this.onNeighborhoodClose }
-									ref={'areadescription' + this.state.selectedNeighborhood } 
-									previousStyle={ DimensionsStore.getADNavPreviousStyle() }
-									nextStyle={ DimensionsStore.getADNavNextStyle() }
-									show={ AreaDescriptionsStore.show() }
-								/> : 
-								''
-							}
-
-							{ (this.state.selectedNeighborhood && this.state.adImageOpen) ? 
-								<SidebarMap
-									ref='sidebar_map'
-									state={ this.state }
-									selectedCity = { this.state.selectedCity }
-									onMapMoved={ this.onMapMoved }
-									onNeighborhoodPolygonClick={ this.onNeighborhoodPolygonClick }
-									onCityMarkerSelected= { this.onCityMarkerSelected }
-									areaId={ this.state.selectedNeighborhood } 
-									previousAreaId={ AreaDescriptionsStore.getPreviousHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
-									nextAreaId={ AreaDescriptionsStore.getNextHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
-									neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
-									onHOLCIDClick={ this.onHOLCIDClick } 
-									onSliderChange={ this.onSliderChange }
-									onClose={ this.onNeighborhoodClose }
-									previousStyle={ DimensionsStore.getADNavPreviousStyle() }
-									nextStyle={ DimensionsStore.getADNavNextStyle() }
-									mapStyle={ DimensionsStore.getSidebarMapStyle() }
-								/> : 
-								''
-							}
-
-							{ (this.state.selectedCategory) ?
-								<ADCat 
-									ADsByCat={ AreaDescriptionsStore.getADsForCategory(this.state.selectedCity, this.state.selectedCategory) }
-									neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
-									formId = { AreaDescriptionsStore.getFormId(this.state.selectedCity) }
-									title={ AreaDescriptionsStore.getCatTitle(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
-									catNum={ this.getCatNum() } 
-									catLetter = { this.getCatLetter() } 
-									previousCatIds = { AreaDescriptionsStore.getPreviousCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
-									nextCatIds = { AreaDescriptionsStore.getNextCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
-									cityId={ this.state.selectedCity }
-									onNeighborhoodClick={ this.onHOLCIDClick } 
-									onCategoryClick={ this.onCategoryClick } 
-									onNeighborhoodHover={ this.onNeighborhoodHighlighted } 
-									onNeighborhoodOut={ this.onNeighborhoodUnhighlighted } 
-									previousStyle={ DimensionsStore.getADNavPreviousStyle() }
-									nextStyle={ DimensionsStore.getADNavNextStyle() }
-									onClose={ this.onCategoryClose }
-								/> :
-								''
-							}
-
-							{ (!this.state.selectedCity && !this.state.selectedNeighborhood && !this.state.selectedCategory) ?
-								MapStateStore.getVisibleStateAbbrs().map((abbr) => {
-									return <StateList 
-										stateName={ stateAbbrs[abbr] } 
-										stateAbbr={ abbr }
-										cities={ MapStateStore.getVisibleCitiesForState(abbr) } 
-										onCityClick={ this.onCitySelected }
-										onStateClick={ this.onStateSelected }
-										key={ abbr }
-									/>;
-								}) :
-								''
-							}
-
-						</div>
-					</div>
+				<div className='city-selector' style={dimensions.citySearchStyle}>
+					<Typeahead
+						options={ CitiesStore.getADsList() }
+						placeholder={ 'Search by city or state' }
+						filterOption={ 'searchName' }
+						displayOption={(city, i) => city.ad_id }
+						onOptionSelected={ this.onCitySelected }
+						customListComponent={ TypeAheadCitySnippet }
+						maxVisible={ 8 }
+					/>
 				</div>
+
+				<HOLCMap
+					ref='holc_map'
+					state={this.state}
+					selectedCity={this.state.selectedCity}
+					onMapMoved={this.onMapMoved}
+					onNeighborhoodPolygonClick={this.onNeighborhoodPolygonClick}
+					onNeighborhoodInvertedPolygonClick={this.onNeighborhoodClose}
+					onCityMarkerSelected= {this.onCityMarkerSelected}
+					onSliderChange={this.onSliderChange}
+					onCountryClick={this.onCountrySelected}
+					onMapClick={this.onMapClick}
+					isSearchingADs={this.state.searchingADs}
+					searchingADsAreas={this.state.searchingADsAreas}
+					style={dimensions.mapStyle}
+				/>
+
+				<MapToggleControl
+					opacity={this.state.rasterOpacity}
+					style={dimensions.mapToggleStyle}
+					toggleHOLCMap={this.toggleHOLCMap}
+				/>
+
+				{ (this.state.selectedNeighborhood && this.state.adImageOpen) &&
+					(AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood)) ?
+						<Map 
+							ref='the_ad_tiles' 
+							center={ [this.getADY(),this.getADX()] } 
+							zoom={ this.getADZoom() }
+							minZoom={ 3 }
+							maxZoom={ 5 }
+							maxBounds={ this.getADMaxBounds() }
+							className='sidebar'
+							style={DimensionsStore.getSidebarStyle()}
+							onMoveend={ this.changeHash }
+						>
+							{ (CitiesStore.hasADImages(this.state.selectedCity) && AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)) ? 
+								<TileLayer
+									key='AD'
+									url={ AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
+									zIndex={ 1000 }
+									detectRetina={true}
+								/>:
+								null
+							}
+
+						{/* JSX Comment 
+							<Legend 
+								items={ [ 'Close' ] }
+								className='adClose' 
+								onItemSelected={ this.onAdImageClicked } 
+							/> */}
+						</Map> :
+						''
+
+				}
+					{/* JSX Comment 
+						<div className='longishForm noAD'>
+							<p>An area description is not available for this neighborhood.</p>
+						</div> */}
+
+				{ (this.state.selectedNeighborhood && !this.state.adImageOpen) &&
+					<AreaDescription 
+						areaId={ this.state.selectedNeighborhood } 
+						previousAreaId={ AreaDescriptionsStore.getPreviousHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
+						nextAreaId={ AreaDescriptionsStore.getNextHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
+						neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
+						areaDescriptions={ AreaDescriptionsStore.getADsForNeighborhood(this.state.selectedCity, this.state.selectedNeighborhood) }
+						thumbnailUrl={ AreaDescriptionsStore.getThumbnailUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
+						sheets={ AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood) }
+						formId={ CityStore.getFormId() } 
+						cityId={ this.state.selectedCity }
+						citySlug={ CityStore.getSlug() }
+						hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
+						onCategoryClick={ this.onCategoryClick } 
+						onHOLCIDClick={ this.onHOLCIDClick } 
+						onAdImageClicked={ this.onAdImageClicked }
+						onToggleADView={ this.onToggleADView }
+						onClose={ this.onNeighborhoodClose }
+						ref={'areadescription' + this.state.selectedNeighborhood } 
+						previousStyle={ DimensionsStore.getADNavPreviousStyle() }
+						nextStyle={ DimensionsStore.getADNavNextStyle() }
+						show={ AreaDescriptionsStore.show() }
+						style={DimensionsStore.getSidebarStyle()}
+					/>
+				}
+
+			{/* JSX Comment 
+				{ (dimensions.size !== 'mobile') && 
+					<Navigation 
+						show_menu={ this.state.show_panorama_menu } 
+						on_hamburger_click={ this.onPanoramaMenuClick } 
+						nav_data={ panoramaNavData.filter((item, i) => item.url.indexOf('holc') === -1) } 
+						links={ [
+							{ name: 'Digital Scholarship Lab', url: '//dsl.richmond.edu' },
+							{ name: 'University of Richmond', url: '//www.richmond.edu' }
+						] }
+						link_separator=', '
+					/>
+				} */}
+
+				{ (false) && 
+					<div className='row full-height'>
+						<div className='columns eight full-height'>
+
+
+								{ TextsStore.mainModalIsOpen() && TextsStore.getSubject() !== 'burgess' ?
+									<div className='longishform'>
+										<button className='close' onClick={ this.onModalClick }><span>×</span></button>
+										<div className='content' dangerouslySetInnerHTML={ TextsStore.getModalContent() } />
+									</div> :
+									null
+								}
+
+								{ TextsStore.mainModalIsOpen() && TextsStore.getSubject() == 'burgess' ?
+									<div className='longishform'>
+										<Burgess 
+											onCitySelected={ this.onCitySelected } 
+											onModalClick={ this.onModalClick }
+										/>
+									</div> :
+									null
+								}
+
+								{ (this.state.contactUs) ?
+									<ContactUs onContactUsToggle={ this.onContactUsToggle }/> :
+									''
+								}
+
+								{ UserLocationStore.getOfferZoomTo() ?
+									
+									<div className='arealocation'>
+										<div className='arealocationPrompt'>
+											<p>Would you like to zoom to { UserLocationStore.getCity() }?</p>
+											<button className='sure' onClick={ this.onUserCityResponse } value={ 'yes' }>Sure</button>
+											<button className='nope' onClick={ this.onUserCityResponse } value={ 'no' }>No thanks</button>
+										</div>
+									</div> :
+									null
+								}
+
+						</div>
+
+
+						<div 
+							className='columns four full-height'
+							id='sidebar'
+							style={{ 
+								height: (dimensions.size === 'mobile') ? dimensions.mobileSidebarHeight : 'auto'
+							}}
+						>
+
+
+
+
+
+							{ (dimensions.size === 'mobile') &&
+								<svg
+									width={dimensions.windowWidth}
+									height={16}
+									onMouseDown={this.onMobileHandleDown}
+									onMouseMove={this.onMobileHandleDrag}
+									onMouseUp={this.onMobileHandleUp}
+									onTouchStart={this.onMobileHandleDown}
+									onTouchMove={this.onMobileHandleDrag}
+									onTouchEnd={this.onMobileHandleUp}
+								>
+									<rect
+										x={0}
+										y={0}
+										width={dimensions.windowWidth}
+										height={32}
+										fill='white'
+										rx={16}
+										ry={16}
+									/>
+									<line
+										x1={dimensions.windowWidth / 2 - 30}
+										x2={dimensions.windowWidth / 2 + 30}
+										y1={6}
+										y2={6}
+										stroke='grey'
+										strokeWidth={4}
+										strokeLinecap='round'
+									/>
+
+								</svg>
+							}
+
+							<div 
+								className='row full-height template-tile dataViewer' 
+								style={ DimensionsStore.getSidebarHeightStyle() }
+								style={{display: 'none'}}
+							>
+
+								{ (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity) ?
+									<CityStats 
+										adId={ this.state.selectedCity }
+										name={ CityStore.getName() }
+										state={ CityStore.getState() }
+										slug={ CityStore.getSlug() }
+										area={ AreaDescriptionsStore.getArea(this.state.selectedCity) } 
+										gradeStats={ CityStore.getGradeStats() } 
+										ringStats={ CityStore.getRingStats() } 
+										popStats={ CitiesStore.getDisplayPopStats(this.state.selectedCity) }
+										areaSelected={ this.onBurgessChartHover } 
+										areaUnselected={ this.onBurgessChartOff } 
+										gradeSelected={ this.onAreaChartHover } 
+										gradeUnselected={ this.onAreaChartOff } 
+										openBurgess={ this.onModalClick }
+										hasPolygons={ CitiesStore.hasPolygons(this.state.selectedCity) }
+										hasADData={ CitiesStore.hasADData(this.state.selectedCity) }
+										hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
+										forAdSearch={ AreaDescriptionsStore.getADsForSearch(this.state.selectedCity) }
+										formId={ CityStore.getFormId() } 
+										onDownloadClicked={ this.onDownloadClicked }
+										onNeighborhoodClick={ this.onNeighborhoodClick }
+										onNeighborhoodHighlighted={ this.onNeighborhoodHighlighted }
+										onNeighborhoodUnhighlighted={ this.onNeighborhoodUnhighlighted }
+										onCitySelected={ this. onCitySelected }
+										onStateSelected={ this.onStateSelected }
+										onSearchingADs={ this.onSearchingADs }
+										downloadOpen={ this.state.downloadOpen }
+										rasters={ RasterStore.getMapsFromIds(CitiesStore.getMapIds(this.state.selectedCity)) }
+										downloadGeojson = { this.downloadGeojson }
+										bucketPath={ CityStore.getBucketPath(this.state.selectedCity) }
+										ref='citystats'
+									/> :
+									''
+								}
+
+								{ (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && this.state.unselectedVisibleCities.length > 0) ?
+									<div>
+										<h4>Other Visible Cities</h4>
+										{ Object.keys(this.state.unselectedVisibleCities).map(i => {
+											return (
+												<CitySnippet 
+													cityData={ this.state.unselectedVisibleCities[i] } 
+													onCityClick={ this.onCitySelected } 
+													key={ 'city' + this.state.unselectedVisibleCities[i].ad_id } 
+												/> 
+											)
+										})} 
+									</div> :
+									''
+								}
+
+								{ (false && this.state.selectedNeighborhood && this.state.adImageOpen) ? 
+									<SidebarMap
+										ref='sidebar_map'
+										state={ this.state }
+										selectedCity = { this.state.selectedCity }
+										onMapMoved={ this.onMapMoved }
+										onNeighborhoodPolygonClick={ this.onNeighborhoodPolygonClick }
+										onCityMarkerSelected= { this.onCityMarkerSelected }
+										areaId={ this.state.selectedNeighborhood } 
+										previousAreaId={ AreaDescriptionsStore.getPreviousHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
+										nextAreaId={ AreaDescriptionsStore.getNextHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
+										neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
+										onHOLCIDClick={ this.onHOLCIDClick } 
+										onSliderChange={ this.onSliderChange }
+										onClose={ this.onNeighborhoodClose }
+										previousStyle={ DimensionsStore.getADNavPreviousStyle() }
+										nextStyle={ DimensionsStore.getADNavNextStyle() }
+										mapStyle={ DimensionsStore.getSidebarMapStyle() }
+									/> : 
+									''
+								}
+
+								{ (this.state.selectedCategory) ?
+									<ADCat 
+										ADsByCat={ AreaDescriptionsStore.getADsForCategory(this.state.selectedCity, this.state.selectedCategory) }
+										neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
+										formId = { AreaDescriptionsStore.getFormId(this.state.selectedCity) }
+										title={ AreaDescriptionsStore.getCatTitle(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
+										catNum={ this.getCatNum() } 
+										catLetter = { this.getCatLetter() } 
+										previousCatIds = { AreaDescriptionsStore.getPreviousCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
+										nextCatIds = { AreaDescriptionsStore.getNextCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
+										cityId={ this.state.selectedCity }
+										onNeighborhoodClick={ this.onHOLCIDClick } 
+										onCategoryClick={ this.onCategoryClick } 
+										onNeighborhoodHover={ this.onNeighborhoodHighlighted } 
+										onNeighborhoodOut={ this.onNeighborhoodUnhighlighted } 
+										previousStyle={ DimensionsStore.getADNavPreviousStyle() }
+										nextStyle={ DimensionsStore.getADNavNextStyle() }
+										onClose={ this.onCategoryClose }
+									/> :
+									''
+								}
+
+								{ (!this.state.selectedCity && !this.state.selectedNeighborhood && !this.state.selectedCategory) ?
+									MapStateStore.getVisibleStateAbbrs().map((abbr) => {
+										return <StateList 
+											stateName={ stateAbbrs[abbr] } 
+											stateAbbr={ abbr }
+											cities={ MapStateStore.getVisibleCitiesForState(abbr) } 
+											onCityClick={ this.onCitySelected }
+											onStateClick={ this.onStateSelected }
+											key={ abbr }
+										/>;
+									}) :
+									''
+								}
+
+							</div>
+						</div>
+					</div>
+				}
 
 				{ this.state.showIntroModal ? <IntroModal onDismiss={ this.onDismissIntroModal } /> : '' }
 			</div> 

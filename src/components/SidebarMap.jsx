@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import SidebarNeighborhoodNav from './SidebarNeighborhoodNav.jsx';
 import SidebarNeighborhoodTitle from './SidebarNeighborhoodTitle.jsx';
 import HOLCMap from './HOLCMap.jsx';

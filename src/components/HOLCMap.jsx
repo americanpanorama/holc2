@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import * as L from 'leaflet';
 
 // stores
@@ -9,11 +9,12 @@ import CityStore from '../stores/CityStore';
 import MapStateStore from '../stores/MapStateStore';
 import RasterStore from '../stores/RasterStore';
 import UserLocationStore from '../stores/UserLocationStore';
+import DimensionsStore from '../stores/DimensionsStore';
 
 // components
-import { Map, TileLayer, GeoJson, Circle, LayerGroup, Marker, setIconDefaultImagePath, CircleMarker } from 'react-leaflet';
-import { CartoDBTileLayer, Legend } from '@panorama/toolkit';
-//import CartoDBTileLayer from './CartoDBTileLayer.jsx';
+import { Map, TileLayer, GeoJson, GeoJSON, 	Circle, LayerGroup, Marker, setIconDefaultImagePath, CircleMarker, Tooltip } from 'react-leaflet';
+//import { Legend } from '@panorama/toolkit';
+import CartoDBTileLayer from './CartoDBTileLayer.jsx';
 //import { CartoDBTileLayerProd, Legend } from '../../../panorama';
 import AreaPolygon from './AreaPolygon.jsx';
 import Donut from './Donut/Donut.jsx';
@@ -88,11 +89,19 @@ export default class HOLCMap extends React.Component {
 					'C "Definitely Declining"',
 					'D "Hazardous"',
 				]
-			};
+			},
+			dimensions = DimensionsStore.getDimensions();
 
 		if (!aboveThreshold) {
 			legendData.items.unshift('Area for each grade')
 		}
+
+		const icon = L.icon({
+			iconUrl: '//dsl.richmond.edu/panorama/forcedmigration/static/narrative-icon-selected.svg',
+			iconSize: [30, 60]
+		});
+
+		console.log(this.props.state);
 
 		return (
 
@@ -103,6 +112,8 @@ export default class HOLCMap extends React.Component {
 				onMoveend={ this.props.onMapMoved } 
 				className='the_map'
 				//onClick={ this.props.onMapClick }
+				id='the_map'
+				style={this.props.style}
 			>
 
 				{/* base map */}
@@ -121,6 +132,8 @@ export default class HOLCMap extends React.Component {
 								key={ 'holctiles' + item.id }
 								url={ (this._isRetina()) ? item.retinaUrl : item.url }
 								minZoom={ item.minZoom }
+								maxNativeZoom={item.maxZoom}
+								maxZoom={22}
 								bounds= { item.bounds }
 								opacity={ this.props.state.rasterOpacity }
 							/>
@@ -134,7 +147,7 @@ export default class HOLCMap extends React.Component {
 					visibleMapsList.map((item, i) => {
 						if (RasterStore.overlapsAnotherMap(item.id) && visibleMapsList.length > 1) {
 							return(
-								<GeoJson
+								<GeoJSON
 									data={ RasterStore.getGeoJSON(item.id) }
 									key={ 'sortPolygon' + item.id }
 									id={ item.id }
@@ -152,7 +165,7 @@ export default class HOLCMap extends React.Component {
 
 
 				{/* rings: donut holes */}
-				{ (aboveThreshold && outerRadius > 0) ?
+				{ (aboveThreshold && outerRadius > 0 && dimensions.size !== 'mobile') &&
 					[1,2,3,4].map(ringNum => {
 						return (
 							<Circle 
@@ -168,12 +181,11 @@ export default class HOLCMap extends React.Component {
 								dashArray='10,20'
 							/> 
 						);
-					}) :
-					null
+					})
 				}
 			
 				{/* rings: donuts */}
-				{ (aboveThreshold && outerRadius > 0 && this.props.state.selectedRingGrade.ringId > 0) ?
+				{ (aboveThreshold && outerRadius > 0 && this.props.state.selectedRingGrade.ringId > 0 && dimensions.size !== 'mobile') &&
 					<Donut 
 						center={ CityStore.getLoopLatLng() } 
 						innerRadius={ (this.props.state.selectedRingGrade.ringId * 2 - 1) / 7 * outerRadius }
@@ -184,14 +196,13 @@ export default class HOLCMap extends React.Component {
 						weight={ 1 }
 						className={ 'donut' } 
 						key={ 'donut' } 
-					/> : 
-					null
+					/> 
 				}
 
 				{/* rings: selected ring */}
 				{ (aboveThreshold && this.props.state.selectedRingGrade.ringId > 0) ?
 					<LayerGroup>
-						<GeoJson 
+						<GeoJSON 
 							data={ CityStore.getInvertedGeoJsonForSelectedRingArea(this.props.state.selectedRingGrade.ringId, this.props.state.selectedRingGrade.grade) }
 							clickable={ false }
 							key={ 'invertedRingStroke'} 
@@ -202,7 +213,7 @@ export default class HOLCMap extends React.Component {
 							opacity={ 0.9 }
 							className={ 'invertedRingGradedArea' }
 						/>
-						<GeoJson 
+						<GeoJSON 
 							data={ CityStore.getGeoJsonForSelectedRingArea(this.props.state.selectedRingGrade.ringId, this.props.state.selectedRingGrade.grade) }
 							clickable={ false }
 							key={ 'ringStroke'} 
@@ -216,68 +227,91 @@ export default class HOLCMap extends React.Component {
 				}
 
 				{/* selected grade */}
-				{ (aboveThreshold && this.props.state.selectedGrade) ?
+				{ (aboveThreshold && this.props.state.selectedGrade) &&
 					<AreaPolygon 
 						data={ AreaDescriptionsStore.getGeoJsonForGrade(this.props.state.selectedCity, this.props.state.selectedGrade) }
 						key={ 'selectedGradedNeighborhoods' } 
 						className={ 'selectedGradedNeighborhoods grade' + this.props.state.selectedGrade } 
-					/> :
-					null
+					/>
 				}
 
-				{ (aboveThreshold && this.props.state.highlightedNeighborhood && ADs[this.props.state.selectedCity] && ADs[this.props.state.selectedCity][this.props.state.highlightedNeighborhood] && ADs[this.props.state.selectedCity][this.props.state.highlightedNeighborhood].area_geojson_inverted) ?
+				{ (aboveThreshold && this.props.state.highlightedNeighborhood && ADs[this.props.state.selectedCity] && ADs[this.props.state.selectedCity][this.props.state.highlightedNeighborhood] && ADs[this.props.state.selectedCity][this.props.state.highlightedNeighborhood].area_geojson_inverted) &&
 					<AreaPolygon
 						data={ ADs[this.props.state.selectedCity][this.props.state.highlightedNeighborhood].area_geojson_inverted } 
 						clickable={ false }
 						className={ 'neighborhoodPolygonInverted grade' + ADs[this.props.state.selectedCity][this.props.state.highlightedNeighborhood].holc_grade } 
 						key={ 'neighborhoodPolygonInverted' + this.props.state.highlightedNeighborhood }
 						
-					/> :
-					null
+					/>
 				}
 
 				{/* selected neighborhood */}
-				{ (aboveThreshold && this.props.state.selectedNeighborhood && ADs[this.props.state.selectedCity] && ADs[this.props.state.selectedCity][this.props.state.selectedNeighborhood] && ADs[this.props.state.selectedCity][this.props.state.selectedNeighborhood].area_geojson_inverted) ?
+				{ (aboveThreshold && this.props.state.selectedNeighborhood && ADs[this.props.state.selectedCity] && ADs[this.props.state.selectedCity][this.props.state.selectedNeighborhood] && ADs[this.props.state.selectedCity][this.props.state.selectedNeighborhood].area_geojson_inverted) &&
 					<AreaPolygon
 						data={ ADs[this.props.state.selectedCity][this.props.state.selectedNeighborhood].area_geojson_inverted } 
 						onClick={ this.props.onNeighborhoodInvertedPolygonClick }
 						className={ 'neighborhoodPolygonInverted' } 
 						key={ 'neighborhoodPolygonInverted' + this.props.state.selectedNeighborhood }
 						ref='neighborhoodPolygonInverted'
-					/> :
-					null
+					/>
 				}
 
 				{/* neighborhood polygons: shown on zoom level 10 and higher */}
-				{  (aboveThreshold) ?
+				{ (aboveThreshold) &&
 					Object.keys(ADs).map(adId => {
 						return (
 							Object.keys(ADs[adId]).map((areaId) => {
 								return (
-									<AreaPolygon
-										data={ ADs[adId][areaId].area_geojson }
-										className={ 'neighborhoodPolygon grade' + ADs[adId][areaId].holc_grade }
+									<LayerGroup
 										key={ 'neighborhoodPolygon' + adId + '-' + areaId } 
-										onClick={ this.props.onNeighborhoodPolygonClick }
-										adId={ adId }
-										neighborhoodId={ areaId } 
-										//fillOpacity={ (id == this.props.state.selectedNeighborhood) ? 1 : 0 }
-										style={{
-											opacity:(this.props.state.selectedRingGrade.ringId > 0) ? (1 - this.props.state.rasterOpacity) / 5 : (1 - this.props.state.rasterOpacity) / 2,
-											fillOpacity: (this.props.state.selectedRingGrade.ringId > 0) ? 0 : (1 - this.props.state.rasterOpacity) / 5
-										}}
-									/>
+									>
+										<AreaPolygon
+											data={ ADs[adId][areaId].area_geojson }
+											className={ 'neighborhoodPolygon grade' + ADs[adId][areaId].holc_grade }
+											onClick={ this.props.onNeighborhoodPolygonClick }
+											adId={ adId }
+											neighborhoodId={ areaId } 
+											//fillOpacity={ (id == this.props.state.selectedNeighborhood) ? 1 : 0 }
+											style={{
+												opacity: (this.props.state.selectedRingGrade.ringId > 0) ? (1 - this.props.state.rasterOpacity) / 5 : (1 - this.props.state.rasterOpacity) / 2,
+												fillOpacity: (this.props.state.selectedRingGrade.ringId > 0) ? 0 : (1 - this.props.state.rasterOpacity) / 5,
+												pointerEvents: 'auto',
+												cursor: 'help'
+											}}
+										/>
+										{ (this.props.state.rasterOpacity === 0 && this.props.state.map.zoom >= 13) && 
+											<CircleMarker
+												center={ADs[adId][areaId].labelCoords}
+												radius={1}
+												key={ 'neighborhoodLabel' + adId + '-' + areaId } 
+												className={ 'neighborhoodLabelBG grade6' + ADs[adId][areaId].holc_grade }
+											>
+												<Tooltip
+													direction='center'
+													offset={[0, 0]}
+													opacity={1}
+													permanent={true}
+													className={`neighborhoodLabel grade${ADs[adId][areaId].holc_grade}`}
+													ref={'labelFor' + adId}
+												>
+													<span>
+														{areaId}
+													</span>
+												</Tooltip>
+											</CircleMarker>
+										}
+									</LayerGroup>
 								);
 							})
 						)
-					}) :
-					null
+					})
 				}
+
 
 				{/* inverted polygons if ADs shown in AD search */}
 				{ (this.props.isSearchingADs) ?
 					<LayerGroup>
-						<GeoJson
+						<GeoJSON
 							data={ CityStore.getInvertedGeoJsonForCity() }
 							fillOpacity={ 0.75 } 
 							fillColor= { '#b8cdcb' } 
@@ -288,7 +322,7 @@ export default class HOLCMap extends React.Component {
 								Object.keys(ADs[adId]).map((areaId) => {
 									if (true || !this.props.searchingADsAreas.includes(areaId)) {
 										return (
-											<GeoJson
+											<GeoJSON
 												data={ ADs[adId][areaId].area_geojson }
 												fillOpacity={ 0.75 } 
 												fillColor= { this.props.searchingADsAreas.includes(areaId) ? 'transparent' : '#b8cdcb' } 
@@ -309,7 +343,7 @@ export default class HOLCMap extends React.Component {
 
 
 				{/* cartogram marker for city: shown below zoom level 10; it's invisible but used for selection */}
-				{(!aboveThreshold) ?
+				{(!aboveThreshold) &&
 					CitiesStore.getADsList().map((item, i) => {
 						return (!isNaN(item.centerLat) && !isNaN(item.centerLng) ?
 							<Circle
@@ -322,12 +356,11 @@ export default class HOLCMap extends React.Component {
 							/> :
 							null
 						);
-					}) :
-					null
+					})
 				}
 
 				{/* text labels for cities */}
-				{ (!aboveThreshold) ?
+				{ (!aboveThreshold) &&
 					cartodbLayers.layergroup.layers.map((item, i) => {
 						return (
 							<CartoDBTileLayer
@@ -338,42 +371,29 @@ export default class HOLCMap extends React.Component {
 								zIndex={1000}
 							/>
 						);
-					}) :
-					null
+					})
 				}
 
 				{/* marker for user's location */}
-				{ (aboveThreshold && UserLocationStore.getPoint()) ?
-					<Marker position={ UserLocationStore.getPoint() } /> :
-					null
+				{ (aboveThreshold && UserLocationStore.getPoint()) &&
+					<Marker position={ UserLocationStore.getPoint() } />
 				}
 
 				{/* button for national view*/}
-				{ (this.props.onCountryClick) ?
+				{ (this.props.onCountryClick && dimensions.size !== 'mobile') &&
 					<button
 						className='nationalView'
 						onClick={ this.props.onCountryClick }
 					>
 						<img src='static/us-outline.svg' />
-					</button> :
-					''
+					</button>
 				}
 
-				{ (aboveThreshold) ?
-					<div className='opacitySlider' ref='slider'>
-						<Slider 
-							vertical={ true }
-							defaultValue={ this.props.state.rasterOpacity * 100 }
-							onAfterChange={ this.props.onSliderChange }
-						/>
-					</div> :
-					''
-				}
-
+			{/* JSX Comment 
 				<Legend 
 					{ ...legendData } 
 					className={ (!aboveThreshold) ? 'withCityMarker' : '' }
-				/>
+				/> */}
 
 			</Map>
 		);

@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { AppActionTypes } from '../utils/AppActionCreator';
 import SidebarNeighborhoodNav from './SidebarNeighborhoodNav.jsx';
 import SidebarNeighborhoodTitle from './SidebarNeighborhoodTitle.jsx';
@@ -7,7 +8,7 @@ export default class AreaDescription extends React.Component {
 
 	// property validation
 	static propTypes = {
-		areaDescriptions: React.PropTypes.oneOfType([
+		areaDescriptions: PropTypes.oneOfType([
 			PropTypes.object,
 			PropTypes.bool
 		])
@@ -51,7 +52,7 @@ export default class AreaDescription extends React.Component {
 		}
 
 		return (
-			<div className='areaDescription'>
+			<div className='areaDescription sidebar' style={this.props.style}>
 
 				<SidebarNeighborhoodTitle
 					areaId={ this.props.areaId }

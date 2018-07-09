@@ -1,7 +1,7 @@
-import { PropTypes } from 'react';
-import {GeoJson}  from 'react-leaflet';
+import PropTypes from 'prop-types';
+import {GeoJSON}  from 'react-leaflet';
 
-export default class AreaPolygon extends GeoJson {
+export default class AreaPolygon extends GeoJSON {
 
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.data !== this.props.data) {

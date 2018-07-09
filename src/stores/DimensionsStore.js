@@ -20,10 +20,6 @@ const DimensionsStore = {
 	computeComponentDimensions () {
 		this.data.windowHeight = window.innerHeight;
 		this.data.windowWidth = window.innerWidth;
-		this.data.tilesHeight = this.data.windowHeight - this.data.headerHeight - 2*this.data.containerPadding;
-		this.data.sidebarWidth =(document.getElementsByClassName('dataViewer').length > 0) ? document.getElementsByClassName('dataViewer')[0].offsetWidth : this.data.windowWidth * 0.322 - 2*this.data.containerPadding;
-		this.data.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : this.data.windowWidth * 0.644 - 2*this.data.containerPadding;
-		this.data.sidebarTitleHeight = (document.getElementsByClassName('sidebarTitle').length > 0) ? document.getElementsByClassName('sidebarTitle')[0].offsetHeight: 30;
 
 		if (this.data.windowWidth <= 480) {
 			this.data.size = 'mobile';
@@ -33,7 +29,77 @@ const DimensionsStore = {
 			this.data.size = 'desktop';
 		}
 
-		this.data.mobileSidebarHeight = 150;
+		if (this.data.size === 'desktop' || this.data.size === 'tablet') {
+			this.data.headerWidth = this.data.windowWidth * 0.65;
+			this.data.headerHeight = 100;
+		} else {
+			this.data.headerWidth = this.data.windowWidth;
+			this.data.headerHeight = 40;
+		}
+
+		this.data.headerStyle = {
+			width: this.data.headerWidth,
+			height: this.data.headerHeight
+		}
+
+		if (this.data.size === 'desktop' || this.data.size === 'tablet') {
+			this.data.mapHeight = this.data.windowHeight - this.data.headerHeight;
+		} else {
+			this.data.mapHeight = this.data.windowHeight - this.data.headerHeight;
+		}
+
+		this.data.mapStyle = {
+			height: this.data.mapHeight
+		}
+
+		if (this.data.size === 'desktop' || this.data.size === 'tablet') {
+			this.data.sidebarHeight = this.data.windowHeight - this.data.headerHeight - 40;
+			this.data.sidebarWidth = this.data.windowWidth / 3;
+			this.data.sidebarRight = 20;
+			this.data.sidebarBottom = 20;
+		} else {
+			this.data.sidebarHeight = 100;
+			this.data.sidebarWidth = this.data.windowWidth;
+			this.data.sidebarRight = 0;
+			this.data.sidebarLeft = 0;
+			this.data.sidebarBottom = 0;
+		}
+
+		this.data.sidebarStyle = {
+			height: this.data.sidebarHeight,
+			width: this.data.sidebarWidth,
+			right: this.data.sidebarRight,
+			bottom: this.data.sidebarBottom,
+			left: this.data.sidebarLeft || 'auto'
+		}
+
+		this.data.citySearchStyle = {
+			position: 'fixed',
+			zIndex: 100,
+			height: this.data.mapStyle.height,
+			width: this.data.sidebarStyle.width,
+			top: 0,
+			right: 20
+		};
+
+		this.data.mapToggleStyle = {
+			position: 'fixed',
+			width: 200,
+			top: this.data.headerHeight + 20,
+			left: this.data.windowWidth / 3 - 100
+		};
+
+
+
+
+
+		this.data.tilesHeight = this.data.windowHeight - this.data.headerHeight - 2*this.data.containerPadding;
+		this.data.sidebarWidth =(document.getElementsByClassName('dataViewer').length > 0) ? document.getElementsByClassName('dataViewer')[0].offsetWidth : this.data.windowWidth * 0.322 - 2*this.data.containerPadding;
+		this.data.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : this.data.windowWidth * 0.644 - 2*this.data.containerPadding;
+		this.data.sidebarTitleHeight = (document.getElementsByClassName('sidebarTitle').length > 0) ? document.getElementsByClassName('sidebarTitle')[0].offsetHeight: 30;
+
+
+
 
 		this.emit(AppActionTypes.storeChanged);
 	},
@@ -42,6 +108,14 @@ const DimensionsStore = {
 		this.data.mobileSidebarHeight = height;
 		this.emit(AppActionTypes.storeChanged);
 	},
+
+	getSidebarStyle: function() {
+		if (this.data.size === 'mobile') {
+			this.data.sidebarStyle.height = this.data.mobileSidebarHeight;
+		}
+		return this.data.sidebarStyle;
+	},
+
 
 	isMobile() { return this.data.windowWidth <= 750; },
 

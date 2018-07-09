@@ -1,15 +1,16 @@
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import { Path, PropTypes as LeafletPropTypes } from 'react-leaflet';
 import donut from './L.Donut.js';
 
 
 export default class Donut extends Path {
 	// Radii are in meters
-	static propTypes = {
-		center: LeafletPropTypes.latlng.isRequired,
-		outerRadius: PropTypes.number.isRequired,
-		innerRadius: PropTypes.number.isRequired,
-	};
+	// static propTypes = {
+	// 	center: LeafletPropTypes.latlng.isRequired,
+	// 	outerRadius: PropTypes.number.isRequired,
+	// 	innerRadius: PropTypes.number.isRequired,
+	// };
 
 	static defaultProps = {};
 

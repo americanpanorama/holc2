@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import Polylabel from 'polylabel';
 import AppDispatcher from '../utils/AppDispatcher';
 import { AppActionTypes } from '../utils/AppActionCreator';
 import CartoDBLoader from '../utils/CartoDBLoader';
@@ -81,8 +82,6 @@ const AreaDescriptionsStore = {
 				}
 			});
 
-			console.log(this.data.areaDescriptions);
-
 			this.emit(AppActionTypes.storeChanged);
 
 		}, (error) => {
@@ -107,8 +106,22 @@ const AreaDescriptionsStore = {
 				adData[d.holc_id] = {};
 			}
 			// assign properties    
+
+			const reducedPolygon = {
+				type: 'Polygon',
+				coordinates: JSON.parse(d.the_geojson).coordinates[0]
+			};
+
+			let labelCoords = [d.centerlat,d.centerlng];
+			let coords = JSON.parse(d.the_geojson).coordinates[0];
+			if (coords.length === 1) {
+				labelCoords = Polylabel(coords, 0.0001);
+				labelCoords = [labelCoords[1], labelCoords[0]];
+			}
+			
 			adData[d.holc_id].area_geojson = (!adData[d.holc_id].area_geojson) ? JSON.parse(d.the_geojson) : adData[d.holc_id].area_geojson;
 			adData[d.holc_id].area_geojson_inverted = (!adData[d.holc_id].area_geojson_inverted) ? this.parseInvertedGeoJson(JSON.parse(d.the_geojson)) : adData[d.holc_id].area_geojson_inverted;
+			adData[d.holc_id].labelCoords = labelCoords;
 			adData[d.holc_id].center = [d.centerlat,d.centerlng];
 			adData[d.holc_id].boundingBox = [[d.bbymin,d.bbxmin],[d.bbymax,d.bbxmax]];
 			adData[d.holc_id].name = d.name;

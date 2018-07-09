@@ -11,12 +11,14 @@
     }
 
     h2 {
-        margin: 0px 10px 10px;
+        margin: 10px 10px 10px;
         text-align: center;
-        background-color: #d3e0df;
+        font-weight: bold;
+        font-family: 'Lora';
+        letter-spacing: .1rem;
 
         a {
-            color: black;
+            color: $background;
             text-decoration: none;
         }
     }
@@ -76,7 +78,7 @@
     ul.ad_cat {
         font-family: 'Lato';
         font-size: 16px;
-        color: #0c789a;
+        /* color: #0c789a; */
         list-style: none;
         margin: 0 40px 0 20px;
         padding: 0;
@@ -106,10 +108,12 @@
         .catName {
             font-weight: bolder;
             color: #555;
+            font-family: Lora;
         }
 
         .subcatName {
             color: grey;
+            font-family: 'Lora';
         }
         .catData {
             display: block;
