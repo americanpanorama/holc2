@@ -83,6 +83,21 @@
 		height: 15px;
 		cursor: pointer;
         opacity: .8;
+
+        rect {
+            &.grade_a {
+                fill: $gradeA;
+            }
+            &.grade_b {
+                fill: $gradeB;
+            }
+            &.grade_c {
+                fill: $gradeCDark;
+            }
+            &.grade_d {
+                fill: $gradeD;
+            }
+        }
 	}
 
     .piechart {

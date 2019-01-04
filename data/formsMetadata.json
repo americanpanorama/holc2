@@ -250,7 +250,7 @@
 			"Name and Location",
 			"Security Grade",
 			"Area No."
-		],
+		]
 	},
 	"1939": {
 		"1": {
@@ -265,7 +265,5 @@
 		"8": "Description and Characteristics of Area" 
 	},
 	"1": {
-
 	}
-
 }

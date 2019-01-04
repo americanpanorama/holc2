@@ -4,58 +4,56 @@ import { ItemSelector } from '@panorama/toolkit';
 
 export default class HolcItemSelector extends React.Component {
 
-	// property validation
-	static propTypes = {
-	};
+  constructor () { 
+    super();
+  }
 
-	// (instead of ES5-style getDefaultProps)
-	static defaultProps = {
-		areaDescriptions: {}
-	};
+  componentWillMount () {}
 
-	constructor () { 
-		super();
-	}
+  componentDidMount () {
+    this.onCitySelected = this.props.onItemSelected.bind(this);
+    this.onStateSelected = this.props.onStateSelected.bind(this);
+  }
 
-	componentWillMount () {}
+  componentWillUnmount () {}
 
-	componentDidMount () {
-		this.onCitySelected = this.props.onItemSelected.bind(this);
-		this.onStateSelected = this.props.onStateSelected.bind(this);
-	}
+  componentDidUpdate () {}
 
-	componentWillUnmount () {}
+  getCitySelectorConfig() {
+    return {
+      title: this.props.title,
+      items: this.props.items,
+      selectedItem: this.props.selectedItem,
+      onItemSelected: this.onCitySelected
+    };
+  }
 
-	componentDidUpdate () {}
+  getStateSelectorConfig() {
+    return {
+      title: this.props.title,
+      items: this.props.stateItems,
+      selectedItem: this.props.selectedStateItem,
+      onItemSelected: this.onStateSelected
+    };
+  }
 
-	getCitySelectorConfig() {
-		return {
-			title: this.props.title,
-			items: this.props.items,
-			selectedItem: this.props.selectedItem,
-			onItemSelected: this.onCitySelected
-		};
-	}
-
-	getStateSelectorConfig() {
-		return {
-			title: this.props.title,
-			items: this.props.stateItems,
-			selectedItem: this.props.selectedStateItem,
-			onItemSelected: this.onStateSelected
-		};
-	}
-
-	render () {
-		return (
-			<div className='row full-height'>
-				<div className='columns six full-height cities'>
-					<ItemSelector { ...this.getCitySelectorConfig() } />
-				</div>
-				<div className='columns six full-height states'>
-					<ItemSelector { ...this.getStateSelectorConfig() } />
-				</div>
-			</div>
-		);
-	}
+  render () {
+    return (
+      <div className='row full-height'>
+        <div className='columns six full-height cities'>
+          <ItemSelector { ...this.getCitySelectorConfig() } />
+        </div>
+        <div className='columns six full-height states'>
+          <ItemSelector { ...this.getStateSelectorConfig() } />
+        </div>
+      </div>
+    );
+  }
 }
+
+HolcItemSelector.propTypes = {
+};
+
+HolcItemSelector.defaultProps = {
+  areaDescriptions: {}
+};

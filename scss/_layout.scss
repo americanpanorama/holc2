@@ -76,7 +76,7 @@ body {
 	margin-bottom: $container-padding;
 }
 
-header {
+header#masthead {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -100,8 +100,9 @@ header {
 		@extend %lora-light;
 		font-size: 0.7em;
 		margin-left: 0.9em;
-		letter-spacing: 0.002em;
-		color: red;
+		letter-spacing: 0.09em;
+		font-weight: 100;
+		color: #eb3f3f;
 	}
 
 	h4 {
@@ -157,11 +158,7 @@ header {
 	}
 }
 
-.leaflet-container {
-	width: 100%;
-	height: 100%;
-	background: #f3f3f3;
-}
+
 
 .city-selector {
 	height: $header-height;
@@ -381,15 +378,22 @@ header {
 	color: black;
 	border-radius: 50%;
 	background-color: transparent;
+
+	&.deemphasized {
+		color: silver;
+	}
 }
 
 button.toggle {
-	background-color: orange;
-	border: 1px solid black;
+    background-color: #4B4E6D;
+    color: #ddd;
+    border-color: #4B4E6D;
+    font-weight: bold;
+    padding: 0;
 
-	&.inactive {
-		background-color: silver;
-	}
+    &:hover {
+    	background-color: lighten(#4B4E6D, 10%);
+    }
 }
 
 
@@ -472,6 +476,10 @@ button.toggle {
 		display: none !important;
 	}
 
+}
+
+#cityStatsButton {
+	position: fixed;
 }
 
 

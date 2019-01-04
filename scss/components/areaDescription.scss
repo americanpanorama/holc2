@@ -3,9 +3,8 @@
 
     .qualitative {
         margin: 20px;
-        font-family: Lato;
+        font-family: 'Merriweather';
         font-size: 16px;
-        color: #0c789a;
         line-height: 26px;
         font-weight: bolder;
     }
@@ -14,7 +13,7 @@
         margin: 10px 10px 10px;
         text-align: center;
         font-weight: bold;
-        font-family: 'Lora';
+        font-family: 'Merriweather';
         letter-spacing: .1rem;
 
         a {
@@ -38,6 +37,29 @@
 
     .downloadicon:hover {
         opacity: 1.0;
+    }
+
+    button {
+        background-color: #ddd;
+        color: #4B4E6D;
+        border-color: #4B4E6D;
+        font-weight: bold;
+        width: 250px;
+        text-align: center;
+        padding: 0;
+
+        &:hover {
+            background-color: white;
+        }
+
+        &.inactive {
+            background-color: #ddd;
+            border: #ddd;
+            color: #bbb;
+        }
+
+
+
     }
 
     h4.shown {
@@ -76,7 +98,8 @@
 
     ul.area_description, 
     ul.ad_cat {
-        font-family: 'Lato';
+        font-family: 'Merriweather';
+        font-weight: 300;
         font-size: 16px;
         /* color: #0c789a; */
         list-style: none;
@@ -84,9 +107,6 @@
         padding: 0;
 
 
-
-
-     
 
         li {
             list-style: none;
@@ -106,14 +126,13 @@
         }
 
         .catName {
-            font-weight: bolder;
             color: #555;
-            font-family: Lora;
+            font-family: Lato;
         }
 
         .subcatName {
             color: grey;
-            font-family: 'Lora';
+            font-family: 'Lato';
         }
         .catData {
             display: block;
