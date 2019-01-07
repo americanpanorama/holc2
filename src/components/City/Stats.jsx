@@ -1,16 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import Sidebar from '../Sidebar';
 import Header from './Header';
 import Population from './Population';
 import Downloader from './Downloader';
 import CityViz from './CityViz';
 import BurgessViz from './BurgessViz';
 import ADSearch from './ADSearch';
-import TypeAheadADSnippet from './TypeAheadADSnippet';
 
 const Stats = (props) => (
-  <div className='cityStats sidebar' style={props.style}>
+  <Sidebar 
+    className='cityStats'
+    style={props.style}
+  >
     <Header {...props} />
 
     { (props.hasADData || props.hasADImages) ?
@@ -40,7 +43,7 @@ const Stats = (props) => (
     />
 
     <Downloader {...props} />
-  </div>
+  </Sidebar>
 );
 
 export default Stats;
@@ -52,22 +55,61 @@ Stats.propTypes = {
   areaSelected: PropTypes.func,
   areaUnselected: PropTypes.func,
   gradeSelected: PropTypes.func,
-  gradeUnselected: PropTypes.func
+  gradeUnselected: PropTypes.func,
+  style: PropTypes.shape({
+
+  }).isRequired,
 };
 
 // (instead of ES5-style getDefaultProps)
 Stats.defaultProps = {
   name: '',
   ringStats: {
-    1: {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'density': 0},
-    2: {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'density': 0},
-    3: {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'density': 0},
-    4: {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'density': 0}
+    1: {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+      density: 0,
+    },
+    2: {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+      density: 0,
+    },
+    3: {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+      density: 0,
+    },
+    4: {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+      density: 0,
+    },
   },
   gradeStats: {
-    'A':{'area':0,'percent':0},
-    'B':{'area':0,'percent':0},
-    'C':{'area':0,'percent':0},
-    'D':{'area':0,'percent':0},
-  }
+    A: {
+      area: 0,
+      percent: 0
+    },
+    B: {
+      area: 0,
+      percent: 0
+    },
+    C: {
+      area: 0,
+      percent: 0
+    },
+    D: {
+      area: 0,
+      percent: 0
+    },
+  },
 };

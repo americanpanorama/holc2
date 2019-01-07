@@ -1,134 +1,15 @@
 import { EventEmitter } from 'events';
 import AppDispatcher from '../utils/AppDispatcher';
 import { AppActionTypes } from '../utils/AppActionCreator';
-import CartoDBLoader from '../utils/CartoDBLoader';
 import MapStateStore from '../stores/MapStateStore';
 import RasterStore from './RasterStore';
+import Cities from '../../data/Cities.json';
 import stateAbbrs from '../../data/state_abbr.json';
 
 const CitiesStore = {
 
   data: {
-    cities: {},
-    hasLoaded: false
-  },
-
-  dataLoader: CartoDBLoader,
-
-  loadData: function () {
-
-    this.dataLoader.query([
-      {
-        query: "WITH polygon_bounds as (select ad_id, st_xmin(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmin, st_ymin(st_envelope(st_collect(holc_polygons.the_geom))) as bbymin, st_xmax(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmax, st_ymax(st_envelope(st_collect(holc_polygons.the_geom))) as bbymax FROM holc_polygons group by ad_id), has_ads as (select count(data), ad_id from holc_ad_data join holc_polygons on holc_ad_data.polygon_id = holc_polygons.neighborhood_id group by ad_id) SELECT holc_ads.city_id as ad_id, city, state, holc_ads.year, looplat::numeric, looplng::numeric, form_id, total_pop_1940, total_pop_1930, american_indian_eskimo_1930, american_indian_eskimo_1940, asian_pacific_1930 as asian_pacific_islander_1930, asian_pacific_1940 as asian_pacific_1940, black_pop_1930, black_pop_1940, white_pop_1930, white_pop_1940, fb_30, fb30_afr_amer, fb30_all_other, fb30_chinese, fb30_indian, fb30_japanese, fb30_other_races, fb30_white, native_pop_1930, fb_40, fb40_afr_amer, fb40_all_other, fb40_chinese, fb40_indian, fb40_japanese, fb40_other_races, fb40_white, native_pop_1940, images, case when has_ads.ad_id is not null then true else false end as has_ads, sum(st_area(holc_polygons.the_geom_webmercator)) / 1609.34^2 as total_area, sum(CASE WHEN holc_grade = 'A' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_a, sum(CASE WHEN holc_grade = 'B' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_b, sum(CASE WHEN holc_grade = 'C' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_c, sum(CASE WHEN holc_grade = 'D' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_d, bbxmin, bbymin, bbxmax, bbymax, array_agg(distinct map_id) as map_ids FROM holc_polygons right join holc_ads on holc_polygons.ad_id = holc_ads.city_id left join polygon_bounds on holc_ads.city_id = polygon_bounds.ad_id join holc_maps_ads_join on holc_maps_ads_join.ad_id = holc_ads.city_id left join has_ads on has_ads.ad_id = holc_ads.city_id and holc_ads.looplng is not null and holc_ads.looplat is not null group by holc_ads.city_id, city, state, holc_ads.year, form_id, looplat, looplng, total_pop_1940, total_pop_1930, american_indian_eskimo_1930, american_indian_eskimo_1940, asian_pacific_1930, asian_pacific_1940, black_pop_1930, black_pop_1940, white_pop_1930, white_pop_1940, fb_30, fb30_afr_amer, fb30_all_other, fb30_chinese, fb30_indian, fb30_japanese, fb30_other_races, fb30_white, native_pop_1930, fb_40, fb40_afr_amer, fb40_all_other, fb40_chinese, fb40_indian, fb40_japanese, fb40_other_races, fb40_white, native_pop_1940, images, has_ads, bbxmin, bbymin, bbxmax, bbymax  order by state, city",
-        format: 'JSON'
-      }
-    ]).then((responses) => {
-      responses.forEach(response => {
-        if (response.length > 0) {
-          responses[0].forEach(response => {
-            this.data.cities[response.ad_id] = {
-              ad_id: response.ad_id,
-              state: response.state,
-              name: response.city,
-              year: response.year,
-              searchName: response.city + ' ' + stateAbbrs[response.state] + ' ' + response.state,
-              slug: response.city.toLowerCase().replace(/ +/g,'-') + '-' + response.state.toLowerCase(), 
-              form_id: response.form_id,
-              centerLat: response.looplat,
-              centerLng: response.looplng,
-              bounds: (response.bbymin && response.bbxmin && response.bbymax && response.bbxmax) ? [[response.bbymin, response.bbxmin], [response.bbymax, response.bbxmax]] : null,
-              hasImages: response.images,
-              hasADs: response.has_ads,
-
-              population:  {
-                1930: {
-                  total: response.total_pop_1930,
-
-                  AfricanAmerican: response.black_pop_1930,
-                  asianAmerican: response.asian_pacific_1930,
-                  nativeAmerican: response.american_indian_eskimo_1930,
-                  other: response.other_1930,
-                  white: response.white_pop_1930,
-
-                  fb: response.fb_30,
-                  fb_percent: response.fb30_percent,
-                  fb_AfricanAmerican: response.fb30_afr_amer,
-                  fb_allOther: response.fb30_all_other,
-                  fb_Chinese: response.fb30_chinese,
-                  fb_Indian: response.fb30_indian,
-                  fb_Japanese: response.fb30_japanese,
-
-                  fb_otherRaces: response.fb30_other_races,
-                  fb_white: response.fb30_white,
-                  native: response.native_pop_1930
-                },
-                1940: {
-                  total: response.total_pop_1940,
-
-                  AfricanAmerican: response.black_pop_1940,
-                  asianAmerican: response.asian_pacific_1940,
-                  nativeAmerican: response.american_indian_eskimo_1940,
-                  other: response.other_1940,
-                  white: response.white_pop_1940,
-
-                  fb: response.fb_40,
-                  fb_percent: response.fb40_percent,
-                  fb_AfricanAmerican: response.fb40_afr_amer,
-                  fb_allOther: response.fb40_all_other,
-                  fb_Chinese: response.fb40_chinese,
-                  fb_Indian: response.fb40_indian,
-                  fb_Japanese: response.fb40_japanese,
-
-                  fb_otherRaces: response.fb40_other_races,
-                  fb_white: response.fb40_white,
-                  native: response.native_pop_1940
-                }
-              },
-              population_1930: response.total_pop_1930,
-              population_1940: response.total_pop_1940,
-              american_indian_eskimo_1930: response.american_indian_eskimo_1930,
-              american_indian_eskimo_1940: response.american_indian_eskimo_1940,
-              asian_pacific_islander_1930: response.asian_pacific_islander_1930,
-              asian_pacific_islander_1940: response.asian_pacific_islander_1940,
-              black_pop_1930: response.black_pop_1930,
-              black_pop_1940: response.black_pop_1940,
-              white_pop_1930: response.white_pop_1930,
-              white_pop_1940: response.white_pop_1940,
-              hasPolygons: (response.total_area !== null),
-              area : {
-                total: response.total_area,
-                a: response.area_a,
-                b: response.area_b,
-                c: response.area_c,
-                d: response.area_d
-              },
-              maps: [],
-              mapIds: response.map_ids
-            };
-
-            // refine search for NY Boroughs as many users probably search for New York
-            if (['Brooklyn', 'Manhattan', 'Staten Island', 'Bronx', 'Queens'].indexOf(response.city) !== -1) {
-              this.data.cities[response.ad_id].searchName = 'New York ' + this.data.cities[response.ad_id].searchName;
-            }
-
-            this.data.cities[response.ad_id].radii = (response.total_area) ? this.calculateSimpleRingsRadii(this.data.cities[response.ad_id].area) : null;
-
-            this.data.cities[response.ad_id].displayPop = this.parsePopSnippetDisplayData(this.data.cities[response.ad_id].population);
-          });
-
-          this.data.hasLoaded = true;
-
-          this.emit(AppActionTypes.storeChanged);
-        }
-      });
-
-
-
-    }, (error) => {
-      // TODO: handle this.
-      console.log('CitiesStore received error:', error);
-      throw error;
-    });
+    cities: Cities
   },
 
   calculateSimpleRingsRadii: function (areaData) {
@@ -294,7 +175,7 @@ const CitiesStore = {
 
   getYear: function(adId) { return (this.data.cities[adId]) ? this.data.cities[adId].year : null; },
 
-  hasLoaded: function () { return this.data.hasLoaded; },
+  hasLoaded: function () { return true; },
 
   hasADData: function(adId) { return (this.data.cities[adId] && this.data.cities[adId].hasADs); },
 
@@ -305,18 +186,5 @@ const CitiesStore = {
 
 // Mixin EventEmitter functionality
 Object.assign(CitiesStore, EventEmitter.prototype);
-
-// Register callback to handle all updates
-AppDispatcher.register((action) => {
-
-  switch (action.type) {
-  case AppActionTypes.loadInitialData:
-    CitiesStore.loadData();
-    break;
-  }
-  
-  return true;
-
-});
 
 export default CitiesStore;

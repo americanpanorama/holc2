@@ -3,13 +3,14 @@ import AppDispatcher from '../utils/AppDispatcher';
 import { AppActionTypes } from '../utils/AppActionCreator';
 import CartoDBLoader from '../utils/CartoDBLoader';
 
+import Rasters from '../../data/Rasters.json';
 import stateAbbrs from '../../data/state_abbr.json';
 
 const RasterStore = {
 
   data: {
-    maps : [],
-    loaded: false
+    maps: Rasters,
+    loaded: true,
   },
 
   dataLoader: CartoDBLoader,

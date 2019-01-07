@@ -30,6 +30,7 @@ import StateList from './components/StateList.jsx';
 import { Typeahead } from 'react-typeahead';
 import TypeAheadCitySnippet from './components/TypeAheadCitySnippet.jsx';
 import HOLCMap from './components/HOLCMap/HOLCMap.jsx';
+import Sidebar from './components/Sidebar';
 import SidebarMap from './components/SidebarMap.jsx';
 import IntroModal from './components/IntroModal.jsx';
 import MapToggleControl from './components/MapToggleControl.jsx';

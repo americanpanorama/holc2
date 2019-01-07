@@ -14,10 +14,10 @@ const DimensionsStore = {
 
     sidebarWidth: 0,
     mainPaneWidth: 0,
-    sidebarTitleHeight: 0
+    sidebarTitleHeight: 0,
   },
 
-  computeComponentDimensions () {
+  computeComponentDimensions() {
     this.data.windowHeight = window.innerHeight;
     this.data.windowWidth = window.innerWidth;
 
