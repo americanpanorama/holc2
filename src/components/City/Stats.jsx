@@ -9,12 +9,12 @@ import CityViz from './CityViz';
 import BurgessViz from './BurgessViz';
 import ADSearch from './ADSearch';
 
-const Stats = (props) => (
+const Stats = props => (
   <Sidebar 
     className='cityStats'
     style={props.style}
   >
-    <Header {...props} />
+    <Header />
 
     { (props.hasADData || props.hasADImages) ?
       <div className='adInstructions'>click on neighborhoods to read their area descriptions</div> :
@@ -25,24 +25,10 @@ const Stats = (props) => (
       <ADSearch {...props} />
     }
 
-    { (props.popStats && props.popStats[1930].total && props.popStats[1940].total) &&
-      <Population stats={props.popStats} />
-    }
-
-    <CityViz 
-      width={props.style.width}
-      {...props}
-    />
-
-    <BurgessViz 
-      width={props.style.width * 2 / 3}
-      areaSelected={props.areaSelected}
-      areaUnselected={props.areaUnselected}
-      ringStats={props.ringStats}
-      selectedGrade={props.selectedGrade}
-    />
-
-    <Downloader {...props} />
+    <Population />
+    <CityViz />
+    <BurgessViz />
+    <Downloader />
   </Sidebar>
 );
 

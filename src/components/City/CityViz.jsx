@@ -1,7 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { gradeSelected, gradeUnselected } from '../../store/Dispatchers';
 
 const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselected }) => {
+  if (!gradeStats) {
+    return null;
+  }
+
   const grades = ['A', 'B', 'C', 'D'];
   const labels = {
     A: 'Best',
@@ -101,16 +107,32 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
   );
 };
 
-export default CityViz;
-
 CityViz.propTypes = {
   width: PropTypes.number.isRequired,
   selectedGrade: PropTypes.bool,
-  gradeStats: PropTypes.arrayOf(PropTypes.object).isRequired,
+  gradeStats: PropTypes.arrayOf(PropTypes.object),
   gradeSelected: PropTypes.func.isRequired,
   gradeUnselected: PropTypes.func.isRequired,
 };
 
 CityViz.defaultProps = {
   selectedGrade: false,
+  gradeStats: undefined,
 };
+
+const mapStateToProps = (state) => {
+  const { gradeStats } = state.selectedCity.data;
+  const { selectedGrade } = state;
+  return {
+    gradeStats,
+    selectedGrade,
+    width: 400,
+  };
+};
+
+const mapDispatchToProps = {
+  gradeSelected,
+  gradeUnselected,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CityViz);

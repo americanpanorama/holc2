@@ -7,6 +7,8 @@ import MapStateStore from './MapStateStore';
 import AreaDescriptionsStore from './AreaDescriptionsStore';
 import CitiesStore from './CitiesStore';
 
+import Cities from '../../data/Cities.json';
+
 /* City Store is responsible for maintaining most of the important state
 variables: e.g. selected city, neighborhood, category, ring, grade, etc. */
 const CityStore = {
@@ -78,7 +80,65 @@ const CityStore = {
   // can be used here.
   dataLoader: CartoDBLoader,
 
-  loadData: function (cityId, selectedByUser) {
+  loadData(cityId, selectedByUser) {
+    if (!cityId) {
+      return {};
+    }
+
+    const name = Cities[cityId].name;
+    const state = Cities[cityId].state;
+    const year = Cities[cityId].year;
+    const fileName = encodeURIComponent(`${state}-${name}-${year}.json`);
+
+    if (fileName !== 'null-null-null.json') {
+      fetch(`static/cities/${fileName}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw response;
+          }
+          return response.json();
+        })
+        .then((json) => {
+          Object.keys(json).forEach((key) => {
+            this.data[key] = json[key];
+          });
+          // get the ad data
+          fetch(`static/citiesSelected/${fileName}`)
+            .then((response2) => {
+              if (!response2.ok) {
+                throw response2;
+              }
+              return response2.json();
+            })
+            .then((json2) => {
+              Object.keys(json2).forEach((key) => {
+                this.data[key] = json2[key];
+              });
+              console.log(this.data);
+              this.data.hasLoaded = true;
+              this.emit(AppActionTypes.storeChanged);
+            })
+            .catch((err) => {
+              err.text().then(errorMessage => console.log(errorMessage));
+            });
+        })
+        .catch((err) => {
+          err.text().then(errorMessage => console.log(errorMessage));
+        });
+    }
+
+
+        // response.json().then((data) => {
+        //   console.log(...data);
+        //   //this.data = data;
+        //   this.data.hasLoaded = true;
+        //   this.emit(AppActionTypes.storeChanged);
+        // });
+      // });
+
+    /*
+    console.log(name, state, year);
+
     if (cityId == null) {
       this.data.id = null;
       this.data.selectedHolcId = null;
@@ -161,6 +221,8 @@ const CityStore = {
       console.log('CityStore received error:', error);
       throw error;
     });
+
+    */
   },
 
   calculateGradedArea: function(geometries) {

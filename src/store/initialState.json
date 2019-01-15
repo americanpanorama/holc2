@@ -1,0 +1,21 @@
+{
+  "selectedCity": null,
+  "selectedCategory": null,
+  "selectedGrade": null,
+  "selectedNeighborhood": null,
+  "selectedRingGrade": { 
+    "ringId": null, 
+    "grade": null
+  },
+  "visibleCities": [],
+  "map": {
+    "zoom": 5,
+    "center": [39.1045,-94.5832]
+  },
+  "showContactUs": false,
+  "showIntroModal": true,
+  "showCityStats": true,
+  "searchingADs": false,
+  "searchingADsAreas": [],
+  "dimensions": {}
+}

@@ -9,7 +9,7 @@ import stateAbbrs from '../../data/state_abbr.json';
 const CitiesStore = {
 
   data: {
-    cities: Cities
+    cities: Cities,
   },
 
   calculateSimpleRingsRadii: function (areaData) {
@@ -140,7 +140,7 @@ const CitiesStore = {
 
   getADIdFromSlug(slug) { return (this.data.cities) ? Object.keys(this.data.cities).filter(adId => (this.data.cities[adId].slug == slug))[0] : null; },
 
-  getADsList: function() { return Object.keys(this.data.cities).map((adId) => this.data.cities[adId]); },
+  getADsList() { return Object.keys(this.data.cities).map(adId => this.data.cities[adId]); },
 
   getCenterPoint: function(adId) { return (this.data.cities[adId]) ? [ this.data.cities[adId].centerLat, this.data.cities[adId].centerLng] : null; },
 

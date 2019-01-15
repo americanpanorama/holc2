@@ -1,15 +1,13 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
+import { connect } from 'react-redux';
+import { ringAreaSelected, ringAreaUnselected } from '../../store/Dispatchers';
 
-const BurgessViz = (props) => {
-  const {
-    width,
-    ringStats,
-    selectedGrade,
-    areaSelected,
-    areaUnselected,
-  } = props;
+const BurgessViz = ({ width, ringStats, selectedRingGrade, selectedGrade, areaSelected, areaUnselected }) => {
+  if (!ringStats || ringStats.length === 0) {
+    return null;
+  }
 
   const gradeColors = {
     A: '#418e41',
@@ -23,10 +21,10 @@ const BurgessViz = (props) => {
     let outerRadius;
     if (ringId === 1) {
       innerRadius = 0;
-      outerRadius = props.width / 18;
+      outerRadius = width / 18;
     } else {
-      innerRadius = props.width / 18 + (ringId - 2) * props.width / 9;
-      outerRadius = innerRadius + props.width / 9;
+      innerRadius = width / 18 + (ringId - 2) * width / 9;
+      outerRadius = innerRadius + width / 9;
     }
     return d3.arc()
       .innerRadius(innerRadius)
@@ -77,26 +75,25 @@ const BurgessViz = (props) => {
             transform={`translate(${width / 2} ${width / 2})`}
           >
             { stackedData.map((gradeData) => {
-              const {
-                startAngle,
-                endAngle,
-                data,
-              } = gradeData;
+              const { startAngle, endAngle, data } = gradeData;
               const [textX, textY] = getArc(i + 1, startAngle, endAngle).centroid();
+              let fillOpacity = data.opacity;
+              if (selectedGrade && selectedGrade !== data.grade) {
+                fillOpacity = 0;
+              }
               return (
                 <g key={`arcFor${i + 1}${data.grade}`}>
                   <path
                     d={getArc(i + 1, startAngle, endAngle)()}
                     fill={gradeColors[data.grade]}
                     stroke={gradeColors[data.grade]}
-                    fillOpacity={(!selectedGrade || selectedGrade === data.grade)
-                      ? data.opacity : 0}
-                    strokeOpacity={(selectedGrade === data.grade) ? 1 : 0}
+                    fillOpacity={fillOpacity}
+                    strokeOpacity={(selectedRingGrade === data.grade) ? 1 : 0}
                     onMouseEnter={areaSelected}
                     onMouseLeave={areaUnselected}
                     id={`${data.ringId}-${data.grade}`}
                   />
-                  { (selectedGrade === data.grade) && (
+                  { (selectedRingGrade === data.grade) && (
                     <text
                       x={textX}
                       y={textY + 6}
@@ -127,16 +124,37 @@ const BurgessViz = (props) => {
   );
 };
 
-export default BurgessViz;
-
 BurgessViz.propTypes = {
   width: PropTypes.number.isRequired,
+  selectedRingGrade: PropTypes.shape({
+    ring: PropTypes.number,
+    grade: PropTypes.string,
+  }),
   selectedGrade: PropTypes.string,
   areaSelected: PropTypes.func.isRequired,
   areaUnselected: PropTypes.func.isRequired,
-  ringStats: PropTypes.arrayOf(PropTypes.object).isRequired,
+  ringStats: PropTypes.arrayOf(PropTypes.object),
 };
 
 BurgessViz.defaultProps = {
+  selectedRingGrade: undefined,
   selectedGrade: undefined,
+  ringStats: undefined,
 };
+
+const mapStateToProps = (state) => {
+  const { selectedRingGrade, selectedGrade, ringStats } = state.selectedCity.data;
+  return {
+    selectedRingGrade,
+    selectedGrade,
+    ringStats,
+    width: 400,
+  };
+};
+
+const mapDispatchToProps = {
+  areaSelected: ringAreaSelected,
+  areaUnselected: ringAreaUnselected,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BurgessViz);

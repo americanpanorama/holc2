@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 const Downloader = ({ adId, hasADData, hasPolygons, name, rasters }) => {
   const filename = `HOLC_${name.replace(/\s+/g, '')}`;
@@ -154,8 +155,6 @@ const Downloader = ({ adId, hasADData, hasPolygons, name, rasters }) => {
   );
 };
 
-export default Downloader;
-
 Downloader.propTypes = {
   hasADData: PropTypes.bool.isRequired,
   hasPolygons: PropTypes.bool.isRequired,
@@ -163,3 +162,17 @@ Downloader.propTypes = {
   name: PropTypes.string.isRequired,
   rasters: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
+
+const MapStateToProps = (state) => {
+  const { selectedCity } = state ;
+  return {
+    hasADData: selectedCity.data && selectedCity.data.areaDescriptions
+      && selectedCity.data.areaDescriptions.form_id,
+    hasPolygons: selectedCity.data && selectedCity.data.polygonsCenter[0],
+    adId: selectedCity.data.id,
+    name: selectedCity.data.name,
+    rasters: [],
+  };
+};
+
+export default connect(MapStateToProps)(Downloader);

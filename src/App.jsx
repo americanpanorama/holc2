@@ -1,7 +1,10 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import { Provider } from 'react-redux';
 //import "babel-polyfill";
 //import './utils/carto.js';
+
+import TheStore from './store';
+import { citySelected, updateMap } from './store/Dispatchers';
 
 // stores
 import AreaDescriptionsStore from './stores/AreaDescriptionsStore';
@@ -49,6 +52,8 @@ export default class App extends React.Component {
   constructor (props) {
     super(props);
     this.state = this.getDefaultState();
+
+    console.log(TheStore.getState());
 
     // bind handlers
     const handlers = ['changeHash', 'downloadGeojson', 'getLeafletElementForMap', 'onAdImageClicked', 'onAreaChartHover', 'onAreaChartOff', 'onBringToFrontClick', 'onBurgessChartHover', 'onBurgessChartOff', 'onCategoryClick', 'onCategoryClose', 'onCityMarkerSelected', 'onCitySelected', 'onContactUsToggle', 'onCountrySelected', 'onDownloadClicked', 'onGradeHover', 'onGradeUnhover', 'onHOLCIDClick', 'onMapMoved', 'onModalClick', 'onNeighborhoodClose', 'onNeighborhoodHighlighted', 'onNeighborhoodPolygonClick', 'onNeighborhoodUnhighlighted', 'onPanoramaMenuClick', 'onSliderChange', 'onStateSelected', 'onToggleADView', 'onUserCityResponse', 'onWindowResize', 'storeChanged','onMapClick','onDismissIntroModal','onNeighborhoodClick','onSearchingADs', 'onMobileHandleDown', 'onMobileHandleDrag', 'onMobileHandleUp', 'toggleHOLCMap', 'toggleCityStats'];
@@ -191,6 +196,14 @@ export default class App extends React.Component {
   onCategoryClose (event) {AppActions.ADCategorySelected(null); }
 
   onCityMarkerSelected (event) {
+    const cityId = parseInt(event.target.options.id, 10);
+    const {
+      name,
+      state,
+      year,
+    } = TheStore.getState().cities[cityId];
+    citySelected(`${state}-${name}-${year}.json`);
+
     this.closeADImage();
     AppActions.citySelected(event.target.options.id, true);
   }
@@ -199,7 +212,10 @@ export default class App extends React.Component {
     event.preventDefault(); /* important as this is sometimes used in an a href there only for indexing */
     this.closeADImage();
     AppActions.onModalClick(null);
-    AppActions.citySelected(event.target.id, true);
+
+    AppActions.citySelected(parseInt(event.target.id, 10), true);
+
+
 
     this.setState({ 
       searchingADs: false,
@@ -233,7 +249,20 @@ export default class App extends React.Component {
     AppActions.mapClicked(event.target.options.id); 
   }
 
-  onMapMoved (event) { AppActions.mapMoved(this.getLeafletElementForMap()); }
+  onMapMoved() {
+    // wait a second to update 
+    setTimeout(() => {
+      const theMap = this.getLeafletElementForMap();
+      const zoom = theMap.getZoom();
+      const center = [theMap.getCenter().lat, theMap.getCenter().lng];
+      updateMap({
+        zoom,
+        center,
+      });
+    }, 1000);
+
+    AppActions.mapMoved(this.getLeafletElementForMap());
+  }
 
   onModalClick (event) {
     const subject = (event.target.id) ? (event.target.id) : null;
@@ -382,15 +411,16 @@ export default class App extends React.Component {
   /* manage hash */
 
   changeHash () {
+    const {
+      map
+    } = TheStore.getState();
+
     HashManager.updateHash({ 
       adimage: (this.state.adImageOpen) ? this.formatADHashState() : null,
       area: this.state.selectedNeighborhood,
       category: this.state.selectedCategory,
       city: CityStore.getSlug(),
-      loc: {
-        zoom: this.state.map.zoom,
-        center: this.state.map.center
-      },
+      loc: map,
       opacity: this.state.rasterOpacity,
       text: this.state.text,
       sort: (MapStateStore.getSortOrder().length > 0) ? MapStateStore.getSortOrder() : null,
@@ -471,6 +501,8 @@ export default class App extends React.Component {
   render () {
     const dimensions = DimensionsStore.getDimensions();
 
+    const { cities, selectedCity } = TheStore.getState();
+
     return (
       <div className={`container full-height ${dimensions.size}`}>
         <Masthead
@@ -481,7 +513,7 @@ export default class App extends React.Component {
 
         <div className='city-selector' style={dimensions.citySearchStyle}>
           <Typeahead
-            options={ CitiesStore.getADsList() }
+            options={ Object.keys(cities).map(adId => cities[adId]) }
             placeholder={ 'Search by city or state' }
             filterOption={ 'searchName' }
             displayOption={(city, i) => city.ad_id }
@@ -513,7 +545,7 @@ export default class App extends React.Component {
           toggleHOLCMap={this.toggleHOLCMap}
         />
 
-        { (this.state.selectedNeighborhood) &&
+        { (this.state.selectedCity && this.state.selectedNeighborhood) &&
           <SelectedNeighborhood
             adImageOpen={this.state.adImageOpen}
             areaId={this.state.selectedNeighborhood} 
@@ -528,8 +560,8 @@ export default class App extends React.Component {
             state={CityStore.getState()}
             cityId={ this.state.selectedCity }
             citySlug={ CityStore.getSlug() }
-            hasADData={ CitiesStore.hasADData(this.state.selectedCity) }
-            hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
+            hasADData={cities[this.state.selectedCity].hasADs}
+            hasADImages={cities[this.state.selectedCity].hasImages}
             onCategoryClick={ this.onCategoryClick } 
             onHOLCIDClick={ this.onHOLCIDClick } 
             onAdImageClicked={ this.onAdImageClicked }
@@ -551,7 +583,7 @@ export default class App extends React.Component {
           />
         }
 
-        { (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && this.state.showCityStats) &&
+        { (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && this.state.showCityStats && selectedCity.data) &&
           <CityStats 
             adId={ this.state.selectedCity }
             selectedGrade={this.state.selectedGrade}
@@ -567,9 +599,9 @@ export default class App extends React.Component {
             gradeSelected={ this.onAreaChartHover } 
             gradeUnselected={ this.onAreaChartOff } 
             openBurgess={ this.onModalClick }
-            hasPolygons={ CitiesStore.hasPolygons(this.state.selectedCity) }
-            hasADData={ CitiesStore.hasADData(this.state.selectedCity) }
-            hasADImages={ CitiesStore.hasADImages(this.state.selectedCity) }
+            hasPolygons={cities[this.state.selectedCity].hasPolygons}
+            hasADData={cities[this.state.selectedCity].hasADs}
+            hasADImages={cities[this.state.selectedCity].hasImages}
             forAdSearch={ AreaDescriptionsStore.getADsForSearch(this.state.selectedCity) }
             formId={ CityStore.getFormId() } 
             onDownloadClicked={ this.onDownloadClicked }
@@ -581,7 +613,7 @@ export default class App extends React.Component {
             onStateSelected={ this.onStateSelected }
             onSearchingADs={ this.onSearchingADs }
             downloadOpen={ this.state.downloadOpen }
-            rasters={ RasterStore.getMapsFromIds(CitiesStore.getMapIds(this.state.selectedCity)) }
+            rasters={RasterStore.getMapsFromIds(cities[this.state.selectedCity].mapIds)}
             downloadGeojson = { this.downloadGeojson }
             bucketPath={ CityStore.getBucketPath(this.state.selectedCity) }
             style={DimensionsStore.getSidebarStyle()}
@@ -633,7 +665,7 @@ export default class App extends React.Component {
               style={DimensionsStore.getSidebarStyle()}
               onMoveend={ this.changeHash }
             >
-              { (CitiesStore.hasADImages(this.state.selectedCity) && AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)) ? 
+              { (cities[this.state.selectedCity].hasADs && AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)) ? 
                 <TileLayer
                   key='AD'
                   url={ AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
