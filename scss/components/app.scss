@@ -22,23 +22,24 @@ body {
 	
 	.neighborhoodPolygon,
 	.ringGradedArea {
-		stroke-width: 2;
+		stroke-width: 0.5;
+		stroke: black;
 		mix-blend-mode: overlay;
 		&.gradeA {
-			stroke: $gradeA;
 			fill: $gradeA;
 		}
 		&.gradeB {
-			stroke: $gradeB;
 			fill: $gradeB;
 		}
 		&.gradeC {
-			stroke: $gradeCDark;
 			fill: $gradeCDark;
 		}
 		&.gradeD {
-			stroke: $gradeD;
 			fill: $gradeD;
+		}
+
+		&.invisible {
+			opacity: 0;
 		}
 	}
 	

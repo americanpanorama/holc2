@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { citySelected } from '../../store/Dispatchers';
 
 const Header = (props) => {
   const {
@@ -78,19 +76,4 @@ Header.propTypes = {
   toggleCityStats: PropTypes.func.isRequired,
 };
 
-const MapStateToProps = (state) => {
-  const { slug, id: adId, name, state: theState } = state.selectedCity.data;
-  return {
-    slug,
-    adId: parseInt(adId, 10),
-    name,
-    state: theState,
-  };
-};
-
-const MapDispatchToProps = {
-  onCitySelected: citySelected,
-  onStateSelected: () => { return },
-};
-
-export default connect(MapStateToProps, MapDispatchToProps)(Header);
+export default Header;

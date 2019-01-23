@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import SidebarNeighborhoodNav from './SidebarNeighborhoodNav.jsx';
 import SidebarNeighborhoodTitle from './SidebarNeighborhoodTitle.jsx';
-import HOLCMap from './HOLCMap/HOLCMap.jsx';
+import HOLCMap from './HOLCMap/presentational/HOLCMap.jsx';
 
 export default class SidebarMap extends React.Component {
 

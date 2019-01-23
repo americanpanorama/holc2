@@ -2,6 +2,7 @@ const fs = require('fs');
 const events = require('events');
 const request = require('request');
 const Polylabel = require('polylabel');
+const GeojsonArea = require('@mapbox/geojson-area');
 const stateAbbrs = require('../data/state_abbr.json');
 
 const eventEmitter = new events.EventEmitter();
@@ -180,7 +181,7 @@ const createCitiesData = () => {
       Object.keys(cities.rows).forEach((i) => {
         const c = cities.rows[i];
         citiesData[c.ad_id] = {
-          ad_id: c.ad_id,
+          ad_id: parseInt(c.ad_id),
           name: c.city,
           state: c.state,
           year: (c.year) ? c.year.replace(/(\r\n\t|\n|\r\t)/gm, '') : null,
@@ -263,17 +264,18 @@ const createCitiesData = () => {
 const createCityData = (cityId) => {
   const c = citiesData[cityId];
   const cityData = {
-    id: cityId,
+    id: parseInt(cityId),
     name: c.name,
     state: c.state,
     year: c.year,
     slug: c.slug,
     form_id: c.form_id,
     bucketPath: `//s3.amazonaws.com/holc/tiles/${c.state}/MAPPARENTFILENAME/${c.year}/`,
+    polygons: {},
   };
 
   const cityDataSelected = {
-    id: cityId,
+    id: parseInt(cityId),
     loopLatLng: [c.centerLat, c.centerLng],
   };
 
@@ -419,7 +421,7 @@ const createCityData = (cityId) => {
           cityDataSelected.inverted_geojson = null;
         }
 
-        // get the area descriptions
+        // get the area descriptions and calculate label positions
         const queryADs = `SELECT holc_ads.city_id as ad_id, dir_name, holc_ads.year, holc_ads.state, holc_polygons.name, sheets, form_id, holc_id, holc_grade, polygon_id, cat_id, sub_cat_id, _order as order, data, ST_asgeojson (holc_polygons.the_geom, 4) as the_geojson, round(st_xmin(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbxmin, round(st_ymin(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbymin, round(st_xmax(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbxmax, round(st_ymax(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbymax, round(st_y(st_centroid(holc_polygons.the_geom))::numeric, 3) as centerlat, round(st_x(st_centroid(holc_polygons.the_geom))::numeric, 3) as centerlng, round((st_area(holc_polygons.the_geom::geography)/1000000 * 0.386102)::numeric, 3) as sqmi FROM holc_ad_data right join holc_polygons on holc_ad_data.polygon_id = holc_polygons.neighborhood_id join holc_ads on city_id = holc_polygons.ad_id where holc_ads.city_id = ${cityId}`;
         request({
           url: `${url}${queryADs}`,
@@ -428,6 +430,40 @@ const createCityData = (cityId) => {
           const theADs = theADsRaw.rows;
           cityDataSelected.areaDescriptions = {};
           if (theADs && theADs.length > 0) {
+            // determine the label position
+            cityDataSelected.labelPositions = theADs
+              .filter((d, i) => theADs.findIndex(a => a.holc_id === d.holc_id) === i)
+              .map(ad => ({ the_geojson: JSON.parse(ad.the_geojson), id: ad.holc_id }))
+              .filter(d => d.the_geojson.coordinates)
+              .map((d) => {
+                let labelCoords;
+                // find the largest polygon
+                let largest = 0;
+                let iOfLargest = 0;
+                if (d.the_geojson.type === 'MultiPolygon') {
+                  d.the_geojson.coordinates.forEach((coordinates, j) => {
+                    const area = GeojsonArea.geometry({ type: 'Polygon', coordinates });
+                    if (area > largest) {
+                      iOfLargest = j;
+                      largest = area;
+                    }
+                  });
+                }
+
+                // select the polygon to use
+                const theCoords = d.the_geojson.coordinates[iOfLargest];
+
+                // calculate the point
+                if (theCoords) {
+                  labelCoords = Polylabel(theCoords, 0.0001);
+                  labelCoords = [labelCoords[1], labelCoords[0]];
+                }
+                return {
+                  id: d.id,
+                  point: labelCoords,
+                };
+              });
+
             cityDataSelected.areaDescriptions.form_id = theADs[0].form_id;
 
             cityDataSelected.areaDescriptions.byNeighborhood = ((rawAdData) => {
@@ -439,22 +475,19 @@ const createCityData = (cityId) => {
                 const urlPath = `${d.state}/${d.dir_name}/${d.year}/`;
                 const adImageUrl = `${bucketUrl}ads/${urlPath}${d.holc_id}`;
 
+                // append the polygons to the city data--probably refactor as this is not where this should go
+                cityData.polygons[d.holc_id] = (cityData.polygons[d.holc_id]) ? cityData.polygons[d.holc_id] : {};
+                cityData.polygons[d.holc_id].id = d.holc_id;
+                cityData.polygons[d.holc_id].grade = d.holc_grade;
+                cityData.polygons[d.holc_id].area_geojson = (!cityData.polygons[d.holc_id].area_geojson)
+                  ? JSON.parse(d.the_geojson)
+                  : cityData.polygons[d.holc_id].area_geojson;
+
                 // define id if undefined
                 if (typeof adData[d.holc_id] === 'undefined') {
                   adData[d.holc_id] = {};
                 }
 
-
-                let labelCoords = [d.centerlat, d.centerlng];
-                const coords = JSON.parse(d.the_geojson).coordinates[0];
-                if (coords.length === 1) {
-                  labelCoords = Polylabel(coords, 0.0001);
-                  labelCoords = [labelCoords[1], labelCoords[0]];
-                }
-
-                adData[d.holc_id].area_geojson = (!adData[d.holc_id].area_geojson)
-                  ? JSON.parse(d.the_geojson)
-                  : adData[d.holc_id].area_geojson;
                 adData[d.holc_id].area_geojson_inverted = (!adData[d.holc_id].area_geojson_inverted)
                   ? ((geojson) => {
                     //Create a new set of latlngs, adding our world-sized ring first
@@ -475,7 +508,6 @@ const createCityData = (cityId) => {
                     return geojson;
                   })(JSON.parse(d.the_geojson))
                   : adData[d.holc_id].area_geojson_inverted;
-                adData[d.holc_id].labelCoords = labelCoords;
                 adData[d.holc_id].center = [d.centerlat, d.centerlng];
                 adData[d.holc_id].boundingBox = [[d.bbymin, d.bbxmin], [d.bbymax, d.bbxmax]];
                 adData[d.holc_id].name = d.name;
@@ -527,7 +559,7 @@ const createCityData = (cityId) => {
           }
 
           // write the files
-          const fileName = encodeURIComponent(`${cityData.state}-${cityData.name}-${cityData.year}.json`);
+          const fileName = `${`${cityData.state}-${cityData.name}-${cityData.year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
           fs.writeFileSync(`../static/cities/${fileName}`, JSON.stringify(cityData));
           fs.writeFileSync(`../build/static/cities/${fileName}`, JSON.stringify(cityData));
           console.log(`wrote cities/${fileName}`);

@@ -39,9 +39,11 @@
     "react-redux": "^6.0.0",
     "react-typeahead": "^2.0.0-alpha.8",
     "redux": "^4.0.1",
+    "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
+    "@mapbox/geojson-area": "^0.2.2",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^7.1.5",

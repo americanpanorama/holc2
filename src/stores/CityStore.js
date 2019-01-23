@@ -114,7 +114,6 @@ const CityStore = {
               Object.keys(json2).forEach((key) => {
                 this.data[key] = json2[key];
               });
-              console.log(this.data);
               this.data.hasLoaded = true;
               this.emit(AppActionTypes.storeChanged);
             })

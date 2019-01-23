@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Path, withLeaflet }  from 'react-leaflet';
+import { Path, withLeaflet } from 'react-leaflet';
 
 class AreaPolygon extends Path {
 
@@ -27,5 +27,5 @@ class AreaPolygon extends Path {
 export default withLeaflet(AreaPolygon);
 
 AreaPolygon.propTypes = {
-  data: PropTypes.object.isRequired
+  data: PropTypes.object.isRequired,
 };

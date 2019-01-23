@@ -2,9 +2,11 @@ import * as React from 'react';
 import { Provider } from 'react-redux';
 //import "babel-polyfill";
 //import './utils/carto.js';
+import { Map, TileLayer } from 'react-leaflet';
+import { Typeahead } from 'react-typeahead';
 
 import TheStore from './store';
-import { citySelected, updateMap } from './store/Dispatchers';
+import { citySelected, updateMap } from './store/Actions';
 
 // stores
 import AreaDescriptionsStore from './stores/AreaDescriptionsStore';
@@ -18,25 +20,20 @@ import TextsStore from './stores/TextsStore';
 import HashManager from './stores/HashManager';
 
 // components (views)
-import ADCat from './components/ADCat.jsx';
-import SelectedNeighborhood from './components/SelectedNeighborhood.jsx';
-import Burgess from './components/Burgess.jsx';
-//import { Navigation } from '@panorama/toolkit';
-import CitySnippet from './components/City/CitySnippet.jsx';
-import CityStats from './components/City/Stats.jsx';
-import CityStatsButton from './components/CityStatsButton.jsx';
-import ContactUs from './components/ContactUs.jsx';
-import { icon } from 'leaflet';
-import { Map, LayerGroup, TileLayer } from 'react-leaflet';
-import Masthead from './components/Masthead.jsx';
-import StateList from './components/StateList.jsx';
-import { Typeahead } from 'react-typeahead';
-import TypeAheadCitySnippet from './components/TypeAheadCitySnippet.jsx';
-import HOLCMap from './components/HOLCMap/HOLCMap.jsx';
-import Sidebar from './components/Sidebar';
-import SidebarMap from './components/SidebarMap.jsx';
-import IntroModal from './components/IntroModal.jsx';
-import MapToggleControl from './components/MapToggleControl.jsx';
+import HOLCMap from './components/HOLCMap/containers/HOLCMap';
+import Sidebar from './components/Sidebar/containers/Sidebar';
+import ADCat from './components/ADCat';
+import SelectedNeighborhood from './components/SelectedNeighborhood';
+import Burgess from './components/Burgess';
+import CitySnippet from './components/City/CitySnippet';
+import CityStatsButton from './components/CityStatsButton';
+import ContactUs from './components/ContactUs';
+import Masthead from './components/Masthead';
+import StateList from './components/StateList';
+import Search from './components/Search/containers/Search';
+
+import SidebarMap from './components/SidebarMap';
+import IntroModal from './components/IntroModal';
 
 
 // utils
@@ -52,8 +49,6 @@ export default class App extends React.Component {
   constructor (props) {
     super(props);
     this.state = this.getDefaultState();
-
-    console.log(TheStore.getState());
 
     // bind handlers
     const handlers = ['changeHash', 'downloadGeojson', 'getLeafletElementForMap', 'onAdImageClicked', 'onAreaChartHover', 'onAreaChartOff', 'onBringToFrontClick', 'onBurgessChartHover', 'onBurgessChartOff', 'onCategoryClick', 'onCategoryClose', 'onCityMarkerSelected', 'onCitySelected', 'onContactUsToggle', 'onCountrySelected', 'onDownloadClicked', 'onGradeHover', 'onGradeUnhover', 'onHOLCIDClick', 'onMapMoved', 'onModalClick', 'onNeighborhoodClose', 'onNeighborhoodHighlighted', 'onNeighborhoodPolygonClick', 'onNeighborhoodUnhighlighted', 'onPanoramaMenuClick', 'onSliderChange', 'onStateSelected', 'onToggleADView', 'onUserCityResponse', 'onWindowResize', 'storeChanged','onMapClick','onDismissIntroModal','onNeighborhoodClick','onSearchingADs', 'onMobileHandleDown', 'onMobileHandleDrag', 'onMobileHandleUp', 'toggleHOLCMap', 'toggleCityStats'];
@@ -98,7 +93,7 @@ export default class App extends React.Component {
     UserLocationStore.addListener(AppActionTypes.storeChanged, this.storeChanged);
     TextsStore.addListener(AppActionTypes.storeChanged, this.storeChanged);
 
-    AppActions.mapInitialized(this.getLeafletElementForMap(), this.props.initialHashState);
+    //AppActions.mapInitialized(this.getLeafletElementForMap(), this.props.initialHashState);
 
     // // you have to wait until there's a map to query to get and initialize the visible maps
     // const waitingId = setInterval(() => {
@@ -108,10 +103,6 @@ export default class App extends React.Component {
     //   }
     // }, 10);
   }
-
-  componentWillUnmount () { }
-
-  componentDidUpdate () { this.changeHash(); }
 
   /* state methods */
 
@@ -195,14 +186,9 @@ export default class App extends React.Component {
 
   onCategoryClose (event) {AppActions.ADCategorySelected(null); }
 
-  onCityMarkerSelected (event) {
+  onCityMarkerSelected(event) {
     const cityId = parseInt(event.target.options.id, 10);
-    const {
-      name,
-      state,
-      year,
-    } = TheStore.getState().cities[cityId];
-    citySelected(`${state}-${name}-${year}.json`);
+    citySelected(cityId);
 
     this.closeADImage();
     AppActions.citySelected(event.target.options.id, true);
@@ -255,10 +241,12 @@ export default class App extends React.Component {
       const theMap = this.getLeafletElementForMap();
       const zoom = theMap.getZoom();
       const center = [theMap.getCenter().lat, theMap.getCenter().lng];
-      updateMap({
+      const bounds = theMap.getBounds();
+      TheStore.dispatch(updateMap({
         zoom,
         center,
-      });
+        bounds,
+      }));
     }, 1000);
 
     AppActions.mapMoved(this.getLeafletElementForMap());
@@ -511,185 +499,122 @@ export default class App extends React.Component {
           onContactUsToggle={this.onContactUsToggle}
         />
 
-        <div className='city-selector' style={dimensions.citySearchStyle}>
-          <Typeahead
-            options={ Object.keys(cities).map(adId => cities[adId]) }
-            placeholder={ 'Search by city or state' }
-            filterOption={ 'searchName' }
-            displayOption={(city, i) => city.ad_id }
-            onOptionSelected={ this.onCitySelected }
-            customListComponent={ TypeAheadCitySnippet }
-            maxVisible={ 8 }
-          />
-        </div>
+        <Search />
+        <HOLCMap />
+        <Sidebar />
 
-        <HOLCMap
-          ref='holc_map'
-          state={this.state}
-          selectedCity={this.state.selectedCity}
-          onMapMoved={this.onMapMoved}
-          onNeighborhoodPolygonClick={this.onNeighborhoodPolygonClick}
-          onNeighborhoodInvertedPolygonClick={this.onNeighborhoodClose}
-          onCityMarkerSelected= {this.onCityMarkerSelected}
-          onSliderChange={this.onSliderChange}
-          onCountryClick={this.onCountrySelected}
-          onMapClick={this.onMapClick}
-          isSearchingADs={this.state.searchingADs}
-          searchingADsAreas={this.state.searchingADsAreas}
-          style={dimensions.mapStyle}
-        />
+        { (false) &&
+          <React.Fragment>
+            { (this.state.selectedCity && this.state.selectedNeighborhood) &&
+              <SelectedNeighborhood
+                adImageOpen={this.state.adImageOpen}
+                areaId={this.state.selectedNeighborhood} 
+                previousAreaId={ AreaDescriptionsStore.getPreviousHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
+                nextAreaId={ AreaDescriptionsStore.getNextHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
+                neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
+                areaDescriptions={ AreaDescriptionsStore.getADsForNeighborhood(this.state.selectedCity, this.state.selectedNeighborhood) }
+                thumbnailUrl={ AreaDescriptionsStore.getThumbnailUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
+                sheets={ AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood) }
+                formId={ CityStore.getFormId() } 
+                city={CityStore.getName()}
+                state={CityStore.getState()}
+                cityId={ this.state.selectedCity }
+                citySlug={ CityStore.getSlug() }
+                hasADData={cities[this.state.selectedCity].hasADs}
+                hasADImages={cities[this.state.selectedCity].hasImages}
+                onCategoryClick={ this.onCategoryClick } 
+                onHOLCIDClick={ this.onHOLCIDClick } 
+                onAdImageClicked={ this.onAdImageClicked }
+                onToggleADView={ this.onToggleADView }
+                onClose={ this.onNeighborhoodClose }
+                ref={'areadescription' + this.state.selectedNeighborhood } 
+                previousStyle={ DimensionsStore.getADNavPreviousStyle() }
+                nextStyle={ DimensionsStore.getADNavNextStyle() }
+                show={ AreaDescriptionsStore.show() }
+                style={DimensionsStore.getSidebarStyle()}
+                headerStyle={dimensions.selectedNeighborhoodHeaderStyle}
+                ADTranscriptionStyle={dimensions.ADTranscriptionStyle}
+                ADImageStyle={dimensions.ADImageStyle}
+                center={[this.getADY(),this.getADX()]}
+                zoom={this.getADZoom()}
+                maxBounds={this.getADMaxBounds()}
+                ADTileUrl={AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)}
+                onMoveend={this.changeHash}
+              />
+            }
 
-        <MapToggleControl
-          opacity={this.state.rasterOpacity}
-          style={dimensions.mapToggleStyle}
-          toggleHOLCMap={this.toggleHOLCMap}
-        />
+            { (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && !this.state.showCityStats) &&
+              <CityStatsButton
+                name={ CityStore.getName() }
+                state={ CityStore.getState() }
+                toggleCityStats={this.toggleCityStats}
+                style={dimensions.cityStatsButtonStyle}
+              />
+            }
 
-        { (this.state.selectedCity && this.state.selectedNeighborhood) &&
-          <SelectedNeighborhood
-            adImageOpen={this.state.adImageOpen}
-            areaId={this.state.selectedNeighborhood} 
-            previousAreaId={ AreaDescriptionsStore.getPreviousHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
-            nextAreaId={ AreaDescriptionsStore.getNextHOLCId(this.state.selectedCity, this.state.selectedNeighborhood) }
-            neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
-            areaDescriptions={ AreaDescriptionsStore.getADsForNeighborhood(this.state.selectedCity, this.state.selectedNeighborhood) }
-            thumbnailUrl={ AreaDescriptionsStore.getThumbnailUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
-            sheets={ AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood) }
-            formId={ CityStore.getFormId() } 
-            city={CityStore.getName()}
-            state={CityStore.getState()}
-            cityId={ this.state.selectedCity }
-            citySlug={ CityStore.getSlug() }
-            hasADData={cities[this.state.selectedCity].hasADs}
-            hasADImages={cities[this.state.selectedCity].hasImages}
-            onCategoryClick={ this.onCategoryClick } 
-            onHOLCIDClick={ this.onHOLCIDClick } 
-            onAdImageClicked={ this.onAdImageClicked }
-            onToggleADView={ this.onToggleADView }
-            onClose={ this.onNeighborhoodClose }
-            ref={'areadescription' + this.state.selectedNeighborhood } 
-            previousStyle={ DimensionsStore.getADNavPreviousStyle() }
-            nextStyle={ DimensionsStore.getADNavNextStyle() }
-            show={ AreaDescriptionsStore.show() }
-            style={DimensionsStore.getSidebarStyle()}
-            headerStyle={dimensions.selectedNeighborhoodHeaderStyle}
-            ADTranscriptionStyle={dimensions.ADTranscriptionStyle}
-            ADImageStyle={dimensions.ADImageStyle}
-            center={[this.getADY(),this.getADX()]}
-            zoom={this.getADZoom()}
-            maxBounds={this.getADMaxBounds()}
-            ADTileUrl={AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)}
-            onMoveend={this.changeHash}
-          />
-        }
-
-        { (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && this.state.showCityStats && selectedCity.data) &&
-          <CityStats 
-            adId={ this.state.selectedCity }
-            selectedGrade={this.state.selectedGrade}
-            name={ CityStore.getName() }
-            state={ CityStore.getState() }
-            slug={ CityStore.getSlug() }
-            area={ AreaDescriptionsStore.getArea(this.state.selectedCity) } 
-            gradeStats={ CityStore.getGradeStats() } 
-            ringStats={ CityStore.getRingStats() } 
-            popStats={ CitiesStore.getDisplayPopStats(this.state.selectedCity) }
-            areaSelected={ this.onBurgessChartHover } 
-            areaUnselected={ this.onBurgessChartOff } 
-            gradeSelected={ this.onAreaChartHover } 
-            gradeUnselected={ this.onAreaChartOff } 
-            openBurgess={ this.onModalClick }
-            hasPolygons={cities[this.state.selectedCity].hasPolygons}
-            hasADData={cities[this.state.selectedCity].hasADs}
-            hasADImages={cities[this.state.selectedCity].hasImages}
-            forAdSearch={ AreaDescriptionsStore.getADsForSearch(this.state.selectedCity) }
-            formId={ CityStore.getFormId() } 
-            onDownloadClicked={ this.onDownloadClicked }
-            onNeighborhoodClick={ this.onNeighborhoodClick }
-            onNeighborhoodHighlighted={ this.onNeighborhoodHighlighted }
-            onNeighborhoodUnhighlighted={ this.onNeighborhoodUnhighlighted }
-            toggleCityStats={this.toggleCityStats}
-            onCitySelected={ this. onCitySelected }
-            onStateSelected={ this.onStateSelected }
-            onSearchingADs={ this.onSearchingADs }
-            downloadOpen={ this.state.downloadOpen }
-            rasters={RasterStore.getMapsFromIds(cities[this.state.selectedCity].mapIds)}
-            downloadGeojson = { this.downloadGeojson }
-            bucketPath={ CityStore.getBucketPath(this.state.selectedCity) }
-            style={DimensionsStore.getSidebarStyle()}
-          />
-        }
-
-        { (!this.state.selectedNeighborhood && !this.state.selectedCategory && this.state.selectedCity && !this.state.showCityStats) &&
-          <CityStatsButton
-            name={ CityStore.getName() }
-            state={ CityStore.getState() }
-            toggleCityStats={this.toggleCityStats}
-            style={dimensions.cityStatsButtonStyle}
-          />
-        }
-
-        { (this.state.selectedCategory) &&
-          <ADCat 
-            ADsByCat={ AreaDescriptionsStore.getADsForCategory(this.state.selectedCity, this.state.selectedCategory) }
-            neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
-            formId = { AreaDescriptionsStore.getFormId(this.state.selectedCity) }
-            title={ AreaDescriptionsStore.getCatTitle(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
-            catNum={ this.getCatNum() } 
-            catLetter = { this.getCatLetter() } 
-            previousCatIds = { AreaDescriptionsStore.getPreviousCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
-            nextCatIds = { AreaDescriptionsStore.getNextCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
-            cityId={ this.state.selectedCity }
-            onNeighborhoodClick={ this.onHOLCIDClick } 
-            onCategoryClick={ this.onCategoryClick } 
-            onNeighborhoodHover={ this.onNeighborhoodHighlighted } 
-            onNeighborhoodOut={ this.onNeighborhoodUnhighlighted } 
-            previousStyle={ DimensionsStore.getADNavPreviousStyle() }
-            nextStyle={ DimensionsStore.getADNavNextStyle() }
-            onClose={ this.onCategoryClose }
-            style={DimensionsStore.getSidebarStyle()}
-          />
-        }
+            { (this.state.selectedCategory) &&
+              <ADCat 
+                ADsByCat={ AreaDescriptionsStore.getADsForCategory(this.state.selectedCity, this.state.selectedCategory) }
+                neighborhoodNames={ AreaDescriptionsStore.getNeighborhoodNames(this.state.selectedCity) }
+                formId = { AreaDescriptionsStore.getFormId(this.state.selectedCity) }
+                title={ AreaDescriptionsStore.getCatTitle(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
+                catNum={ this.getCatNum() } 
+                catLetter = { this.getCatLetter() } 
+                previousCatIds = { AreaDescriptionsStore.getPreviousCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
+                nextCatIds = { AreaDescriptionsStore.getNextCatIds(this.state.selectedCity, this.getCatNum(), this.getCatLetter()) }
+                cityId={ this.state.selectedCity }
+                onNeighborhoodClick={ this.onHOLCIDClick } 
+                onCategoryClick={ this.onCategoryClick } 
+                onNeighborhoodHover={ this.onNeighborhoodHighlighted } 
+                onNeighborhoodOut={ this.onNeighborhoodUnhighlighted } 
+                previousStyle={ DimensionsStore.getADNavPreviousStyle() }
+                nextStyle={ DimensionsStore.getADNavNextStyle() }
+                onClose={ this.onCategoryClose }
+                style={DimensionsStore.getSidebarStyle()}
+              />
+            }
 
 
-        { (false && this.state.selectedNeighborhood && this.state.adImageOpen) &&
-          (AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood)) ?
-            <Map 
-              ref='the_ad_tiles' 
-              center={ [this.getADY(),this.getADX()] } 
-              zoom={ this.getADZoom() }
-              minZoom={ 3 }
-              maxZoom={ 5 }
-              maxBounds={ this.getADMaxBounds() }
-              className='sidebar'
-              style={DimensionsStore.getSidebarStyle()}
-              onMoveend={ this.changeHash }
-            >
-              { (cities[this.state.selectedCity].hasADs && AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)) ? 
-                <TileLayer
-                  key='AD'
-                  url={ AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
-                  zIndex={ 1000 }
-                  detectRetina={true}
-                />:
-                null
-              }
+            { (false && this.state.selectedNeighborhood && this.state.adImageOpen) &&
+              (AreaDescriptionsStore.getSheets(this.state.selectedCity, this.state.selectedNeighborhood)) ?
+                <Map 
+                  ref='the_ad_tiles' 
+                  center={ [this.getADY(),this.getADX()] } 
+                  zoom={ this.getADZoom() }
+                  minZoom={ 3 }
+                  maxZoom={ 5 }
+                  maxBounds={ this.getADMaxBounds() }
+                  className='sidebar'
+                  style={DimensionsStore.getSidebarStyle()}
+                  onMoveend={ this.changeHash }
+                >
+                  { (cities[this.state.selectedCity].hasADs && AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood)) ? 
+                    <TileLayer
+                      key='AD'
+                      url={ AreaDescriptionsStore.getAdTileUrl(this.state.selectedCity, this.state.selectedNeighborhood) }
+                      zIndex={ 1000 }
+                      detectRetina={true}
+                    />:
+                    null
+                  }
 
-            {/* JSX Comment 
-              <Legend 
-                items={ [ 'Close' ] }
-                className='adClose' 
-                onItemSelected={ this.onAdImageClicked } 
-              /> */}
-            </Map> :
-            ''
+                {/* JSX Comment 
+                  <Legend 
+                    items={ [ 'Close' ] }
+                    className='adClose' 
+                    onItemSelected={ this.onAdImageClicked } 
+                  /> */}
+                </Map> :
+                ''
 
-        }
+            }
           {/* JSX Comment 
             <div className='longishForm noAD'>
               <p>An area description is not available for this neighborhood.</p>
             </div> */}
 
+          </React.Fragment>
+        }
       {/* JSX Comment 
         { (dimensions.size !== 'mobile') && 
           <Navigation 

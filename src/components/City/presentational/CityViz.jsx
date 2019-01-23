@@ -1,7 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { gradeSelected, gradeUnselected } from '../../store/Dispatchers';
 
 const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselected }) => {
   if (!gradeStats) {
@@ -120,19 +118,4 @@ CityViz.defaultProps = {
   gradeStats: undefined,
 };
 
-const mapStateToProps = (state) => {
-  const { gradeStats } = state.selectedCity.data;
-  const { selectedGrade } = state;
-  return {
-    gradeStats,
-    selectedGrade,
-    width: 400,
-  };
-};
-
-const mapDispatchToProps = {
-  gradeSelected,
-  gradeUnselected,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CityViz);
+export default CityViz;

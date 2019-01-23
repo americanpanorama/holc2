@@ -39,3 +39,6 @@ node_modules
 # misc project-specifics
 basemaps/cartodb/config.json
 dist
+build
+static/cities
+static/citiesSelected

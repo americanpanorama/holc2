@@ -1,8 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import { connect } from 'react-redux';
-import { ringAreaSelected, ringAreaUnselected } from '../../store/Dispatchers';
 
 const BurgessViz = ({ width, ringStats, selectedRingGrade, selectedGrade, areaSelected, areaUnselected }) => {
   if (!ringStats || ringStats.length === 0) {
@@ -142,19 +140,4 @@ BurgessViz.defaultProps = {
   ringStats: undefined,
 };
 
-const mapStateToProps = (state) => {
-  const { selectedRingGrade, selectedGrade, ringStats } = state.selectedCity.data;
-  return {
-    selectedRingGrade,
-    selectedGrade,
-    ringStats,
-    width: 400,
-  };
-};
-
-const mapDispatchToProps = {
-  areaSelected: ringAreaSelected,
-  areaUnselected: ringAreaUnselected,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(BurgessViz);
+export default BurgessViz;

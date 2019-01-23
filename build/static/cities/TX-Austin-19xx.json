@@ -1,1 +1,1 @@
-{"id":"152","name":"Austin","state":"TX","year":"19xx","slug":"austin-tx","form_id":0,"bucketPath":"//s3.amazonaws.com/holc/tiles/TX/MAPPARENTFILENAME/19xx/","polygonBoundingBox":null,"polygonsCenter":null}
+{"id":152,"name":"Austin","state":"TX","year":"19xx","slug":"austin-tx","form_id":0,"bucketPath":"//s3.amazonaws.com/holc/tiles/TX/MAPPARENTFILENAME/19xx/","polygons":{},"polygonBoundingBox":null,"polygonsCenter":null}

@@ -1,29 +1,31 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as L from 'leaflet';
+import { Map, TileLayer, GeoJson, GeoJSON,  Circle, LayerGroup, Marker, setIconDefaultImagePath, CircleMarker, Tooltip } from 'react-leaflet';
 
 // stores
-import AreaDescriptionsStore from '../../stores/AreaDescriptionsStore';
-import CitiesStore from '../../stores/CitiesStore';
-import CityStore from '../../stores/CityStore';
-import MapStateStore from '../../stores/MapStateStore';
-import RasterStore from '../../stores/RasterStore';
-import UserLocationStore from '../../stores/UserLocationStore';
-import DimensionsStore from '../../stores/DimensionsStore';
+import AreaDescriptionsStore from '../../../stores/AreaDescriptionsStore';
+import CitiesStore from '../../../stores/CitiesStore';
+import CityStore from '../../../stores/CityStore';
+import MapStateStore from '../../../stores/MapStateStore';
+import RasterStore from '../../../stores/RasterStore';
+import UserLocationStore from '../../../stores/UserLocationStore';
+import DimensionsStore from '../../../stores/DimensionsStore';
 
 // components
-import { Map, TileLayer, GeoJson, GeoJSON,  Circle, LayerGroup, Marker, setIconDefaultImagePath, CircleMarker, Tooltip } from 'react-leaflet';
 //import { Legend } from '@panorama/toolkit';
-import CartoDBTileLayer from './CartoDBTileLayer.jsx';
-//import { CartoDBTileLayerProd, Legend } from '../../../panorama';
+import CartoDBTileLayer from '../CartoDBTileLayer';
+//import { CartoDBTileLayerProd, Legend } from '../../../../panorama';
 //import AreaPolygon from './AreaPolygon.jsx';
-import Donut from './Donut/Donut.jsx';
-import Slider from 'rc-slider';
+import Donut from '../Donut/Donut.jsx';
+
+import BaseMap from '../containers/BaseMap';
+import ClickableCities from '../containers/ClickableCities';
 
 
-import cartodbConfig from '../../../basemaps/cartodb/config.json';
-import cartodbLayers from '../../../basemaps/cartodb/basemaps.json';
-import tileLayers from '../../../basemaps/tileLayers.json';
+import cartodbConfig from '../../../../basemaps/cartodb/config.json';
+import cartodbLayers from '../../../../basemaps/cartodb/basemaps.json';
+import tileLayers from '../../../../basemaps/tileLayers.json';
 
 export default class HOLCMap extends React.Component {
 
@@ -112,13 +114,7 @@ export default class HOLCMap extends React.Component {
         id='the_map'
         style={this.props.style}
       >
-
-        {/* base map */}
-        <TileLayer
-          key={ (aboveThreshold) ? 'labels' : 'noLabels' }
-          url={ this._basemapUrl() }
-          zIndex={ -1 }
-        />
+        <BaseMap />
 
         {/* holc tiles */}
         { (aboveThreshold) ?
@@ -359,19 +355,7 @@ export default class HOLCMap extends React.Component {
 
         {/* cartogram marker for city: shown below zoom level 10; it's invisible but used for selection */}
         {(!aboveThreshold) &&
-          CitiesStore.getADsList().map((item, i) => {
-            return (!isNaN(item.centerLat) && !isNaN(item.centerLng) ?
-              <Circle
-                center={ [item.centerLat, item.centerLng] }
-                radius={ 27000 }
-                id={ item.ad_id }
-                onClick={ this.props.onCityMarkerSelected }
-                key={ 'clickableMap' + item.ad_id }
-                className={ 'cityCircle '}
-              /> :
-              null
-            );
-          })
+          <ClickableCities />
         }
 
         {/* text labels for cities */}
