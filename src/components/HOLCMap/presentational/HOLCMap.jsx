@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Map } from 'react-leaflet';
+import { Map, ZoomControl } from 'react-leaflet';
+// import * as L from 'leaflet';
+// import Proj4 from 'proj4leaflet';
 
 import BaseMap from '../containers/BaseMap';
 import ClickableCities from '../containers/ClickableCities';
@@ -41,15 +43,21 @@ export default class HOLCMap extends React.Component {
   }
 
   render() {
-    const { zoom, center, style } = this.props;
+    const { zoom, center, style, className } = this.props;
+    // const crsParams = {
+    //   bounds: [
+    //     [-8040784.5135, -2577524.9210], [3668901.4484, 4785105.1096]
+    //   ],
+    // };
+    // const crs = new Proj4.CRS('EPSG:2163', '+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 ' + '+a=6370997 +b=6370997 +units=m +no_defs'),
+    //   crsParams);
     return (
       <React.Fragment>
         <Map
           zoom={zoom}
           center={center}
           id="the_map"
-          className="the_map"
-          style={style}
+          className={`${className}`}
           ref={this.map}
           onMoveend={this.onMapMoved}
         >
@@ -69,6 +77,7 @@ export default class HOLCMap extends React.Component {
 HOLCMap.propTypes = {
   zoom: PropTypes.number.isRequired,
   center: PropTypes.arrayOf(PropTypes.number).isRequired,
+  className: PropTypes.string.isRequired,
   style: PropTypes.shape({
     height: PropTypes.number,
   }).isRequired,

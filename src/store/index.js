@@ -19,6 +19,7 @@ const hashManager = store => next => (action) => {
   const newHash = {
     loc: `${zoom}/${lat}/${lng}`,
     city: (selectedCityData) ? selectedCityData.slug : null,
+    area: nextState.selectedArea,
   };
   const hash = `#${Object.keys(newHash)
     .filter(k => newHash[k])

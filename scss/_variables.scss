@@ -6,8 +6,8 @@ $header-height: 100px;
 // colors
 $background: #212525;
 $text-color: #454545;
-$gradeA: #418e41;
-$gradeB: #4a4ae4;
-$gradeC: #ffdf00; /* #f4f570; */
-$gradeD: #eb3f3f;
+$gradeA: #76a865; /* #418e41; */
+$gradeB: saturate(#7cb5bd, 0%);
+$gradeC: #d8d165; /* #f4f570; */
+$gradeD: saturate(#d9838d, 0%);
 $gradeCDark: #ffdf00;

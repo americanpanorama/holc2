@@ -5,6 +5,7 @@ const mapStateToProps = state => ({
   url: state.basemap,
   key: (state.map.zoom >= 9) ? 'labels' : 'noLabels',
   zIndex: -1,
+  detectRetina: true,
 });
 
 export default connect(mapStateToProps)(TileLayer);

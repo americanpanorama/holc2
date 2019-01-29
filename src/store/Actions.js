@@ -271,6 +271,14 @@ export const toggleCityStatsOnOff = () => ({
   type: Actions.TOGGLE_CITY_STATS,
 });
 
+export const toggleADSelections = () => ({
+  type: Actions.TOGGLE_AD_SELECTION,
+});
+
+export const toggleADTranscription = () => ({
+  type: Actions.TOGGLE_AD_TRANSCRIPTION,
+});
+
 //export const updateMap = zoomAndCenter => TheStore.dispatch(mapAction(zoomAndCenter));
 export const citySelected = (eOrId) => {
   let id = eOrId;

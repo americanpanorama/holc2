@@ -32,7 +32,7 @@ const calculateDimensions = () => {
   }
 
   dimensions.headerStyle = {
-    width: dimensions.headerWidth,
+    //width: dimensions.headerWidth,
     height: dimensions.headerHeight,
   };
 
@@ -60,10 +60,10 @@ const calculateDimensions = () => {
   }
 
   dimensions.sidebarStyle = {
-    height: dimensions.sidebarHeight,
+    maxHeight: dimensions.sidebarHeight,
     width: dimensions.sidebarWidth,
     right: dimensions.sidebarRight,
-    bottom: dimensions.sidebarBottom,
+    top: dimensions.headerHeight + dimensions.containerPadding,
     left: dimensions.sidebarLeft || 'auto',
   };
 
@@ -84,9 +84,6 @@ const calculateDimensions = () => {
   };
 
   dimensions.mapToggleStyle = {
-    position: 'fixed',
-    width: 200,
-    top: dimensions.headerHeight + 20,
     left: dimensions.windowWidth / 3 - 100,
   };
 
@@ -109,7 +106,7 @@ const calculateDimensions = () => {
 
   dimensions.ADImageStyle = {
     position: 'fixed',
-    height: dimensions.sidebarStyle.height - dimensions.selectedNeighborhoodHeaderStyle.height,
+    height: dimensions.sidebarHeight - dimensions.selectedNeighborhoodHeaderStyle.height,
     width: dimensions.sidebarStyle.width,
     top: dimensions.selectedNeighborhoodHeaderStyle.top + dimensions.selectedNeighborhoodHeaderStyle.height,
     right: 20,

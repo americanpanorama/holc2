@@ -1,11 +1,6 @@
 import Cities from '../../data/Cities.json';
 import calculateDimensions from './CalculateDimensions';
 
-const isRetina = ((window.matchMedia 
-  && (window.matchMedia('only screen and (min-resolution: 124dpi), only screen and (min-resolution: 1.3dppx), only screen and (min-resolution: 48.8dpcm)').matches
-  || window.matchMedia('only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (-o-min-device-pixel-ratio: 2.6/2), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (min-device-pixel-ratio: 1.3)').matches))
-  || (window.devicePixelRatio && window.devicePixelRatio > 1.3));
-
 // const basemap = (isRetina)
 //   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager_nolabels/{z}/{x}/{y}@2x.png'
 //   : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager_nolabels/{z}/{x}/{y}.png';
@@ -49,6 +44,8 @@ export default {
     visibleRasters: [],
     visiblePolygons: [],
   },
+  showADTranscriptions: true,
+  showADSelections: true,
   showContactUs: false,
   showCityStats: true,
   showHOLCMaps: true,

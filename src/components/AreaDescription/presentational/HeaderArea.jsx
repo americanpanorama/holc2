@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const HeaderArea = ({ holcId, name, previousAreaId, nextAreaId, selectArea }) => (
+const HeaderArea = ({ holcId, name, previousArea, previousHOLCId, nextAreaId, selectArea }) => (
   <h2 className="sidebarTitle">
-    {(previousAreaId) && (
+    {(previousArea) && (
       <span
         onClick={selectArea}
-        id={previousAreaId}
+        id={previousArea.id}
         role='link'
         style={{
           float: 'left',
@@ -14,23 +14,32 @@ const HeaderArea = ({ holcId, name, previousAreaId, nextAreaId, selectArea }) =>
         }}
       >
         <svg
-          width={20}
-          height={20}
+          width={40}
+          height={40}
         >
-          <g transform={`translate(${20 / 2} ${20 / 2}) rotate(315)`}>
+          <g transform={`translate(${20} ${20})`}>
             <circle
               cx={0}
               cy={0}
-              r={20 / 2}
-              fill="#4B4E6D"
+              r={20}
+              className={`grade${previousArea.grade}`}
               fillOpacity={1}
             />
             <path
-              d={`M${20 / -8},${20 / 4} V${20 / -8} H${20 / 4}`}
+              d={`M${-8},${8} V${-8} H${8}`}
               fill="transparent"
-              stroke="#ddd"
+              stroke={(previousArea.grade === 'C') ? "black" : "#ddd"}
               strokeWidth={20 / 10}
+              transform={`rotate(315)`}
             />
+            <text
+              x={-3}
+              y={6}
+              fill={(previousArea.grade === 'C') ? "black" : "#ddd"}
+              fontSize={12}
+            >
+              {previousArea.holcId}
+            </text>
           </g>
         </svg>
       </span>
@@ -46,13 +55,19 @@ export default HeaderArea;
 HeaderArea.propTypes = {
   holcId: PropTypes.string.isRequired,
   name: PropTypes.string,
-  previousAreaId: PropTypes.string,
+  previousArea: PropTypes.shape({
+    id: PropTypes.string,
+    holcId: PropTypes.string,
+    grade: PropTypes.string,
+  }),
+  previousHOLCId: PropTypes.string,
   nextAreaId: PropTypes.string,
   selectArea: PropTypes.func.isRequired,
 };
 
 HeaderArea.defaultProps = {
   name: undefined,
-  previousAreaId: undefined,
+  previousArea: undefined,
+  previousHOLCId: undefined,
   nextAreaId: undefined,
 };

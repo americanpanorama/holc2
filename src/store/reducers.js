@@ -28,6 +28,14 @@ const selectedGrade = (state = null, action) => (
   (action.type === A.SELECT_GRADE) ? action.payload : state
 );
 
+const showADTranscriptions = (state = null, action) => (
+  (action.type === A.TOGGLE_AD_TRANSCRIPTION) ? !state : state
+);
+
+const showADSelections = (state = null, action) => (
+  (action.type === A.TOGGLE_AD_SELECTION) ? !state : state
+);
+
 const selectedArea = (state = null, action) => {
   if (action.type === A.SELECT_AREA) {
     return action.payload;
@@ -128,6 +136,8 @@ const combinedReducer = combineReducers({
   map,
   basemap,
   searchingADs,
+  showADTranscriptions,
+  showADSelections,
   showContactUs,
   showHOLCMaps,
   showIntroModal,

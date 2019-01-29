@@ -6,6 +6,21 @@ body {
 	visibility: hidden;
 }
 
+circle {
+		&.gradeA {
+			fill: $gradeA;
+		}
+		&.gradeB {
+			fill: $gradeB;
+		}
+		&.gradeC {
+			fill: $gradeCDark;
+		}
+		&.gradeD {
+			fill: $gradeD;
+		}
+}
+
 .leaflet-container {
 
 	.donut, .donuthole {
@@ -22,20 +37,22 @@ body {
 	
 	.neighborhoodPolygon,
 	.ringGradedArea {
-		stroke-width: 0.5;
-		stroke: black;
-		mix-blend-mode: overlay;
+		mix-blend-mode: color;
 		&.gradeA {
 			fill: $gradeA;
+			stroke: $gradeA;
 		}
 		&.gradeB {
 			fill: $gradeB;
+			stroke: $gradeB;
 		}
 		&.gradeC {
 			fill: $gradeCDark;
+			stroke: $gradeCDark;
 		}
 		&.gradeD {
 			fill: $gradeD;
+			stroke: $gradeD;
 		}
 
 		&.invisible {
@@ -79,4 +96,9 @@ body {
 
 .nav_header h2 {
 	background-color: transparent;
+}
+
+.adimage {
+	position: fixed,
+	
 }

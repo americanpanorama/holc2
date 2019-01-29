@@ -9,7 +9,7 @@ const mapStateToProps = (state) => {
     show = 'showButton';
     cityName = state.selectedCity.data.name;
   } else if (state.selectedArea) {
-    show = 'areaDescriptionCurated';
+    show = 'areaDescription';
   } else if (state.selectedCity.data) {
     show = 'city';
   }

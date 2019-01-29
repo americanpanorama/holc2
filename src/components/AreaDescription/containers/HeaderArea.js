@@ -6,12 +6,16 @@ const mapStateToProps = (state) => {
   const collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   const formIds = Object.keys(state.selectedCity.data.areaDescriptions.byNeighborhood)
     .sort(collator.compare);
+  const previousHOLCId = formIds[formIds.indexOf(state.selectedArea) - 1];
   const selectedCityId = state.selectedCity.data.id;
-  console.log(`${selectedCityId}-${formIds[formIds.indexOf(state.selectedArea) - 1]}`);
   return {
     holcId: state.selectedArea,
     name: state.selectedCity.data.areaDescriptions.name,
-    previousAreaId: `${selectedCityId}-${formIds[formIds.indexOf(state.selectedArea) - 1]}`,
+    previousArea: {
+      id: `${selectedCityId}-${previousHOLCId}`,
+      holcId: previousHOLCId,
+      grade: state.selectedCity.data.polygons[previousHOLCId].grade,
+    },
     nextAreaId: `${selectedCityId}-${formIds[formIds.indexOf(state.selectedArea) + 1]}`,
   };
 };

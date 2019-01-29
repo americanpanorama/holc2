@@ -2,9 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 
 import Header from '../../City/containers/Header';
-import HeaderArea from '../../AreaDescription/containers/HeaderArea';
 import CityStats from '../../City/presentational/Stats';
-import Form19370203Curated from '../../AreaDescription/containers/Form19370203Curated';
+import AreaDescription from '../../AreaDescription/containers/AreaDescription';
 
 const Sidebar = ({ show, style, toggleCityStats, cityName }) => {
   if (show && show !== 'showButton') {
@@ -13,7 +12,7 @@ const Sidebar = ({ show, style, toggleCityStats, cityName }) => {
         className="sidebar"
         style={style}
       >
-        { (show === 'city' || show === 'areaDescriptionCurated') && (
+        { (show === 'city' || show === 'areaDescription') && (
           <Header />
         )}
 
@@ -21,11 +20,8 @@ const Sidebar = ({ show, style, toggleCityStats, cityName }) => {
           <CityStats />
         )}
 
-        { (show === 'areaDescriptionCurated') && (
-          <React.Fragment>
-            <HeaderArea />
-            <Form19370203Curated />
-          </React.Fragment>
+        { (show === 'areaDescription') && (
+          <AreaDescription />
         )}
       </div>
     );
