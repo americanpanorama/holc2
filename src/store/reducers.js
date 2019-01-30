@@ -7,6 +7,13 @@ const selectedCategory = (state = null, action) => (
 );
 
 const selectedCity = (state = { data: null, isFetching: false }, action) => {
+  if (action.type === A.UNSELECT_CITY) {
+    return {
+      isFetching: false,
+      data: null,
+    };
+  }
+
   if (action.type === A.SELECT_CITY_REQUEST) {
     return {
       isFetching: true,
@@ -68,6 +75,20 @@ const visibleCities = (state = [], action) => {
 };
 
 const map = (state = initialState.map, action) => {
+  if (action.type === A.ZOOM_IN) {
+    return {
+      ...state,
+      zoom: state.zoom + 1,
+    };
+  }
+
+  if (action.type === A.ZOOM_OUT) {
+    return {
+      ...state,
+      zoom: state.zoom - 1,
+    };
+  }
+
   if (action.type === A.MOVE_MAP) {
     return action.payload;
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const FormQualitative = ({ adData }) => (
-  <div className="area_description qualitative">
+  <div className="qualitative">
     {adData[1]}
   </div>
 );

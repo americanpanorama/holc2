@@ -14,9 +14,11 @@ const AreaPolygons = ({ polygons, selectArea, mask }) => (
     { polygons.map(p => (
       <GeoJSON
         data={p.area_geojson}
-        className={`neighborhoodPolygon grade${p.grade}`}
+        className={`neighborhoodPolygon`}
         onClick={selectArea}
         id={`${p.ad_id}-${p.id}`}
+        color={p.strokeColor}
+        fillColor={p.fillColor}
         fillOpacity={p.fillOpacity}
         opacity={p.strokeOpacity}
         weight={p.weight}

@@ -8,36 +8,36 @@ const Masthead = ({ style }) => {
         <span className="header-main">
           Mapping Inequality
         </span>
-      </h1>
-      <h1>
         <span className="header-sub">
           Redlining in New Deal America
         </span>
       </h1>
-      <h4
-        //onClick={props.onModalClick}
-        id="intro"
-      >
-        Introduction
-      </h4>
-    {/* JSX Comment 
-      <h4
-        //onClick={props.onModalClick}
-        id="bibliograph"
-      >
-        Bibliographic Note & Bibliography
-      </h4> */}
-      <h4
-        //onClick={props.onModalClick}
-        id="about"
-      >
-        About
-      </h4>
-      <h4
-        //onClick={props.onContactUsToggle}
-      >
-        Contact Us
-      </h4>
+      <nav>
+        <h4
+          //onClick={props.onModalClick}
+          id="intro"
+        >
+          Introduction
+        </h4>
+      {/* JSX Comment 
+        <h4
+          //onClick={props.onModalClick}
+          id="bibliograph"
+        >
+          Bibliographic Note & Bibliography
+        </h4> */}
+        <h4
+          //onClick={props.onModalClick}
+          id="about"
+        >
+          About
+        </h4>
+        <h4
+          //onClick={props.onContactUsToggle}
+        >
+          Contact Us
+        </h4>
+      </nav>
     </header>
   );
 };

@@ -3,11 +3,28 @@ import AreaPolygons from '../presentational/AreaPolygons';
 import { selectArea } from '../../../store/Actions';
 
 const mapStateToProps = (state) => {
+  const colors = {
+    A: '#76a865',
+    B: '#7cb5bd',
+    C: '#d8d165',
+    D: '#d9838d',
+  };
+
+  const fillColorsAdjusted = {
+    A: '#58cc2c',
+    B: '#98f6ff',
+    C: '#a79500',
+    D: '#ff536b',
+  };
+
   // calculate the style each polygon
   const polygons = state.map.visiblePolygons.map((p) => {
+    let fillColor = colors[p.grade];
     let fillOpacity = (state.showHOLCMaps) ? 0 : 0.25;
+    let strokeColor = colors[p.grade];
     let strokeOpacity = (state.showHOLCMaps) ? 0 : 1;
     let weight = (state.showHOLCMaps) ? 0 : 1;
+    let className = '';
 
     // styling for selected grade
     if (!state.showHOLCMaps && state.selectedGrade && state.selectedGrade !== p.grade) {
@@ -35,12 +52,17 @@ const mapStateToProps = (state) => {
       fillOpacity = 0.4;
       strokeOpacity = 1;
       weight = 3;
+      fillColor = fillColorsAdjusted[p.grade];
+      strokeColor = 'black';
     }
     return {
       ...p,
+      fillColor,
       fillOpacity,
+      strokeColor,
       strokeOpacity,
       weight,
+      className,
     };
   });
 

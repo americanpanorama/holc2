@@ -48,12 +48,10 @@ const calculateDimensions = () => {
 
   if (dimensions.size === 'desktop' || dimensions.size === 'tablet') {
     dimensions.sidebarHeight = dimensions.windowHeight - dimensions.headerHeight - 40;
-    dimensions.sidebarWidth = dimensions.windowWidth / 3;
-    dimensions.sidebarRight = 20;
-    dimensions.sidebarBottom = 20;
+    dimensions.sidebarWidth = 500;
   } else {
     dimensions.sidebarHeight = 100;
-    dimensions.sidebarWidth = dimensions.windowWidth;
+    dimensions.sidebarWidth = 500;
     dimensions.sidebarRight = 0;
     dimensions.sidebarLeft = 0;
     dimensions.sidebarBottom = 0;
@@ -62,9 +60,9 @@ const calculateDimensions = () => {
   dimensions.sidebarStyle = {
     maxHeight: dimensions.sidebarHeight,
     width: dimensions.sidebarWidth,
-    right: dimensions.sidebarRight,
+    left: dimensions.sidebarRight,
     top: dimensions.headerHeight + dimensions.containerPadding,
-    left: dimensions.sidebarLeft || 'auto',
+    right: dimensions.sidebarLeft || 'auto',
   };
 
   dimensions.cityStatsButtonStyle = {
@@ -84,7 +82,7 @@ const calculateDimensions = () => {
   };
 
   dimensions.mapToggleStyle = {
-    left: dimensions.windowWidth / 3 - 100,
+    //left: dimensions.windowWidth / 3 - 100,
   };
 
   dimensions.selectedNeighborhoodHeaderStyle = {

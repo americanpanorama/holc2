@@ -279,6 +279,45 @@ export const toggleADTranscription = () => ({
   type: Actions.TOGGLE_AD_TRANSCRIPTION,
 });
 
+export const resetMapView = () => (dispatch, getState) => {
+  dispatch({
+    type: Actions.UNSELECT_CITY,
+  });
+
+  const { windowWidth: mapWidth, mapHeight } = getState().dimensions;
+
+  // calculate the map zoom and center
+  L.Map.include({
+    getSize: () => new L.Point(mapWidth, mapHeight),
+  });
+  const map = new L.Map(document.createElement('div'), {
+    center: [0, 0],
+    zoom: 0,
+  });
+  const featureGroup = new L.FeatureGroup([
+    new L.Marker([49.2, -124.9]),
+    new L.Marker([24.3, -67.3]),
+  ]);
+  const zoom = map.getBoundsZoom(featureGroup.getBounds());
+  dispatch({
+    type: Actions.MOVE_MAP,
+    payload: {
+      ...getState().map,
+      zoom,
+      center: [37.8, -97.9],
+      aboveThreshold: false,
+    },
+  });
+};
+
+export const zoomIn = () => ({
+  type: Actions.ZOOM_IN,
+});
+
+export const zoomOut = () => ({
+  type: Actions.ZOOM_OUT,
+});
+
 //export const updateMap = zoomAndCenter => TheStore.dispatch(mapAction(zoomAndCenter));
 export const citySelected = (eOrId) => {
   let id = eOrId;

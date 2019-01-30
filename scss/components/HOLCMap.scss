@@ -1,4 +1,10 @@
 #the_map {
+  position: fixed;
+  top: $header-height;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
   &.greyscale {
     .holcRaster img {
       -webkit-filter: grayscale(0.9); /* Webkit */
@@ -17,16 +23,66 @@
   .leaflet-control-zoom {
     margin-top: 120px;
   }
+
+  .neighborhoodPolygon {
+    &.selected {
+      &.gradeA {
+        fill: $gradeAOverlay;
+        stroke: #111;
+      }
+      &.gradeB {
+        fill: $gradeBOverlay;
+        stroke: #111;
+      }
+      &.gradeC {
+        fill: $gradeCOverlay;
+        stroke: #111;
+      }
+      &.gradeD {
+        fill: $gradeDOverlay;
+        stroke: #111;
+      }
+    }
+  }
 }
 
-button.mapToggle {
+button {
+  background-color: #666;
   position: fixed;
-  width: 200px;
-  top: 0;
-  background-color: navy;
+  top: $header-height;
   color: white;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  border-radius: 0;
+  border: none;
+  
+  &.mapToggle {
+    width: 200px;
+    right: 148px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  &.zoomIn, &.zoomOut, &.resetView {
+    padding: 0;
+    width: 36px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+
+  &.zoomIn {
+    right: 92px;
+    border-bottom-left-radius: 10px;
+  }
+
+  &.zoomOut {
+    right: 56px;
+    border-right: 1px solid white;
+    border-left: 1px solid white;
+  }
+
+  &.resetView {
+    right: 20px;
+    border-bottom-right-radius: 10px;
+  }
 }
 
 .nationalView {

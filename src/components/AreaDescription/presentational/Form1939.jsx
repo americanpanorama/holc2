@@ -5,7 +5,7 @@ import SimpleSubcategory from './SimpleSubcategory';
 import EmptyField from './EmptyField';
 
 const Form1939 = ({ adData }) => (
-  <ul className="area_description">
+  <ul>
     <li>
       <span className="catNum">
         1

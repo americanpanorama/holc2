@@ -5,7 +5,7 @@ import SimpleSubcategory from './SimpleSubcategory';
 import EmptyField from './EmptyField';
 
 const Form1939Curated = ({ adData }) => (
-  <ul className="area_description">
+  <ul>
     <SimpleCategory
       data={adData[8]}
       num={8}

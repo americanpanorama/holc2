@@ -10,6 +10,10 @@ import HOLCRasters from '../containers/HOLCRasters';
 import AreaPolygons from '../containers/AreaPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
 import MapToggleControl from '../containers/MapToggleControl';
+import Button from '../../AreaDescription/presentational/Button';
+import ZoomInButton from '../containers/ZoomInButton';
+import ZoomOutButton from '../containers/ZoomOutButton';
+import ResetViewButton from '../containers/ResetViewButton';
 
 import TheStore from '../../../store';
 import { updateMap } from '../../../store/Actions';
@@ -28,6 +32,7 @@ export default class HOLCMap extends React.Component {
   }
 
   onMapMoved() {
+    console.log('called');
     const theMap = this.map.current.leafletElement;
     const zoom = theMap.getZoom();
     const center = [theMap.getCenter().lat, theMap.getCenter().lng];
@@ -59,7 +64,7 @@ export default class HOLCMap extends React.Component {
           id="the_map"
           className={`${className}`}
           ref={this.map}
-          onMoveend={this.onMapMoved}
+          onZoomend={this.onMapMoved}
         >
           <BaseMap />
           <ClickableCities />
@@ -69,6 +74,9 @@ export default class HOLCMap extends React.Component {
         </Map>
 
         <MapToggleControl />
+        <ZoomInButton />
+        <ZoomOutButton />
+        <ResetViewButton />
       </React.Fragment>
     );
   }

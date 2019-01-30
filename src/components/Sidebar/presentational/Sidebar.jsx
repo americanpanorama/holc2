@@ -9,7 +9,7 @@ const Sidebar = ({ show, style, toggleCityStats, cityName }) => {
   if (show && show !== 'showButton') {
     return (
       <div
-        className="sidebar"
+        id="sidebar"
         style={style}
       >
         { (show === 'city' || show === 'areaDescription') && (
