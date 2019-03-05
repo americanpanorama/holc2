@@ -1,5 +1,11 @@
 // Google Fonts imported in index.html;
 // Replace these SASS placeholders as necessary with imported fonts
+
+%merriweather-normal {
+	font-family: 'Merriweather', serif;
+	font-weight: 300;
+}
+
 %lora-light {
 	font-family: 'Lora', serif;
 	font-weight: 100;
@@ -22,10 +28,44 @@
 	color: $text-color;
 }
 
-h1 { font-size: 1.8em; }
-h2 { font-size: 1.4em; }
-h3 { font-size: 1.3em; letter-spacing: 0.04rem; }
-h4 { font-size: 0.87em; }
+body {
+	@extend %merriweather-normal;
+	line-height: 1.0;
+	font-size: 1.6rem; /* sets to around 16px */
+}
+
+h1 { font-size: 2em; }
+h2 {
+	@extend %lato-normal;
+	font-size: 1.75em;
+  color: $headerRed;
+  text-transform: uppercase;
+}
+h3 {
+	@extend %lato-normal;
+	font-size: 1.5em;
+  color: $headerRed;
+}
+h4 {
+	@extend %lato-normal;
+	font-size: 1.25em;
+  margin: 1em 0 0 0;
+}
 h5 { font-size: 0.5em; }
 h6 { font-size: 0.35em; }
 
+button {
+	@extend %lato-normal;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+/* this resets some skeleton stuff */
+ul {
+  ul, ol {
+  	font-size: 100%;
+  }
+}

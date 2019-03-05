@@ -7,9 +7,10 @@ import { windowResized, selectCity, selectArea } from './store/Actions';
 // components (views)
 import Masthead from './components/containers/Masthead';
 import Search from './components/Search/containers/Search';
-import HOLCMap from './components/HOLCMap/containers/HOLCMap';
-import Sidebar from './components/Sidebar/containers/Sidebar';
-import IntroModal from './components/IntroModal';
+import VizCanvas from './components/containers/VizCanvas';
+import DataViewer from './components/DataViewer/containers/DataViewer';
+import DataViewerFull from './components/DataViewer/containers/DataViewerFull';
+import Text from './components/Text/containers/Text';
 
 import Store from './store';
 
@@ -56,7 +57,7 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener('resize', windowResized());
+    window.addEventListener('resize', windowResized);
   }
 
   render() {
@@ -64,9 +65,11 @@ export default class App extends React.Component {
       <div className="container">
         <Masthead />
         <Search />
-        <HOLCMap />
-        <Sidebar />
-      </div> 
+        <VizCanvas />
+        <DataViewer />
+        <DataViewerFull />
+        <Text />
+      </div>
     );
   }
 }

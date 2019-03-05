@@ -27,7 +27,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
       </h4>
     )}
 
-    { (cityData.hasPolygons) && (
+    { (cityData.area) && (
       <div className="barchart">
         <svg
           width={90}
@@ -80,7 +80,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
     { (cityData.displayPop && cityData.displayPop[1940].total) && (
       <div className="populationStats">
         <span className="catName">
-          Population (1940):
+          {'Population: '}
         </span>
         <span className="subcatData">
           { cityData.displayPop[1940].total.toLocaleString() }

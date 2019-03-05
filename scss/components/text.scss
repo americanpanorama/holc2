@@ -1,5 +1,57 @@
-.longishForm {
-	word-wrap:break-word;
+#text {
+	word-wrap: break-word;
+  z-index: 1100;
+  position: fixed;
+  top: 45px;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(white, 0.97);
+  overflow-y: scroll;
+
+  #textContent {
+    font-family: 'Merriweather';
+    width: 600px;
+    line-height: 1.9;
+    margin: 20px auto;
+
+    h2, h3 {
+      font-family: 'Lato', sans-serif;
+      color: $headerRed;
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.5em;
+    }
+
+    .contactUs {
+      input,
+      textarea,
+      submit {
+        display: block;
+        margin: 20px 0 20px 250px;
+        width: 350px;
+      }
+
+      textarea {
+        height: 200px;
+      }
+
+      label {
+        text-align: right;
+        float: left;
+        width: 230px;
+        padding-top: 10px;
+      }
+
+      .contactUsForm {
+        p {
+          margin-left: 160px;
+        }
+      }
+    }
+  }
 
 	&.noAD {
 		background-color: #444;

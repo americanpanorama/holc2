@@ -1,5 +1,5 @@
 .city-snippet {
-	background-color: #f3f3f3;
+	background-color: transparent;
 	padding: 0 0 0px 0;
 
 	* {
@@ -7,13 +7,13 @@
 	}
 
 	h1 {
-		border-bottom: 1px solid #d72e2a;
+		border-bottom: 1px solid lighten($gradeD, 10%);
 		font-size: 1.3em;
 		margin: 0 0 0 100px;
 
         a {
             text-decoration: none;
-            color: black;
+            color: white;
         }
 	}
 
@@ -34,7 +34,6 @@
 	ul {
 		font-family: 'Lato';
     	font-size: 16px;
-    	color: #0c789a;
     	list-style: none;
     	padding: 0 0 0px 20px;
         margin: 0 0 0 100px;
@@ -82,7 +81,6 @@
 	.barchart {
 		height: 15px;
 		cursor: pointer;
-        opacity: .8;
 
         rect {
             &.grade_a {
@@ -92,16 +90,12 @@
                 fill: $gradeB;
             }
             &.grade_c {
-                fill: $gradeCDark;
+                fill: $gradeC;
             }
             &.grade_d {
-                fill: $gradeD;
+                fill: lighten($gradeD, 10%);
             }
         }
 	}
-
-    .piechart {
-        float: left;
-    }
 }
 

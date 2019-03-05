@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Path, PropTypes as LeafletPropTypes } from 'react-leaflet';
+import { Path, PropTypes as LeafletPropTypes, withLeaflet } from 'react-leaflet';
 import donut from './L.Donut.js';
 
 
-export default class Donut extends Path {
+class Donut extends Path {
   // Radii are in meters
   // static propTypes = {
   //  center: LeafletPropTypes.latlng.isRequired,
@@ -36,3 +36,5 @@ export default class Donut extends Path {
     this.setStyleIfChanged(prevProps, newProps);
   }
 }
+
+export default withLeaflet(Donut);

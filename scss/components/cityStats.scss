@@ -1,4 +1,15 @@
 .cityStats {
+	section {
+		margin: 50px 0;
+
+		&.cityViz {
+			svg {
+				display: block;
+				margin: 0 auto;
+			}
+		}
+	}
+
 	li {
 		list-style: none;
 		font-weight: bolder;
@@ -51,6 +62,10 @@
 		    color: #0c789a;
 		    font-weight: bolder;
 		    margin: 0px 2px 0px 0px;
+
+		    .cat {
+		    	text-align: left;
+		    }
 		}
 		
 		ul.left-stat {
@@ -113,6 +128,15 @@
 
 		.total {
 			color: #0c789a;
+		}
+
+		&.cat {
+			text-align: left;
+		}
+
+		&.stat {
+			@extend %lato-normal;
+			font-weight: 700;
 		}
 	}
 }

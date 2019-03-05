@@ -26,82 +26,87 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
   });
 
   return (
-    <svg
-      width={width}
-      height={125}
-      style={{
-        marginTop: 20,
-      }}
-    >
-      <text
-        x={width / 2 - 17}
-        y={16}
-        textAnchor="end"
-        fontSize={16}
-        fontWeight={400}
-        fill="#666"
+    <section className='cityViz'>
+      <h3>
+        Areas by Grade
+      </h3>
+      <svg
+        width={width}
+        height={125}
+        style={{
+          marginTop: 20,
+        }}
       >
-        Grade
-      </text>
+        <text
+          x={width / 2 - 17}
+          y={16}
+          textAnchor="end"
+          fontSize={16}
+          fontWeight={400}
+          fill="#666"
+        >
+          Grade
+        </text>
 
-      <text
-        x={width / 2 + 10}
-        y={16}
-        textAnchor="start"
-        fontSize={16}
-        fontWeight={400}
-        fill="#666"
-      >
-        Area
-      </text>
+        <text
+          x={width / 2 + 10}
+          y={16}
+          textAnchor="start"
+          fontSize={16}
+          fontWeight={400}
+          fill="#666"
+        >
+          Area
+        </text>
 
-      <g transform="translate(0, 25)">
-        {grades.map((grade, i) => (
-          <g
-            key={`areaFor${grade}`}
-            transform={`translate(0, ${i * 25})`}
-          >
-            <rect
-              x={width / 2}
-              y={2}
-              width={areaWidths[grade]}
-              height={14}
-              fill={gradeColors[grade]}
-              fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.25}
-            />
-            <text
-              x={width / 2 - 7}
-              y={15}
-              textAnchor="end"
-              fontSize={16}
-              fill={(!selectedGrade || selectedGrade === grade) ? 'black' : 'silver'}
-              fontWeight={(selectedGrade && selectedGrade === grade) ? 400 : 'auto'}
+        <g transform="translate(0, 25)">
+          {grades.map((grade, i) => (
+            <g
+              key={`areaFor${grade}`}
+              transform={`translate(0, ${i * 25})`}
             >
-              {`${grade} "${labels[grade]}"`}
-            </text>
-            <text
-              x={width / 2 + areaWidths[grade] + 5}
-              y={14}
-              fontSize={14}
-              textAnchor="start"
-              fill={(!selectedGrade || selectedGrade === grade) ? '#222' : 'silver'}
-            >
-              {`${Math.round(gradeStats.find(d => d.grade === grade).percent * 100)}%`}
-            </text>
-            <rect
-              x={0}
-              y={-4}
-              width={width}
-              height={25}
-              fill="transparent"
-              onMouseEnter={gradeSelected}
-              onMouseLeave={gradeUnselected}
-              id={grade}
-            />
-          </g>
-        ))}
-      </g>
-    </svg>
+              <rect
+                x={width / 2}
+                y={2}
+                width={areaWidths[grade]}
+                height={14}
+                fill={gradeColors[grade]}
+                fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.25}
+              />
+              <text
+                x={width / 2 - 7}
+                y={15}
+                textAnchor="end"
+                fontSize={16}
+                fill={(!selectedGrade || selectedGrade === grade) ? 'black' : 'silver'}
+                fontWeight={(selectedGrade && selectedGrade === grade) ? 400 : 'auto'}
+              >
+                {`${grade} "${labels[grade]}"`}
+              </text>
+              <text
+                x={width / 2 + areaWidths[grade] + 5}
+                y={14}
+                fontSize={14}
+                textAnchor="start"
+                fill={(!selectedGrade || selectedGrade === grade) ? '#222' : 'silver'}
+              >
+                {`${Math.round(gradeStats.find(d => d.grade === grade).percent * 100)}%`}
+              </text>
+              <rect
+                x={0}
+                y={-4}
+                width={width}
+                height={25}
+                fill="transparent"
+                onMouseEnter={gradeSelected}
+                onMouseLeave={gradeUnselected}
+                id={grade}
+              />
+            </g>
+          ))}
+        </g>
+      </svg>
+    </section>
   );
 };
 

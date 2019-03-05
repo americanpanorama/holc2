@@ -7,11 +7,9 @@ html {
   touch-action: manipulation;
 }
 
-body {
+body#garbage {
   // override Skeleton's strange line-height setting
   line-height: 1.0;
-
-  @extend %lato-light;
 
   // Note: below are very loose responsive breakpoints;
   // tighten up as needed for your application.
@@ -228,7 +226,6 @@ body {
 }
 
 .longishform,
-.contactUs,
 .arealocation {
   position: absolute;
   bottom: 20px;
@@ -248,7 +245,6 @@ body {
 
   p, ul {
     @extend %lato-light;
-    font-size: 1.5em;
     text-align: initial;
     margin-bottom: .8em;
     word-spacing: 4px;
@@ -287,74 +283,9 @@ body {
 
 }
 
-.neighborhoodLabelBG {
-  stroke-width: 0;
-  background-color: transparent;
-}
-
-.neighborhoodLabel {
-  border: none;
-  box-shadow: none;
-  font-size: 1.3em;
-  text-align: center;
-  line-height: 1.1;
-  color: black;
-  border-radius: 50%;
-  background-color: transparent;
-
-  &.deemphasized {
-    color: silver;
-  }
-}
-
-button.toggle {
-    background-color: #4B4E6D;
-    color: #ddd;
-    border-color: #4B4E6D;
-    font-weight: bold;
-    padding: 0;
-
-    &:hover {
-      background-color: lighten(#4B4E6D, 10%);
-    }
-
-    &.cityStats {
-      position: fixed;
-      top: $header-height + 20;
-      right: 20px;
-      padding: 0 10px;
-    }
-}
 
 
 
-.contactUs {
-
-  input,
-  textarea,
-  submit {
-    display: block;
-    margin: 20px 0 20px 250px;
-    width: 350px;
-  }
-
-  textarea {
-    height: 200px;
-  }
-
-  label {
-    text-align: right;
-    float: left;
-    width: 230px;
-    padding-top: 10px;
-  }
-
-  .contactUsForm {
-    p {
-      margin-left: 160px;
-    }
-  }
-}
 
 .mobile {
   padding: 0;

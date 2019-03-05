@@ -5,6 +5,35 @@ import calculateDimensions from './CalculateDimensions';
 import Rasters from '../../data/Rasters.json';
 import Cities from '../../data/Cities.json';
 
+export const selectCategory = eOrId => (dispatch, getState) => {
+  console.log(eOrId);
+  let id = eOrId;
+  if (typeof eOrId === 'object' && eOrId.target.id) {
+    id = eOrId.target.id;
+  }
+  if (typeof eOrId === 'object' && eOrId.target.options && eOrId.target.options.id) {
+    id = eOrId.target.options.id;
+  }
+
+
+
+  dispatch({
+    type: Actions.SELECT_CATEGORY,
+    payload: id,
+  });
+
+  // close the ad scan if open
+  if (getState().showADScan) {
+    dispatch({
+      type: Actions.TOGGLE_AD_SCAN,
+    });
+  }
+};
+
+export const unselectCategory = () => ({
+  type: Actions.UNSELECT_CATEGORY,
+});
+
 export const selectCity = eOrId => (dispatch, getState) => {
   let id = eOrId;
   if (typeof eOrId === 'object' && eOrId.target.id) {
@@ -14,24 +43,32 @@ export const selectCity = eOrId => (dispatch, getState) => {
     id = eOrId.target.options.id;
   }
   // get data from the city that you need for the path and to set the map zoom and center
-  const { name, state, year, bounds, centerLat, centerLng } = getState().cities[id];
-  const { windowWidth, sidebarWidth, mapHeight } = getState().dimensions;
-  const path = `${`${state}-${name}-${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
-  const mapWidth = windowWidth - sidebarWidth;
+  const { showCityStats, dimensions, cities, selectedCategory } = getState();
+  const { name, state, year, bounds } = cities[id];
+  const { windowWidth, dataViewerWidth, mapHeight } = dimensions;
+  const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
+  const mapWidth = windowWidth;
 
-  // calculate the map zoom and center for city
+  //calculate the map zoom and center for city
   L.Map.include({
     getSize: () => new L.Point(mapWidth, mapHeight),
   });
-  const map = new L.Map(document.createElement('div'), {
+  const map = L.map(document.createElement('div'), {
     center: [0, 0],
     zoom: 0,
   });
-  const featureGroup = new L.FeatureGroup([
-    new L.Marker(bounds[0]),
+  const offsetRatio = ((dataViewerWidth + 40) / windowWidth) / ((windowWidth - (dataViewerWidth + 40)) / windowWidth);
+  const offsetLng = bounds[0][1] - (bounds[1][1] - bounds[0][1]) * offsetRatio;
+  const cityBounds = new L.FeatureGroup([
+    new L.Marker([bounds[0][0], offsetLng]),
     new L.Marker(bounds[1]),
   ]);
-  const zoom = map.getBoundsZoom(featureGroup.getBounds());
+  const polygonBounds = cityBounds.getBounds();
+  const { lat: centerLat, lng: centerLng } = polygonBounds.getCenter();
+  // offset the bounds to take account of the dataViewer
+  //const centerLng = (!showCityStats) ? centerLngOfBounds
+  //  : centerLngOfBounds - (dataViewerWidth / 2 / mapWidth) * (bounds[1][1] - bounds[0][1]);
+  const zoom = map.getBoundsZoom(polygonBounds);
   dispatch({
     type: Actions.MOVE_MAP,
     payload: {
@@ -39,6 +76,10 @@ export const selectCity = eOrId => (dispatch, getState) => {
       zoom,
       center: [centerLat, centerLng],
       aboveThreshold: true,
+      movingTo: {
+        zoom,
+        center: [centerLat, centerLng],
+      },
     },
   });
 
@@ -49,6 +90,13 @@ export const selectCity = eOrId => (dispatch, getState) => {
   dispatch({
     type: Actions.UNSELECT_AREA,
   });
+
+  // if the city is alread loaded just update the selected neighborhood
+  // if (selectedCategory) {
+  //   dispatch({
+  //     type: Actions.UNSELECT_CATEGORY,
+  //   });
+  // }
 
   return Promise.all([
     fetch(`./static/cities/${path}`),
@@ -63,22 +111,27 @@ export const selectCity = eOrId => (dispatch, getState) => {
 
 export const selectArea = eOrIds => (dispatch, getState) => {
   let ids = eOrIds;
+  console.log(ids);
   if (typeof eOrIds === 'object') {
     const ct = eOrIds.currentTarget || eOrIds.target;
     ids = ct.id || ct.options.id;
   }
-  const [adId, holcId] = ids.split('-');
+  const [adId, holcId] = ids.split('-').map((v, i) => {
+    return (i === 0) ? parseInt(v, 10) : v;
+  });
 
   // load the city if necessary then the neighborhood
-  const selectedCity = getState().selectedCity.data;
+  const { selectedCity, selectedCategory, selectedArea } = getState();
+  const selectedCityData = selectedCity.data;
 
-  if (!selectedCity || selectedCity.id !== parseInt(adId, 10)) {
-    const { name, state, year } = getState().cities[adId];
-    const path = `${`${state}-${name}-${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
+  if (!selectedCityData || selectedCityData.id !== parseInt(adId, 10)) {
     dispatch({
       type: Actions.SELECT_CITY_REQUEST,
+      payload: adId,
     });
 
+    const { name, state, year } = getState().cities[adId];
+    const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
     return Promise.all([
       fetch(`./static/cities/${path}`),
       fetch(`./static/citiesSelected/${path}`),
@@ -99,7 +152,7 @@ export const selectArea = eOrIds => (dispatch, getState) => {
   }
 
   // if the city is alread loaded just update the selected neighborhood
-  if (getState().selectedArea !== holcId) {
+  if (selectedArea !== holcId || selectedCategory) {
     dispatch({
       type: Actions.SELECT_AREA,
       payload: holcId,
@@ -110,9 +163,22 @@ export const selectArea = eOrIds => (dispatch, getState) => {
     });
   }
 
+  if (selectedCategory) {
+    dispatch({
+      type: Actions.UNSELECT_CATEGORY,
+    });
+  }
+
   return null;
 };
 
+export const unselectArea = () => ({
+  type: Actions.UNSELECT_AREA,
+});
+
+export const mapMoveEnd = () => ({
+  type: Actions.MOVE_MAP_END,
+});
 
 export const updateMap = mapState => (dispatch, getState) => {
   const aboveThreshold = (mapState.zoom >= 9);
@@ -131,7 +197,6 @@ export const updateMap = mapState => (dispatch, getState) => {
     });
   }
 
-  // 
   if (aboveThreshold) {
     const latLngBounds = L.latLngBounds([...mapState.bounds]);
 
@@ -153,7 +218,8 @@ export const updateMap = mapState => (dispatch, getState) => {
       return null;
     }
 
-    let { visiblePolygons } = getState().map;
+    const { map, selectedCity } = getState();
+    let { visiblePolygons } = map;
 
     // execute to load rasters before the async task of loading new polygons or city
     dispatch({
@@ -167,11 +233,10 @@ export const updateMap = mapState => (dispatch, getState) => {
     });
 
     // select the city if there's only one and it's not already selected
-    const { selectedCity } = getState();
-    if (visibleCityIds.length === 1 &&
+    if (visibleCityIds.length === 1 && selectedCity.isFetching !== visibleCityIds[0] &&
       (!selectedCity.data || selectedCity.data.id !== visibleCityIds[0])) {
       const { name, state, year } = getState().cities[visibleCityIds[0]];
-      const path = `${`${state}-${name}-${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
+      const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
 
       // load both the city and the polygons
       dispatch({
@@ -207,12 +272,14 @@ export const updateMap = mapState => (dispatch, getState) => {
 
     // get the current cities id
     const extantCityIds = [...new Set(visiblePolygons.map(p => p.ad_id))];
+    const cityIdsToDelete = extantCityIds.filter(id => !visibleCityIds.includes(id));
 
     // drop those that aren't visible anymore
     visiblePolygons = visiblePolygons.filter(p => visibleCityIds.includes(p.ad_id));
 
-    // add those that haven't been loaded
-    const newCities = visibleCities.filter(c => !extantCityIds.includes(c.ad_id));
+    // add those that haven't been loaded and aren't currently being loaded
+    const newCities = visibleCities.filter(c => !extantCityIds.includes(c.ad_id)
+      && !map.loadingPolygonsFor.includes(c.ad_id));
 
     if (newCities.length > 0) {
       const cityFiles = newCities.map(c => `./static/cities/${c.state}-${c.name}-${c.year}.json`);
@@ -236,15 +303,22 @@ export const updateMap = mapState => (dispatch, getState) => {
             payload: visiblePolygons,
           });
         });
-    } else {
+    }
+    // otherwise make a change if there are polygons to remove from state
+    else if (cityIdsToDelete.length > 0) {
       dispatch({
         type: Actions.LOADED_POLYGONS,
         payload: visiblePolygons,
       });
     }
   }
+  return null;
 };
 
+export const updateADScan = adScanState => ({
+  type: Actions.MOVE_ADSCAN,
+  payload: adScanState,
+});
 
 const selectGrade = grade => ({
   type: Actions.SELECT_GRADE,
@@ -275,11 +349,20 @@ export const toggleADSelections = () => ({
   type: Actions.TOGGLE_AD_SELECTION,
 });
 
+export const toggleADScan = () => ({
+  type: Actions.TOGGLE_AD_SCAN,
+});
+
 export const toggleADTranscription = () => ({
   type: Actions.TOGGLE_AD_TRANSCRIPTION,
 });
 
+export const toggleDataViewerFull = () => ({
+  type: Actions.TOGGLE_DATA_VIEWER_FULL,
+});
+
 export const resetMapView = () => (dispatch, getState) => {
+  // remove the selected city from the store
   dispatch({
     type: Actions.UNSELECT_CITY,
   });
@@ -294,18 +377,26 @@ export const resetMapView = () => (dispatch, getState) => {
     center: [0, 0],
     zoom: 0,
   });
+  const bounds = [[49.2, -124.9], [24.3, -67.3]];
   const featureGroup = new L.FeatureGroup([
-    new L.Marker([49.2, -124.9]),
-    new L.Marker([24.3, -67.3]),
+    new L.Marker(bounds[0]),
+    new L.Marker(bounds[1]),
   ]);
   const zoom = map.getBoundsZoom(featureGroup.getBounds());
   dispatch({
     type: Actions.MOVE_MAP,
     payload: {
       ...getState().map,
+      movingTo: {
+        zoom,
+        center: [37.8, -97.9],
+      },
       zoom,
       center: [37.8, -97.9],
+      bounds,
       aboveThreshold: false,
+      visibleRasters: [],
+      visiblePolygons: [],
     },
   });
 };
@@ -317,6 +408,43 @@ export const zoomIn = () => ({
 export const zoomOut = () => ({
   type: Actions.ZOOM_OUT,
 });
+
+export const zoomInADScan = () => ({
+  type: Actions.ZOOM_IN_ADSCAN,
+});
+
+export const zoomOutADScan = () => ({
+  type: Actions.ZOOM_OUT_ADSCAN,
+});
+
+export const adSearchingHOLCIds = ids => ({
+  type: Actions.SEARCHING_ADS_RESULTS,
+  payload: ids,
+});
+
+export const searchingADsFor = str => ({
+  type: Actions.SEARCHING_ADS,
+  payload: str,
+});
+
+export const selectText = e => (dispatch, getState) => {
+  let selected = e;
+  if (typeof e === 'object' && e.target.id) {
+    selected = e.target.id;
+  }
+  if (typeof e === 'object' && e.target.options && e.target.options.id) {
+    selected = e.target.options.id;
+  }
+
+  if (selected === getState().selectedText) {
+    selected = null;
+  }
+
+  dispatch({
+    type: Actions.SELECT_TEXT,
+    payload: selected,
+  });
+};
 
 //export const updateMap = zoomAndCenter => TheStore.dispatch(mapAction(zoomAndCenter));
 export const citySelected = (eOrId) => {

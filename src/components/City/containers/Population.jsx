@@ -101,7 +101,7 @@ const mapStateToProps = (state) => {
     return (pop40.proportion >= 0.005);
   });
 
-  displayPop[1940].percents.sort((a, b) => a.proportion < b.proportion);
+  displayPop[1940].percents = displayPop[1940].percents.sort((a, b) => b.proportion - a.proportion);
   displayPop.order = displayPop[1940].percents.map(pop40 => pop40.label);
 
   return {

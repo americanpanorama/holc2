@@ -1,8 +1,11 @@
 import { connect } from 'react-redux';
 import ADImage from '../presentational/ADImage';
+import { updateADScan } from '../../../store/Actions';
 
 const mapStateToProps = (state) => {
-  const { tileUrl, sheets } = state.selectedCity.data.areaDescriptions.byNeighborhood[state.selectedArea];
+  const { adScan, selectedArea, selectedCity } = state;
+  const { tileUrl, sheets } = selectedCity.data.areaDescriptions.byNeighborhood[selectedArea];
+  const { zoom, center } = adScan;
   let maxBounds = [[-10, -180], [90, -60]];
   if (sheets === 2) {
     maxBounds = [[-10, -180], [90, 70]];
@@ -11,12 +14,16 @@ const mapStateToProps = (state) => {
   //maybe a little hacky, but rapped in an adData to match the prop for transcriptions
   return {
     adData: {
-      center: [-125, 75],
-      zoom: 3,
+      center,
+      zoom,
       maxBounds,
       url: tileUrl,
     },
   };
 };
 
-export default connect(mapStateToProps)(ADImage);
+const mapDispatchToState = {
+  updateADScan,
+};
+
+export default connect(mapStateToProps, mapDispatchToState)(ADImage);

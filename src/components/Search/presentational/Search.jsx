@@ -3,19 +3,42 @@ import PropTypes from 'prop-types';
 import { Typeahead } from 'react-typeahead';
 import TypeAheadCitySnippet from './TypeAheadCitySnippet';
 
-const Search = ({ options, selectCity, citySearchStyle })=> (
-  <div className="city-selector" style={citySearchStyle}>
-    <Typeahead
-      options={options}
-      placeholder="Search by city or state"
-      filterOption="searchName"
-      displayOption={city => city.ad_id}
-      onOptionSelected={selectCity}
-      customListComponent={TypeAheadCitySnippet}
-      maxVisible={8}
-    />
-  </div>
-);
+export default class Search extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.typeahead = React.createRef();
+    this.onOptionSelected = this.onOptionSelected.bind(this);
+  }
+
+  onOptionSelected(e) {
+    this.typeahead.current.setEntryText(null);
+    this.typeahead.current.refs.entry.blur();
+    this.props.selectCity(e.currentTarget.id);
+  }
+
+  render() {
+    const { options } = this.props;
+    return (
+      <div
+        id="search"
+      >
+        <Typeahead
+          options={options}
+          placeholder="Search by city or state"
+          filterOption="searchName"
+          value=""
+          displayOption={city => city.ad_id}
+          onOptionSelected={this.onOptionSelected}
+          customListComponent={TypeAheadCitySnippet}
+          onBlur={this.onBlur}
+          maxVisible={8}
+          ref={this.typeahead}
+        />
+      </div>
+    );
+  }
+}
 
 Search.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -24,5 +47,3 @@ Search.propTypes = {
     height: PropTypes.number,
   }).isRequired,
 };
-
-export default Search;

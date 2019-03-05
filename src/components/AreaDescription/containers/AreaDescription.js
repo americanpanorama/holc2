@@ -1,16 +1,17 @@
 import { connect } from 'react-redux';
-import ADImage from '../presentational/ADImage';
 import FormQualitative from '../presentational/FormQualitative';
-import Form19370203 from '../presentational/Form19370203';
-import Form19371001 from '../presentational/Form19371001';
-import Form19370203Curated from '../presentational/Form19370203Curated';
-import Form19371001Curated from '../presentational/Form19371001Curated';
-import Form1939 from '../presentational/Form1939';
-import Form1939Curated from '../presentational/Form1939Curated';
+import Form19370203 from '../Form19370203/presentational/Full';
+import Form19371001 from '../Form19371001/presentational/Full';
+import Form1939 from '../Form1939/presentational/Full';
+import Form19370203Curated from '../Form19370203/presentational/Selected';
+import Form19371001Curated from '../Form19371001/presentational/Selected';
+import Form1939Curated from '../Form1939/presentational/Selected';
 import AreaDescription from '../presentational/AreaDescription';
 
+import { selectCategory } from '../../../store/Actions';
+
 const MapStateToProps = (state) => {
-  const { selectedArea, selectedCity, showADSelections, showADTranscriptions } = state;
+  const { selectedArea, selectedCity, showADSelections } = state;
   let adData = null;
   const formComponents = {
     full: {
@@ -33,23 +34,7 @@ const MapStateToProps = (state) => {
 
   let FormComponent;
 
-  if (!showADTranscriptions) {
-    const { tileUrl, sheets } = state.selectedCity.data.areaDescriptions.byNeighborhood[state.selectedArea];
-    let maxBounds = [[-10, -180], [90, -60]];
-    if (sheets === 2) {
-      maxBounds = [[-10, -180], [90, 70]];
-    }
-    adData = {
-      center: [-125, 75],
-      zoom: 3,
-      maxBounds,
-      url: tileUrl,
-      style: state.dimensions.ADImageStyle,
-    };
-    FormComponent = ADImage;
-  }
-
-  if (showADTranscriptions && selectedArea && selectedCity.data
+  if (selectedArea && selectedCity.data
     && selectedCity.data.areaDescriptions
     && selectedCity.data.areaDescriptions.byNeighborhood[selectedArea]
     && selectedCity.data.areaDescriptions.byNeighborhood[selectedArea].areaDesc) {
@@ -64,4 +49,8 @@ const MapStateToProps = (state) => {
   };
 };
 
-export default connect(MapStateToProps)(AreaDescription);
+const MapDispatchToState = {
+  selectCategory,
+};
+
+export default connect(MapStateToProps, MapDispatchToState)(AreaDescription);

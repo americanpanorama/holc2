@@ -471,24 +471,42 @@ const createCityData = (cityId) => {
               const adData = {};
 
               rawAdData.forEach((row) => {
-                const d = row;
-                const urlPath = `${d.state}/${d.dir_name}/${d.year}/`;
-                const adImageUrl = `${bucketUrl}ads/${urlPath}${d.holc_id}`;
+                const {
+                  state,
+                  dir_name: dirName,
+                  year,
+                  holc_id: holcId,
+                  holc_grade: holcGrade,
+                  the_geojson: theGeojson,
+                  centerlat,
+                  centerlng,
+                  bbymin,
+                  bbxmin,
+                  bbymax,
+                  bbxmax,
+                  name,
+                  sqmi,
+                  sheets,
+                  cat_id: catId,
+                  sub_cat_id: subcatId,
+                  order,
+                  data,
+                } = row;
+                const urlPath = `${state}/${dirName}/${year}/`;
+                const adImageUrl = `${bucketUrl}ads/${urlPath}${holcId}`;
 
                 // append the polygons to the city data--probably refactor as this is not where this should go
-                cityData.polygons[d.holc_id] = (cityData.polygons[d.holc_id]) ? cityData.polygons[d.holc_id] : {};
-                cityData.polygons[d.holc_id].id = d.holc_id;
-                cityData.polygons[d.holc_id].grade = d.holc_grade;
-                cityData.polygons[d.holc_id].area_geojson = (!cityData.polygons[d.holc_id].area_geojson)
-                  ? JSON.parse(d.the_geojson)
-                  : cityData.polygons[d.holc_id].area_geojson;
+                cityData.polygons[holcId] = (cityData.polygons[holcId]) ? cityData.polygons[holcId] : {};
+                cityData.polygons[holcId].id = holcId;
+                cityData.polygons[holcId].grade = holcGrade;
+                cityData.polygons[holcId].area_geojson = (!cityData.polygons[holcId].area_geojson)
+                  ? JSON.parse(theGeojson)
+                  : cityData.polygons[holcId].area_geojson;
 
                 // define id if undefined
-                if (typeof adData[d.holc_id] === 'undefined') {
-                  adData[d.holc_id] = {};
-                }
+                adData[holcId] = adData[holcId] || {};
 
-                adData[d.holc_id].area_geojson_inverted = (!adData[d.holc_id].area_geojson_inverted)
+                adData[holcId].area_geojson_inverted = (!adData[holcId].area_geojson_inverted)
                   ? ((geojson) => {
                     //Create a new set of latlngs, adding our world-sized ring first
                     const NWHemisphere = [[0, 0], [0, 90], [-180, 90], [-180, 0], [0, 0]];
@@ -506,51 +524,52 @@ const createCityData = (cityId) => {
                     });
                     geojson.coordinates = (holes.length > 0) ? [newLatLngs.concat(holes)] : [newLatLngs];
                     return geojson;
-                  })(JSON.parse(d.the_geojson))
-                  : adData[d.holc_id].area_geojson_inverted;
-                adData[d.holc_id].center = [d.centerlat, d.centerlng];
-                adData[d.holc_id].boundingBox = [[d.bbymin, d.bbxmin], [d.bbymax, d.bbxmax]];
-                adData[d.holc_id].name = d.name;
-                adData[d.holc_id].holc_grade = d.holc_grade;
-                adData[d.holc_id].sqmi = d.sqmi;
+                  })(JSON.parse(theGeojson))
+                  : adData[holcId].area_geojson_inverted;
+                adData[holcId].center = [centerlat, centerlng];
+                adData[holcId].boundingBox = [[bbymin, bbxmin], [bbymax, bbxmax]];
+                adData[holcId].name = name;
+                adData[holcId].holc_grade = holcGrade;
+                adData[holcId].sqmi = sqmi;
 
-                adData[d.holc_id].url = `${bucketUrl}tiles/${urlPath}full-size/${d.holc_id}.jpg`;
-                adData[d.holc_id].tileUrl = `${adImageUrl}/{z}/{x}_{y}.png`;
-                adData[d.holc_id].thumbnailUrl = `${adImageUrl}/thumbnail.jpg`;
-                adData[d.holc_id].bucketPath = `${bucketUrl}tiles/${urlPath}`;
+                adData[holcId].url = `${bucketUrl}tiles/${urlPath}full-size/${holcId}.jpg`;
+                adData[holcId].tileUrl = `${adImageUrl}/{z}/{x}_{y}.png`;
+                adData[holcId].thumbnailUrl = `${adImageUrl}/thumbnail.jpg`;
+                adData[holcId].bucketPath = `${bucketUrl}tiles/${urlPath}`;
 
-                adData[d.holc_id].sheets = d.sheets;
+                adData[holcId].sheets = sheets;
 
                 // define area description if undefined
-                if (typeof adData[d.holc_id].areaDesc === 'undefined' || typeof adData[d.holc_id].areaDesc === 'boolean') {
-                  adData[d.holc_id].areaDesc = {};
+                if (typeof adData[holcId].areaDesc === 'undefined' || typeof adData[holcId].areaDesc === 'boolean') {
+                  adData[holcId].areaDesc = {};
                 }
 
                 // define category id for area description if undefined
-                if (d.cat_id && d.sub_cat_id === '' && d.order === null) {
-                  adData[d.holc_id].areaDesc[d.cat_id] = d.data;
-                } else if (d.cat_id && typeof adData[d.holc_id].areaDesc[d.cat_id] === 'undefined') {
-                  adData[d.holc_id].areaDesc[d.cat_id] = {};
+                if (catId && !subcatId && !order) {
+                  adData[holcId].areaDesc[catId] = data;
+                } else if (catId && typeof adData[holcId].areaDesc[catId] === 'undefined') {
+                  adData[holcId].areaDesc[catId] = {};
                 }
+                //console.log(553, holcId, catId, subcatId, order);
                 // check for subcategories
-                if (d.sub_cat_id) {
-                  // create sub-object if we have a subcategory...
-                  if (typeof adData[d.holc_id].areaDesc[d.cat_id][d.sub_cat_id] === 'undefined') {
-                    adData[d.holc_id].areaDesc[d.cat_id][d.sub_cat_id] = {};
-
-                    // look for order
-                    if (d.order) {
-                      adData[d.holc_id].areaDesc[d.cat_id][d.sub_cat_id][d.order] = d.data;
-                    } else {
-                      adData[d.holc_id].areaDesc[d.cat_id][d.sub_cat_id] = d.data;
-                    }
+                if (subcatId) {
+                  //console.log(556, holcId, catId, subcatId, order);
+                  // look for order
+                  if (order) {
+                    //console.log(561, holcId, catId, subcatId, order);
+                    adData[holcId].areaDesc[catId][subcatId] = adData[holcId].areaDesc[catId][subcatId] || {};
+                    //console.log(adData[holcId].areaDesc[catId][subcatId]);
+                    adData[holcId].areaDesc[catId][subcatId][order] = data;
+                    //console.log(adData[holcId].areaDesc[catId][subcatId]);
+                  } else {
+                    adData[holcId].areaDesc[catId][subcatId] = data;
                   }
-                } else if (d.order) {
-                  adData[d.holc_id].areaDesc[d.cat_id][d.order] = row.data;
+                } else if (order) {
+                  adData[holcId].areaDesc[catId][order] = data;
                 }
 
-                if (Object.keys(adData[d.holc_id].areaDesc).length === 0) {
-                  adData[d.holc_id].areaDesc = false;
+                if (Object.keys(adData[holcId].areaDesc).length === 0) {
+                  adData[holcId].areaDesc = false;
                 }
               });
 

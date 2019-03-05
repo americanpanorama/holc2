@@ -1,0 +1,240 @@
+.areaDescription,
+.ADCategory {
+
+    .qualitative {
+        margin: 20px;
+        font-family: 'Merriweather';
+        font-size: 16px;
+        line-height: 26px;
+        font-weight: bolder;
+    }
+
+    h2 {
+        margin: 10px 10px 10px;
+        text-align: center;
+        font-weight: bold;
+        font-family: 'Merriweather';
+        letter-spacing: .1rem;
+
+        a {
+            color: $background;
+            text-decoration: none;
+        }
+    }
+
+
+    .downloadicon {
+        margin-left: -30px;
+        margin-top: -2px;
+        float: right;
+        width: 30px;
+        height: 26px;
+        display: inline-block;
+        background-repeat: no-repeat;
+        opacity: 0.4;
+        cursor: pointer;
+    }
+
+    .downloadicon:hover {
+        opacity: 1.0;
+    }
+
+    
+
+    h4.shown {
+        text-align: center;
+        
+        color: #0c789a;
+        font-size: 1.1em;
+
+        .instructions {
+            font-size: 0.9em;
+            text-decoration: underline;
+        }
+    }
+    
+    .adNav {
+        position: fixed;
+        background-color: #eadfdf;
+        height: 20px;
+        text-align: center;
+        transform: rotate(90deg);
+        cursor: pointer;
+
+        &:hover {
+            background-color: #f3eded;
+        }
+
+    }
+
+    .adThumbnail {
+        text-align: center;
+    }
+
+    .prev3 {
+        transform: rotate(90deg);
+    }
+
+
+
+    .ad-selection {
+
+        height: 40px;
+
+        li {
+            list-style: none;
+        }
+
+        h4 {
+            color: #BD7171;
+            font-size: 1.3em;
+            font-weight: bolder;
+            text-align: center;
+            padding-right: 34px;
+            margin-right: 10px;
+        }
+
+        .ad-left {
+            margin: 8px 0px;
+            float: left;
+            width: 30px;
+            display: inline-block;    
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        
+        .ad-right {
+            margin: 8px 0px -40px;
+            float: right;
+            display: inline-block;   
+            background-repeat: no-repeat;
+            cursor: pointer;
+        }
+        
+        .right-arrow {
+            width: 10px;
+            height: 10px;
+            border-right: 1px solid grey;
+            border-bottom: 1px solid grey;
+            background: transparent;
+            transform: rotate(-45deg);
+            float: right;
+            margin-right: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        
+        .left-arrow {
+            width:10px;
+            height:10px;
+            border-left:1px solid grey;
+            border-bottom:1px solid grey;
+            background:transparent;
+            transform:rotate(45deg);
+            float: left;
+            margin-left: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+        
+        }
+    }
+
+    ul.ad_cat li {
+        list-style: none;
+    }
+
+    span.closeicon {
+        margin-left: -30px;
+        margin-top: -2px;
+        float: right;
+        width: 30px;
+        height: 26px;
+        display: inline-block;
+        background-repeat: no-repeat;
+        opacity: 0.4;
+        cursor: pointer;
+    }
+
+    span.closeicon:hover {
+        opacity: 1.0;
+    }
+
+
+
+    /* .area_description {
+        font-family: 'Lato';
+        font-size: 16px;
+        color: #333;
+
+        h1.data_header {
+            font-size: 1.5em;
+            text-align: center;
+            margin: 0.5em 0;
+            letter-spacing: 0.75px;
+        }
+
+        h2.data_title {
+            font-size: 1.15em;
+            font-weight: bold;
+            background-color: #f4f4f4 ;
+            color: #397b6f;
+            padding: 5px;
+            margin: 0.5em 0;
+            letter-spacing: 0.75px;
+        }
+
+        ul {
+            list-style: none;
+            margin: 1em 0 0 0;
+            padding: 0;
+
+            li {
+                margin-bottom: 0.5em;
+
+                :last-child {
+                    margin-bottom: 1em;
+                }
+
+                ul {
+                    margin-left: 1em;
+                }
+
+                .answer {
+                   font-weight: bold;
+                }
+            }
+        }
+    }
+
+    .neighborhood, .area_desc {
+        padding-bottom: 1.5em;
+    } */
+
+
+    .grade-headerA h2 {
+        background-color: #a0c6a0;
+    }
+
+    .grade-headerB h2 {
+        background-color: #baccde;
+    }
+
+    .grade-headerC h2 {
+        background-color: #ececc6;
+    }
+
+    .grade-headerD h2 {
+        background-color: #dcc1c1;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+

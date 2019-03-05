@@ -1,28 +1,86 @@
-#areaDescription {
-  button {
-    background-color: #ddd;
-    color: #4B4E6D;
-    border-color: #4B4E6D;
-    font-weight: bold;
-    width: 250px;
+#areaDescription,
+#adCategory,
+.adSearchResult,
+.adSelections,
+.adSelection {
+  header {
+    height: 40px;
+    margin-bottom: 10px;
     text-align: center;
-    padding: 0;
 
-    &:hover {
-        background-color: white;
-    }
+    .adButton {
+      &.previous {
+        float: left;
+        margin-left: 10px;
+      }
+      &.next {
+        float: right;
+        margin-right: 10px;
+      }
 
-    &.inactive {
-        background-color: #ddd;
-        border: #ddd;
-        color: #bbb;
+      text {
+        text-anchor: middle;
+        fill: black;
+        font-weight: 400;
+        font-size: 11px;
+      }
+
+      path {
+         fill: transparent;
+         stroke: #ddd;
+         stroke-width: 3;
+      }
+
+      &.gradeA {
+        circle {
+          fill: $gradeA;
+        }
+      }
+      &.gradeB {
+        circle {
+          fill: $gradeB;
+        }
+      }
+      &.gradeC {
+        circle {
+          fill: $gradeC;
+        }
+      }
+      &.gradeD {
+        circle {
+          fill: $gradeD;
+        }
+      }
     }
   }
 
+  .controls {
+    text-align: center;
+
+    button {
+      background-color: #ddd;
+      color: #4B4E6D;
+      border-color: #4B4E6D;
+      font-weight: bold;
+      width: 200px;
+      text-align: center;
+      padding: 0;
+      margin: 10px;
+
+      &:hover {
+          background-color: white;
+      }
+
+      &.inactive {
+          background-color: #ddd;
+          border: #ddd;
+          color: #bbb;
+      }
+    }
+  }
+
+
   ul, .qualitative {
-    font-family: 'Merriweather';
-    font-weight: 300;
-    font-size: 16px;
     line-height: 1.9em;
     list-style: none;
     margin: 20px 40px 0 20px;
@@ -35,35 +93,36 @@
       min-height: 24px;
     }
 
-    .catNum, .catLetter {
+    .catNum, .catLetter, .catName, .subcatName, .holcId, th {
+      @extend %lato-light;
+      color: $controlsColor;
+    }
+
+    .catNum, .catLetter, .catName, .subcatName {
+      line-height: 1em;
       text-align: right;
       display: inline-block;
-      color: grey;
-      margin-right: 10px;
+    }
+
+    .catNum, .catLetter {
       &:after {
-          content: '.';
+        content: '. ';
+        white-space: pre;
       }
-    }
-
-    .catName {
-      color: #555;
-      font-family: Lato;
-    }
-
-    .subcatName {
-      color: grey;
-      font-family: 'Lato';
     }
 
     .catData {
       display: block;
       margin: 7px 0 7px 34px;
-      font-weight: bolder;
     }
 
     .catSelectable {
-      border-bottom: 1px dotted;
+      border-bottom: 1px solid $headerRed;
       cursor: pointer;
+
+      &:hover {
+        color: $headerRed;
+      }
     }
 
     .subcatData {
@@ -98,12 +157,9 @@
           padding: 12px 5px;
           text-align: left;
           border-bottom: 1px solid #e1e1e1;
-          color: grey;
-          font-size: 14px;
       }
 
       td {
-          color: #0c789a;
           padding-right: 4px;
           font-weight: bolder;
           line-height: 1.3;
@@ -130,5 +186,102 @@
         font-style: italic;
         margin: 0 4px;
     }
+  }
+
+  .adimage {
+    height: 1100px;
+  }
+}
+
+#adCategory,
+.adSelections {
+  h3, h4 {
+    text-align: center;
+  }
+
+  #dataViewerFull & {
+    max-width: 1600px;
+    margin: 0 auto;
+    .grade {
+      display: inline-block;
+      vertical-align:top;
+      width: 25%;
+    }
+  }
+  .A {
+    h4 {
+      background-color: $gradeA;
+    }
+  }
+
+  .B {
+    h4 {
+      background-color: $gradeB;
+    }
+  }
+
+  .C {
+    h4 {
+      background-color: $gradeC;
+    }
+  }
+
+  .D {
+    h4 {
+      background-color: $gradeD;
+    }
+  }
+
+  li {
+    clear: both;
+    .holcId {
+      float: left;
+      width: 40px;
+      text-align: right;
+      margin-right: 10px;
+      font-family: 'Lato', sans-serif;
+    }
+
+    .value {
+      margin-left: 50px;
+    }
+  }
+
+
+}
+
+button.cityStats {
+  background-color: $controlsColor;
+  position: fixed;
+  top: $header-height;
+  left: 20px;
+  color: white;
+  border-radius: 0;
+  border: none;
+  height: 36px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.adsearchbox {
+
+  input {
+    display: block;
+    margin: 0 auto;
+    width: 75%;
+  }
+}
+
+.adSelection {
+  margin: 30px auto;
+  width: 90%;
+  line-height: 1.9em;
+  font-size: 1.2em;
+
+  .catName {
+    @extend %lato-light;
+    color: $controlsColor;
+    font-size: 0.9em;
+    float: right;
   }
 }

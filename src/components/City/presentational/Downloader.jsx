@@ -5,7 +5,8 @@ const Downloader = ({ adId, hasADData, hasPolygons, name, rasters }) => {
   const filename = `HOLC_${name.replace(/\s+/g, '')}`;
 
   return (
-    <div className="downloads">
+    <section className="downloads">
+      <h3>Download Maps & Data</h3>
       { (hasADData) && (
         <div className="download_menu_right">
           <h3>
@@ -150,7 +151,7 @@ const Downloader = ({ adId, hasADData, hasPolygons, name, rasters }) => {
         </a>
         .
       </div>
-    </div>
+    </section>
   );
 };
 

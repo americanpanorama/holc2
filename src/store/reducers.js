@@ -2,9 +2,15 @@ import { combineReducers } from 'redux';
 import A from './ActionTypes';
 import initialState from './initialState';
 
-const selectedCategory = (state = null, action) => (
-  (action.type === A.SELECT_CATEGORY) ? action.payload : state
-);
+const selectedCategory = (state = null, action) => {
+  if (action.type === A.SELECT_CATEGORY) {
+    return action.payload;
+  }
+  if (action.type === A.UNSELECT_CATEGORY) {
+    return null;
+  }
+  return state;
+};
 
 const selectedCity = (state = { data: null, isFetching: false }, action) => {
   if (action.type === A.UNSELECT_CITY) {
@@ -16,7 +22,7 @@ const selectedCity = (state = { data: null, isFetching: false }, action) => {
 
   if (action.type === A.SELECT_CITY_REQUEST) {
     return {
-      isFetching: true,
+      isFetching: action.payload,
       data: null,
     };
   }
@@ -35,8 +41,8 @@ const selectedGrade = (state = null, action) => (
   (action.type === A.SELECT_GRADE) ? action.payload : state
 );
 
-const showADTranscriptions = (state = null, action) => (
-  (action.type === A.TOGGLE_AD_TRANSCRIPTION) ? !state : state
+const showADScan = (state = initialState.showADScan, action) => (
+  (action.type === A.TOGGLE_AD_SCAN) ? !state : state
 );
 
 const showADSelections = (state = null, action) => (
@@ -90,14 +96,80 @@ const map = (state = initialState.map, action) => {
   }
 
   if (action.type === A.MOVE_MAP) {
-    return action.payload;
+    return {
+      ...state,
+      ...action.payload,
+    };
   }
+
+  if (action.type === A.MOVE_MAP_END) {
+    return {
+      ...state,
+      movingTo: null,
+    };
+  }
+
+  // select city also gets the polygons
+  if (action.type === A.SELECT_CITY_REQUEST) {
+    return {
+      ...state,
+      loadingPolygonsFor: [
+        ...state.loadingPolygonsFor,
+        action.payload,
+      ],
+    };
+  }
+
+  if (action.type === A.SELECT_CITY_SUCCESS) {
+    // add them if they're not already in the polygons array
+    const extantCityIds = [...new Set(state.visiblePolygons.map(p => p.ad_id))];
+    if (action.payload && action.payload.id && !extantCityIds.includes(action.payload.id)) {
+      const cityPolygons = Object.keys(action.payload.polygons)
+        .map(id => action.payload.polygons[id])
+        .map(p => ({ ...p, ad_id: action.payload.id }));
+      const loadingPolygonsFor = state.loadingPolygonsFor.filter(id => id !== action.payload.id);
+      return {
+        ...state,
+        visiblePolygons: [
+          ...state.visiblePolygons,
+          ...cityPolygons,
+        ],
+        loadingPolygonsFor,
+      };
+    }
+  }
+
   if (action.type === A.LOADED_POLYGONS) {
+    const cityIdsFinished = [...new Set(action.payload.map(p => p.ad_id))];
+    const loadingPolygonsFor = state.loadingPolygonsFor.filter(id => !cityIdsFinished.includes(id));
     return {
       ...state,
       visiblePolygons: action.payload,
+      loadingPolygonsFor,
     };
   }
+  return state;
+};
+
+const adScan = (state = initialState.adScan, action) => {
+  if (action.type === A.ZOOM_IN_ADSCAN) {
+    return {
+      ...state,
+      zoom: state.zoom + 1,
+    };
+  }
+
+  if (action.type === A.ZOOM_OUT_ADSCAN) {
+    return {
+      ...state,
+      zoom: state.zoom - 1,
+    };
+  }
+
+  if (action.type === A.MOVE_ADSCAN) {
+    return action.payload;
+  }
+
   return state;
 };
 
@@ -119,7 +191,7 @@ const basemap = (state = initialState.basemap, action) => {
   return state;
 };
 
-const searchingADs = (state = false, action) => (
+const searchingADsFor = (state = false, action) => (
   (action.type === A.SEARCHING_ADS) ? action.payload : state
 );
 
@@ -131,16 +203,25 @@ const showCityStats = (state = true, action) => (
   (action.type === A.TOGGLE_CITY_STATS) ? !state : state
 );
 
+const showDataViewerFull = (state = initialState.showDataViewerFull, action) => (
+  (action.type === A.TOGGLE_DATA_VIEWER_FULL) ? !state : state
+);
+
 const showHOLCMaps = (state = true, action) => (
   (action.type === A.TOGGLE_HOLC_MAPS) ? !state : state
 );
 
-const showIntroModal = (state = false, action) => (
-  (action.type === A.TOGGLE_INTRO_MODAL) ? action.payload : state
+const selectedText = (state = false, action) => (
+  (action.type === A.SELECT_TEXT) ? action.payload : state
+);
+
+const adSearchHOLCIds = (state = initialState.adSearchHOLCIds, action) => (
+  (action.type === A.SEARCHING_ADS_RESULTS) ? action.payload : state
 );
 
 // immutable--loaded from data that doesn't change
 const cities = (state = {}) => state;
+const formsMetadata = (state = initialState.formsMetadata) => state;
 
 const dimensions = (state = {}, action) => (
   (action.type === A.WINDOW_RESIZED) ? action.payload : state
@@ -155,14 +236,18 @@ const combinedReducer = combineReducers({
   showCityStats,
   visibleCities,
   map,
+  adScan,
   basemap,
-  searchingADs,
-  showADTranscriptions,
+  searchingADsFor,
+  showADScan,
   showADSelections,
   showContactUs,
+  showDataViewerFull,
   showHOLCMaps,
-  showIntroModal,
+  selectedText,
+  adSearchHOLCIds,
   cities,
+  formsMetadata,
   dimensions,
 });
 

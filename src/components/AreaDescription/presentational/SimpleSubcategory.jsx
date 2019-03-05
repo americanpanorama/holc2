@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const SimpleSubcategory = ({ data, num, letter, name }) => (
+const SimpleSubcategory = ({ data, num, letter, name, after, selectCategory }) => (
   <li>
     <span
-      className="catLetter catSelectable"
-      //onClick={ this.props.onCategoryClick }
+      className={`catLetter ${(selectCategory) ? 'catSelectable' : ''}`}
+      onClick={selectCategory}
       id={`${num}-${letter}`}
     >
       {letter}
     </span>
     <span
-      className="subcatName catSelectable"
-      //onClick={ this.props.onCategoryClick }
+      className={`subcatName ${(selectCategory) ? 'catSelectable' : ''}`}
+      onClick={selectCategory}
       id={`${num}-${letter}`}
     >
       {name}
@@ -27,6 +27,11 @@ const SimpleSubcategory = ({ data, num, letter, name }) => (
         )
       }
     </span>
+    {(after) && (
+      <span className="subcatName">
+        {after}
+      </span>
+    )}
   </li>
 );
 
@@ -37,8 +42,12 @@ SimpleSubcategory.propTypes = {
   num: PropTypes.number.isRequired,
   letter: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
+  after: PropTypes.string,
+  selectCategory: PropTypes.func,
 };
 
 SimpleSubcategory.defaultProps = {
   data: undefined,
+  selectCategory: undefined,
+  after: undefined,
 };

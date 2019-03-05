@@ -1,0 +1,55 @@
+#adImage {
+  width: 100%;
+  height: 100%;
+
+  .adimage {
+    width: 100%;
+    height: 100%;
+    background-color: $darkColor;
+  }
+
+  #adScanControls {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    z-index: 1000;
+
+    button {
+      background-color: $controlsColor;
+      color: white;
+      border-radius: 0;
+      border: none;
+      height: 36px;
+      
+      &.mapToggle {
+        width: 200px;
+        right: 148px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+      }
+
+      &.zoomIn, &.zoomOut, &.closeScan {
+        padding: 0;
+        width: 36px;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+
+      &.zoomIn {
+        right: 92px;
+        border-bottom-left-radius: 10px;
+      }
+
+      &.zoomOut {
+        right: 56px;
+        border-right: 1px solid white;
+        border-left: 1px solid white;
+      }
+
+      &.closeScan {
+        right: 20px;
+        border-bottom-right-radius: 10px;
+      }
+    }
+  }
+}

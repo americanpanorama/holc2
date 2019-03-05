@@ -1,12 +1,13 @@
 import { connect } from 'react-redux';
 import Masthead from '../presentational/Masthead';
-//import {  } from '../../../store/Actions';
+import { selectText } from '../../store/Actions';
 
 const mapStateToProps = state => ({
+  media: state.dimensions.media,
 });
 
-// const mapDispatchToProps = {
-//   ,
-// };
+const mapDispatchToProps = {
+  selectText,
+};
 
-export default connect(mapStateToProps)(Masthead);
+export default connect(mapStateToProps, mapDispatchToProps)(Masthead);

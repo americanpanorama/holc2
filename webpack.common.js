@@ -55,6 +55,10 @@ const config = {
       scripts: ['https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.core.js'],
       meta: [
         {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1'
+        },
+        {
           property: 'og:url',
           content: 'https://dsl.richmond.edu/panorama/congress/'
         },

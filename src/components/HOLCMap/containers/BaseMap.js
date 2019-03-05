@@ -6,6 +6,7 @@ const mapStateToProps = state => ({
   key: (state.map.zoom >= 9) ? 'labels' : 'noLabels',
   zIndex: -1,
   detectRetina: true,
+  continuousWorld: true,
 });
 
 export default connect(mapStateToProps)(TileLayer);

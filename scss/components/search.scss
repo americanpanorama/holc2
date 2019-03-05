@@ -1,0 +1,62 @@
+#search {
+	@extend %lato-normal;
+	overflow-y: hidden;
+	position: fixed;
+	top: $header-height;
+	right: 368px;
+	z-index: 1001;
+	pointer-events: none;
+	background-color: transparent;
+
+	input {
+		height: 40px;
+		width: 100%;
+		pointer-events: auto;
+		background-color: $controlsColorLightGrey;
+		color: black;
+		border-top: none;
+		border-right: 1px solid $controlsColor;
+		border-left: 1px solid $controlsColor;
+		border-bottom: 1px solid $controlsColor;
+		border-radius: 0;
+		border-bottom-left-radius: 10px;
+		border-bottom-right-radius: 10px;
+		height: 35px;
+		
+		&:focus {
+			width: 600px;
+			background-color: white;
+		}
+	}
+
+	.typeahead {
+		overflow-y: visible;
+
+		.searchResults {
+			margin-right: -20px;
+			margin-top: -10px;
+			padding-top: 10px;
+			width: 598px;
+			background-color: rgba($controlsColor, 0.9);
+			color: white;
+
+			border-top: none;
+			border-right: 1px solid $controlsColor;
+			border-left: 1px solid $controlsColor;
+			border-bottom: 1px solid $controlsColor;
+			border-radius: 0;
+			border-bottom-left-radius: 10px;
+			border-bottom-right-radius: 10px;
+		}
+
+		.city-snippet {
+			pointer-events: auto;
+			padding-right: 20px;
+
+			&:last-of-type {
+				padding-bottom: 20px;
+			}
+		}
+	}
+
+}

@@ -1,0 +1,187 @@
+{
+  "atlanta-ga": [
+    {
+      "holcId": "D20",
+      "grade": "D",
+      "name": "North Avenue to Edgewood Avenue",
+      "selection": "Although this area is considered a good negro rental area from an investment standpoint, it also contains one of the city's worst slum areas.",
+      "cat": 5
+    },
+    {
+      "holcId": "D17",
+      "grade": "D",
+      "name": "Lakewood Heights",
+      "selection": "Property if acquired in this area, should be held for fair value. This is known as best negro area in Atlanta and contains best type of negro residents and highest percentage of negro home ownership.",
+      "cat": 5
+    },
+    {
+      "holcId": "B1",
+      "grade": "B",
+      "name": "Paces Ferry Road Development Company's property",
+      "selection": "Proximity to small negro settlement and expansion of Buckhead business center.",
+      "cat": 1,
+      "subcat": "c"
+    },
+    {
+      "holcId": "D13",
+      "grade": "D",
+      "name": "",
+      "selection": "Proximity to industrial plants, Federal Prison, and Southern Railroad. Difficulty of rental collections.",
+      "cat": 1,
+      "subcat": "c"
+    },
+    {
+      "holcId": "C27",
+      "grade": "C",
+      "name": "Federal Prison Area",
+      "selection": "Proximity to Federal Prison, Chevrolet plant, and other industrial plants located along Southern Railroad,",
+      "cat": 1,
+      "subcat": "c"
+    },
+    {
+      "holcId": "A2",
+      "grade": "A",
+      "name": "Peachtree Heights Park, Westover, and Haynes Manor",
+      "selection": "Street car service only along Peachtree Road to Buckhead presents difficulty of transporting negro servants.",
+      "cat": 1,
+      "subcat": "c"
+    }
+  ],
+  "norfolk-va": [
+    {
+      "holcId": "D1",
+      "grade": "D",
+      "name": "Titustown",
+      "selection": "The area is close to two of the best residential sections in Norfolk, thus affording opportunity for employment as domestics.",
+      "cat": 8
+    },
+    {
+      "holcId": "D5",
+      "grade": "D",
+      "name": "Hunterville and Lindwood",
+      "selection": "This is a level area east of Elmwood Cemetery, inhabited by a somewhat better type of negroes. A number of houses have been rehabilitated and are in good condition for a negro neighborhood.",
+      "cat": 8
+    },
+    {
+      "holcId": "D19",
+      "grade": "D",
+      "name": "Gosport",
+      "selection": "The inhabitants are mixed types of people, some of questionable occupations. ",
+      "cat": 8
+    },
+    {
+      "holcId": "D30",
+      "grade": "D",
+      "name": "Hampton (North End)",
+      "selection": " There are a number of shellfishing establishments along the waterfront. Here, crab meat and other shell fish are cooked in large quantities and especially in damp weather this gives rise to objectionable odors which are noticeable throughout the city.",
+      "cat": 8
+    },
+    {
+      "holcId": "B3",
+      "grade": "B",
+      "name": "Bay View Beach",
+      "selection": "It is restricted against colored people.",
+      "cat": 8
+    },
+    {
+      "holcId": "B5",
+      "grade": "B",
+      "name": "Algonquin Paerk",
+      "selection": "Titustown (D-1) adjacent to the north is not detrimental because of the sparsely settled area between and further because it offers a convenient supply of domestic help.",
+      "cat": 8
+    },
+    {
+      "holcId": "B9",
+      "grade": "B",
+      "name": "Colonial Place",
+      "selection": "An orphanage is located on Massachusetts Ave. near Gosnold, and there is a large nursing home on Gosnold Avenue. These inflluences cause sales resistance and have resulted in a declining level of market prices since 1935.",
+      "cat": 8
+    },
+    {
+      "holcId": "B14",
+      "grade": "B",
+      "name": "North End",
+      "selection": "While there is a good outlook across the river, the water is polluted because of sewerage disposal, and not usable for swimming.",
+      "cat": 8
+    },
+    {
+      "holcId": "C24",
+      "grade": "C",
+      "name": "Prentis Park",
+      "selection": "A fertilizer plant using ammonia in its manufacturing process is located nearby and obnoxious odors are often noticed, especially in damp weather when the fumes remain close to the ground.",
+      "cat": 8
+    }
+  ],
+  "richmond-va": [
+    {
+      "holcId": "C4",
+      "grade": "C",
+      "name": "Byrd Park",
+      "selection": "This area is yellow, largely because the school for white children is in the negro area, D-8, and because the negroes of D-8 pass back and forth for access to the William Byrd Park which lies to the west. For this reason losses on properties are being taken."
+    },
+    {
+      "holcId": "C7",
+      "grade": "C",
+      "selection": "Respectable people but homes are too near negro area D2"
+    }
+  ],
+  "roanoke-va": [
+    {
+      "holcId": "C2",
+      "grade": "C",
+      "selection": "Approach through negro section. Borders on undesirable section. Unsuccessful development. Outlook unfavorable because of local prejudice against foreign born ..."
+    }
+  ],
+  "tacoma-wa": [
+    {
+      "holcId": "D1",
+      "grade": "D",
+      "selection": "Three highly respected Negro families own homes and live in the middle block of this area facing Verde Street. While very much above the average of their race, it is quite generally recognized by Realtors that their presence seriously detracts from the desirability of their immediate neighborhood."
+    },
+    {
+      "holcId": "D7",
+      "grade": "D",
+      "selection": "This might be classed as a 'Low Yellow' area were it not for the presence of the number of Negroes and low class Foreign families who reside in the area. "
+    },
+    {
+      "holcId": "C9",
+      "grade": "C",
+      "selection": "This might be classed as a 'Low Yellow' area were it not for the presence of the number of Negroes and low class Foreign families who reside in the area."
+    },
+    {
+      "holcId": "A1",
+      "grade": "A",
+      "selection": "No effective deed restrictions and zoning ordinances do not protect from apartment houses ..."
+    }
+  ],
+  "spokane-wa": [
+    {
+      "holcId": "C5",
+      "grade": "C",
+      "name": "Northwest Blvd",
+      "selection": "There are said to be several families of negroes in the vicinity of Walnut Street and Fairview Avenue."
+    },
+    {
+      "holcId": "D5",
+      "grade": "D",
+      "selection": "Odors from stock yards and packing houses."
+    },
+    {
+      "holcId": "A5",
+      "grade": "A",
+      "selection": "This area is a high deed restricted .... This is the city's most aristocratic section ..."
+    },
+    {
+      "holcId": "B8",
+      "grade": "B",
+      "name": "Ross Addition",
+      "selection": "Deed to property in this area prohibit the sale or manufacture of intoxicating liquors and provide that violation of this provision automatically reverts to the property to the heirs of the grantor .... [T]he Home Owners' Loan Corporation has consistently refused to make loans to this area on account of this restriction"
+    },
+    {
+      "holcId": "D10",
+      "grade": "D",
+      "name": "Liberty Park District",
+      "selection": "The territory immediately adjacent to Liberty Park is slightly better grade but proximity to largest negro concentration of the city precludes higher grading."
+    }
+  ]
+}

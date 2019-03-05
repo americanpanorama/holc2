@@ -1,51 +1,79 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import Hamburger from '../Buttons/presentational/Hamburger';
 
-const Masthead = ({ style }) => {
-  return (
-    <header id="masthead" style={style}>
-      <h1>
-        <span className="header-main">
-          Mapping Inequality
-        </span>
-        <span className="header-sub">
-          Redlining in New Deal America
-        </span>
-      </h1>
-      <nav>
-        <h4
-          //onClick={props.onModalClick}
-          id="intro"
-        >
-          Introduction
-        </h4>
-      {/* JSX Comment 
-        <h4
-          //onClick={props.onModalClick}
-          id="bibliograph"
-        >
-          Bibliographic Note & Bibliography
-        </h4> */}
-        <h4
-          //onClick={props.onModalClick}
-          id="about"
-        >
-          About
-        </h4>
-        <h4
-          //onClick={props.onContactUsToggle}
-        >
-          Contact Us
-        </h4>
-      </nav>
-    </header>
-  );
-};
+export default class Masthead extends React.Component {
+  constructor(props) {
+    super(props);
 
-export default Masthead;
+    this.state = {
+      menuOpen: this.props.media !== 'phone',
+    };
+
+    this.onMenuToggle = this.onMenuToggle.bind(this);
+  }
+
+  onMenuToggle() {
+    this.setState({
+      menuOpen: !this.state.menuOpen,
+    });
+  }
+
+  render() {
+    const { media, selectText } = this.props;
+
+    return (
+      <header id="masthead">
+        <h1>
+          <span className="header-main">
+            Mapping Inequality
+          </span>
+          <span className="header-sub">
+            Redlining in New Deal America
+          </span>
+        </h1>
+        <nav>
+          {(media === 'phone') && (
+            <div
+              className="menuToggle"
+              onClick={this.onMenuToggle}
+            >
+              <Hamburger />
+            </div>
+          )}
+          {(this.state.menuOpen) && (
+            <ul>
+              <li
+                onClick={selectText}
+                id="intro"
+              >
+                Introduction
+              </li>
+              <li
+                onClick={selectText}
+                id="about"
+              >
+                About
+              </li>
+              <li
+                onClick={selectText}
+                id="contactUs"
+              >
+              Contact Us
+              </li>
+            </ul>
+          )}
+        </nav>
+      </header>
+    );
+  }
+}
 
 Masthead.propTypes = {
-  //onModalClick: PropTypes.func.isRequired,
-  //onContactUsToggle: PropTypes.func.isRequired,
-  style: PropTypes.object.isRequired,
+  media: PropTypes.string.isRequired,
+  selectText: PropTypes.func,
+};
+
+Masthead.defaultProps = {
+  selectText: () => false,
 };

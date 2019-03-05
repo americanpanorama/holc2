@@ -9,16 +9,22 @@
 
 // component styles
 @import "components/app";
+@import "components/VizCanvas";
+@import "components/HOLCMap";
+@import "components/ADImage";
+
+
+
 @import "components/citySnippet";
 @import "components/cityStats";
 @import "components/areaDescription";
 @import "components/masthead.scss";
-@import "components/HOLCMap";
-@import "components/sidebar.scss";
+
+@import "components/dataViewer.scss";
 @import "components/itemSelector";
 @import "components/downloader";
 @import "components/intro";
-@import "components/typeahead";
+@import "components/search";
 @import "components/rcslider";
 @import "components/text.scss";
 @import "components/legend.scss";

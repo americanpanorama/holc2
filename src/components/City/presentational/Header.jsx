@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import MinimizeButton from '../../Buttons/presentational/Minimize';
 
 const Header = (props) => {
   const {
@@ -12,14 +13,18 @@ const Header = (props) => {
     toggleCityStats,
   } = props;
 
+  if (!name) {
+    return null;
+  }
+
   return (
-    <h2 className="sidebarTitle">
+    <h2>
       <a
         href={`http://dsl.richmond.edu/panorama/redlining/#city=${slug}`}
         onClick={onCitySelected}
         id={adId}
       >
-        {`${name},`}
+        {`${name}, `}
       </a>
       <span
         onClick={onStateSelected}
@@ -39,41 +44,27 @@ const Header = (props) => {
           marginLeft: 20,
         }}
       >
-        <svg
-          width={20}
-          height={20}
-        >
-          <g transform={`translate(${20 / 2} ${20 / 2})`}>
-            <circle
-              cx={0}
-              cy={0}
-              r={20 / 2}
-              fill="#4B4E6D"
-              fillOpacity={1}
-            />
-            <line
-              x1={-5}
-              x2={5}
-              y1={0}
-              y2={0}
-              stroke="#ddd"
-              strokeWidth={20 / 10}
-            />
-          </g>
-        </svg>
+        <MinimizeButton />
       </span>
     </h2>
   );
 };
 
 Header.propTypes = {
-  slug: PropTypes.string.isRequired,
+  slug: PropTypes.string,
   onCitySelected: PropTypes.func.isRequired,
-  adId: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
+  adId: PropTypes.number,
+  name: PropTypes.string,
   onStateSelected: PropTypes.func.isRequired,
-  state: PropTypes.string.isRequired,
+  state: PropTypes.string,
   toggleCityStats: PropTypes.func.isRequired,
+};
+
+Header.defaultProps = {
+  slug: undefined,
+  adId: undefined,
+  name: undefined,
+  state: undefined,
 };
 
 export default Header;
