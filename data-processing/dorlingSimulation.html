@@ -1,0 +1,108 @@
+<!-- run `python -m SimpleHTTPServer` from command line in this directory for this to work so you can use require --> 
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Dorling Cartogram</title>
+<style>
+  body { background-color: #233036; }
+  circle { stroke: #222; stroke-width: 1px; }
+</style>
+<body>
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="https://d3js.org/topojson.v2.min.js"></script>
+  <script>
+
+const xys = {
+  5: [],
+  6: [],
+  7: [],
+  8: [],
+  9: [],
+};
+
+
+const runSimulation = (zoom) => {
+  const scaleUp = 8.8 * (2 ** (zoom - 5));
+
+  const projection = d3.geoMercator().scale([150 * scaleUp]).translate([480 * scaleUp, 250 * scaleUp]);
+  const path = d3.geoPath().projection(projection);
+
+  const width = 9600;
+  const height = 5000;
+
+  const geographyURL = 'https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json';
+  const citiesURL = 'http://localhost:8000/data/Cities.json';
+
+  const svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+    .append("g");
+
+  d3.json(geographyURL, (err, geojson) => {
+    svg.append("path")
+      .attr("d", path(geojson))
+      .style("fill", '#656e72');
+
+      d3.json(citiesURL, (err, nodes) => {
+        const cities = nodes;
+
+        const citiesList = Object.keys(cities).map(id => cities[id]);
+        const citiesWithAreas = citiesList.filter(c => c.area && c.area.total);
+        const largestArea = Math.max(...citiesWithAreas.map(c => c.area.total));
+
+        const nodesData = Object.keys(cities)
+          .map(id => {
+            cities[id].cx = projection([cities[id].centerLng, cities[id].centerLat])[0];
+            cities[id].cy = projection([cities[id].centerLng, cities[id].centerLat])[1];
+            cities[id].x = cities[id].cx;
+            cities[id].y = cities[id].cy;
+            cities[id].r = Math.max(70 * Math.sqrt(cities[id].area.total / largestArea), 12) / 2;
+            
+            return cities[id];
+          });
+
+
+        var node = svg.selectAll("circle")
+            .data(nodesData)
+          .enter().append("circle")
+            .attr("cx", d => d.cx)
+            .attr("cy", d => d.cy)
+            .attr("r", d => d.r)
+            .style("fill", '#0e1315')
+            .style("stroke-width", 0)
+            .attr("id", d => d.ad_id);
+
+    // run the simulation starting with the non-city districts and the city nodes
+        var simulation = d3.forceSimulation(nodesData)
+          .force("collide", d3.forceCollide().radius(function(d) { return Math.max(70 * Math.sqrt(d.area.total / largestArea), 12) / 2 + 2; }).strength(0.001).iterations(80))
+          //.force("forceY", d3.forceY().y(function(d) { return (predecessorsXYs[d.id]) ? predecessorsXYs[d.id][1] : 0 }).strength(d => (predecessorsXYs[d.id]) ? 0.8 : 0))
+          //.force("forceX", d3.forceX().x(function(d) { return (predecessorsXYs[d.id]) ? predecessorsXYs[d.id][0] : 0 }).strength(d => (predecessorsXYs[d.id]) ? 0.8 : 0))
+          //.force("forceX", d3.forceX().x(cityXY.x).strength(0.5))
+          .on('tick', function() {
+            node
+              .attr("cx", function(d) { return d.x; })
+              .attr("cy", function(d) { return d.y; });
+          })
+          .on('end', () => {
+            // get the city nodes so you can place the city districtsion
+
+            const dorlings = svg.selectAll("circle");
+            dorlings.each(d => xys[zoom].push({ 
+              city: d.ad_id,
+              point: projection.invert([d.x, d.y]).map(coord => Math.round(coord * 1000) / 1000),
+            }));
+
+            console.log(xys);
+            if (zoom < 9) {
+              runSimulation(zoom + 1);
+            }
+          });
+
+      });
+  });
+}
+
+runSimulation(5);
+  </script>
+
+</body>

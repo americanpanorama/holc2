@@ -1,11 +1,12 @@
 import { connect } from 'react-redux';
 import Header from '../presentational/Header';
 import { citySelected, toggleCityStatsOnOff } from '../../../store/Actions';
+import { getSelectedCityData } from '../../../store/selectors';
 
 const MapStateToProps = (state) => {
-  const { selectedCity } = state;
-  if (selectedCity.data) {
-    const { slug, id: adId, name, state: theState } = selectedCity.data;
+  const selectedCityData = getSelectedCityData(state);
+  if (selectedCityData) {
+    const { slug, ad_id: adId, name, state: theState } = selectedCityData;
     return {
       slug,
       adId: parseInt(adId, 10),

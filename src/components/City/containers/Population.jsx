@@ -1,9 +1,14 @@
 import { connect } from 'react-redux';
 import Population from '../presentational/Population';
+import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
-  const cityId = state.selectedCity.data.id;
-  const { population } = state.cities[cityId];
+  const selectedCityData = getSelectedCityData(state);
+  if (!selectedCityData) {
+    return;
+  }
+
+  const { population } = selectedCityData;
 
   if (!population || !population['1940']) {
     return;

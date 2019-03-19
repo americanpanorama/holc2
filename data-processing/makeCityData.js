@@ -13,9 +13,10 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 let rastersData;
 const citiesData = {};
+const areasData = {};
 
 const createRastersData = () => {
-  const queryOverlaps = 'SELECT distinct(hm1.map_id) FROM digitalscholarshiplab.holc_maps AS hm1, digitalscholarshiplab.holc_maps AS hm2 WHERE hm1.map_id <> hm2.map_id AND ST_Overlaps(hm1.the_geom, hm2.the_geom)';
+  const queryOverlaps = 'SELECT distinct(hm1.map_id) FROM digitalscholarshiplab.holc_maps_v2 AS hm1, digitalscholarshiplab.holc_maps AS hm2 WHERE hm1.map_id <> hm2.map_id AND ST_Overlaps(hm1.the_geom, hm2.the_geom)';
 
   request({
     url: `${url}${queryOverlaps}`,
@@ -24,11 +25,12 @@ const createRastersData = () => {
     const overlaps = theOverlaps.rows.map(overlapObj => overlapObj.map_id);
 
     // get the raster data
-    const queryRasters = 'SELECT holc_maps.*, ST_asgeojson(holc_maps.the_geom, 4) as the_geojson, st_xmin(holc_maps.the_geom) as minLng, st_xmax(holc_maps.the_geom) as maxLng, st_ymin(holc_maps.the_geom) as minLat, st_ymax(holc_maps.the_geom) as maxLat, st_x(st_centroid(holc_maps.the_geom)) as centerLng, st_y(st_centroid(holc_maps.the_geom)) as centerLat FROM holc_maps';
+    const queryRasters = 'SELECT *, ST_asgeojson(the_geom, 4) as the_geojson, st_xmin(the_geom) as minLng, st_xmax(the_geom) as maxLng, st_ymin(the_geom) as minLat, st_ymax(the_geom) as maxLat, st_x(st_centroid(the_geom)) as centerLng, st_y(st_centroid(the_geom)) as centerLat FROM holc_maps_v2';
     request({
       url: `${url}${queryRasters}`,
       json: true,
     }, (error, response, theRasters) => {
+
       rastersData = Object.keys(theRasters.rows).map((i) => {
         const r = theRasters.rows[i];
         return {
@@ -52,10 +54,10 @@ const createRastersData = () => {
           sortLat: r.sortlat,
           sortLng: r.sortlng,
           inset: r.inset,
-          url: `//s3.amazonaws.com/holc/tiles/${r.state}/${r.file_name.replace(/\s+/g, '')}/${r.year}/{z}/{x}/{y}.png`,
-          retinaUrl: `//s3.amazonaws.com/holc/tiles_retina/${r.state}/${r.file_name.replace(/\s+/g, '')}/${r.year}/{z}/{x}/{y}.png`,
-          mapUrl: (!r.inset) ? `//s3.amazonaws.com/holc/tiles/${r.state}/${r.file_name.replace(/\s+/g, '')}/${r.year}/holc-scan.jpg` : null,
-          rectifiedUrl: `//s3.amazonaws.com/holc/tiles/${r.state}/${r.file_name.replace(/\s+/g, '')}/${r.year}/rectified.zip`,
+          url: `//s3.amazonaws.com/holc/tiles/${r.state}/${(r.file_name) ? r.file_name.replace(/\s+/g, '') : 'NEEDED'}/${r.year}/{z}/{x}/{y}.png`,
+          //retinaUrl: `//s3.amazonaws.com/holc/tiles_retina/${r.state}/${r.file_name.replace(/\s+/g, '')}/${r.year}/{z}/{x}/{y}.png`,
+          mapUrl: (!r.inset) ? `//s3.amazonaws.com/holc/tiles/${r.state}/${(r.file_name) ? r.file_name.replace(/\s+/g, '') : 'NEEDED'}/${r.year}/holc-scan.jpg` : null,
+          rectifiedUrl: `//s3.amazonaws.com/holc/tiles/${r.state}/${(r.file_name) ? r.file_name.replace(/\s+/g, '') : 'NEEDED'}/${r.year}/rectified.zip`,
         };
       });
       // write the file
@@ -67,8 +69,7 @@ const createRastersData = () => {
 };
 
 const createCitiesData = () => {
-  const query = "WITH polygon_bounds as (select ad_id, st_xmin(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmin, st_ymin(st_envelope(st_collect(holc_polygons.the_geom))) as bbymin, st_xmax(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmax, st_ymax(st_envelope(st_collect(holc_polygons.the_geom))) as bbymax FROM holc_polygons group by ad_id), has_ads as (select count(data), ad_id from holc_ad_data join holc_polygons on holc_ad_data.polygon_id = holc_polygons.neighborhood_id group by ad_id) SELECT holc_ads.city_id as ad_id, city, state, holc_ads.year, looplat::numeric, looplng::numeric, form_id, total_pop_1940, total_pop_1930, american_indian_eskimo_1930, american_indian_eskimo_1940, asian_pacific_1930 as asian_pacific_islander_1930, asian_pacific_1940 as asian_pacific_1940, black_pop_1930, black_pop_1940, white_pop_1930, white_pop_1940, fb_30, fb30_afr_amer, fb30_all_other, fb30_chinese, fb30_indian, fb30_japanese, fb30_other_races, fb30_white, native_pop_1930, fb_40, fb40_afr_amer, fb40_all_other, fb40_chinese, fb40_indian, fb40_japanese, fb40_other_races, fb40_white, native_pop_1940, images, case when has_ads.ad_id is not null then true else false end as has_ads, sum(st_area(holc_polygons.the_geom_webmercator)) / 1609.34^2 as total_area, sum(CASE WHEN holc_grade = 'A' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_a, sum(CASE WHEN holc_grade = 'B' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_b, sum(CASE WHEN holc_grade = 'C' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_c, sum(CASE WHEN holc_grade = 'D' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_d, bbxmin, bbymin, bbxmax, bbymax, array_agg(distinct map_id) as map_ids FROM holc_polygons right join holc_ads on holc_polygons.ad_id = holc_ads.city_id left join polygon_bounds on holc_ads.city_id = polygon_bounds.ad_id join holc_maps_ads_join on holc_maps_ads_join.ad_id = holc_ads.city_id left join has_ads on has_ads.ad_id = holc_ads.city_id and holc_ads.looplng is not null and holc_ads.looplat is not null group by holc_ads.city_id, city, state, holc_ads.year, form_id, looplat, looplng, total_pop_1940, total_pop_1930, american_indian_eskimo_1930, american_indian_eskimo_1940, asian_pacific_1930, asian_pacific_1940, black_pop_1930, black_pop_1940, white_pop_1930, white_pop_1940, fb_30, fb30_afr_amer, fb30_all_other, fb30_chinese, fb30_indian, fb30_japanese, fb30_other_races, fb30_white, native_pop_1930, fb_40, fb40_afr_amer, fb40_all_other, fb40_chinese, fb40_indian, fb40_japanese, fb40_other_races, fb40_white, native_pop_1940, images, has_ads, bbxmin, bbymin, bbxmax, bbymax  order by state, city";
-
+  // const query = "WITH polygon_bounds as (select ad_id, st_xmin(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmin, st_ymin(st_envelope(st_collect(holc_polygons.the_geom))) as bbymin, st_xmax(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmax, st_ymax(st_envelope(st_collect(holc_polygons.the_geom))) as bbymax FROM holc_polygons group by ad_id), has_ads as (select count(data), ad_id from holc_ad_data join holc_polygons on holc_ad_data.polygon_id = holc_polygons.neighborhood_id group by ad_id) SELECT holc_ads.city_id as ad_id, city, state, holc_ads.year, looplat::numeric, looplng::numeric, form_id, total_pop_1940, total_pop_1930, american_indian_eskimo_1930, american_indian_eskimo_1940, asian_pacific_1930 as asian_pacific_islander_1930, asian_pacific_1940 as asian_pacific_1940, black_pop_1930, black_pop_1940, white_pop_1930, white_pop_1940, fb_30, fb30_afr_amer, fb30_all_other, fb30_chinese, fb30_indian, fb30_japanese, fb30_other_races, fb30_white, native_pop_1930, fb_40, fb40_afr_amer, fb40_all_other, fb40_chinese, fb40_indian, fb40_japanese, fb40_other_races, fb40_white, native_pop_1940, images, case when has_ads.ad_id is not null then true else false end as has_ads, sum(st_area(holc_polygons.the_geom_webmercator)) / 1609.34^2 as total_area, sum(CASE WHEN holc_grade = 'A' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_a, sum(CASE WHEN holc_grade = 'B' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_b, sum(CASE WHEN holc_grade = 'C' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_c, sum(CASE WHEN holc_grade = 'D' THEN st_area(holc_polygons.the_geom_webmercator) ELSE 0 END) / 1609.34^2 as area_d, bbxmin, bbymin, bbxmax, bbymax, array_agg(distinct map_id) as map_ids FROM holc_polygons right join holc_ads on holc_polygons.ad_id = holc_ads.city_id left join polygon_bounds on holc_ads.city_id = polygon_bounds.ad_id join holc_maps_ads_join on holc_maps_ads_join.ad_id = holc_ads.city_id left join has_ads on has_ads.ad_id = holc_ads.city_id and holc_ads.looplng is not null and holc_ads.looplat is not null group by holc_ads.city_id, city, state, holc_ads.year, form_id, looplat, looplng, total_pop_1940, total_pop_1930, american_indian_eskimo_1930, american_indian_eskimo_1940, asian_pacific_1930, asian_pacific_1940, black_pop_1930, black_pop_1940, white_pop_1930, white_pop_1940, fb_30, fb30_afr_amer, fb30_all_other, fb30_chinese, fb30_indian, fb30_japanese, fb30_other_races, fb30_white, native_pop_1930, fb_40, fb40_afr_amer, fb40_all_other, fb40_chinese, fb40_indian, fb40_japanese, fb40_other_races, fb40_white, native_pop_1940, images, has_ads, bbxmin, bbymin, bbxmax, bbymax  order by state, city";
 
   const parsePopSnippetDisplayDataDecade = (popStatsDecade) => {
     const displayData = {
@@ -138,7 +139,6 @@ const createCitiesData = () => {
     return displayData;
   };
 
-
   const parsePopSnippetDisplayData = (popStats) => {
     const displayPop = {
       1930: parsePopSnippetDisplayDataDecade(popStats[1930]),
@@ -173,90 +173,314 @@ const createCitiesData = () => {
     return displayPop;
   };
 
+  console.log('querying basic city data');
+  const query = 'select * from holc_ad_v2';
   request({
     url: `${url}${query}`,
     json: true,
   }, (error, response, cities) => {
     if (!error && response.statusCode === 200) {
+      // process basic info
       Object.keys(cities.rows).forEach((i) => {
         const c = cities.rows[i];
-        citiesData[c.ad_id] = {
-          ad_id: parseInt(c.ad_id),
+        citiesData[c.city_id] = {
+          ad_id: c.city_id,
           name: c.city,
           state: c.state,
-          year: (c.year) ? c.year.replace(/(\r\n\t|\n|\r\t)/gm, '') : null,
+          year: (c.year) ? c.year.replace(/(\r\n\t|\n|\r\t)/gm, '') : '19XX',
           searchName: `${c.city} ${stateAbbrs[c.state]} ${c.state}`,
           slug: `${c.city.toLowerCase().replace(/ +/g, '-')}-${c.state.toLowerCase()}`,
           form_id: c.form_id,
-          centerLat: c.looplat,
-          centerLng: c.looplng,
-          bounds: (c.bbymin && c.bbxmin && c.bbymax && c.bbxmax) ? [[c.bbymin, c.bbxmin], [c.bbymax, c.bbxmax]] : null,
           hasImages: c.images,
-          hasADs: c.has_ads,
-          population: {
-            1930: {
-              total: c.total_pop_1930,
-
-              AfricanAmerican: c.black_pop_1930,
-              asianAmerican: c.asian_pacific_1930,
-              nativeAmerican: c.american_indian_eskimo_1930,
-              other: c.other_1930,
-              white: c.white_pop_1930,
-
-              fb: c.fb_30,
-              fb_percent: c.fb30_percent,
-              fb_AfricanAmerican: c.fb30_afr_amer,
-              fb_allOther: c.fb30_all_other,
-              fb_Chinese: c.fb30_chinese,
-              fb_Indian: c.fb30_indian,
-              fb_Japanese: c.fb30_japanese,
-
-              fb_otherRaces: c.fb30_other_races,
-              fb_white: c.fb30_white,
-              native: c.native_pop_1930,
-            },
-            1940: {
-              total: c.total_pop_1940,
-
-              AfricanAmerican: c.black_pop_1940,
-              asianAmerican: c.asian_pacific_1940,
-              nativeAmerican: c.american_indian_eskimo_1940,
-              other: c.other_1940,
-              white: c.white_pop_1940,
-
-              fb: c.fb_40,
-              fb_percent: c.fb40_percent,
-              fb_AfricanAmerican: c.fb40_afr_amer,
-              fb_allOther: c.fb40_all_other,
-              fb_Chinese: c.fb40_chinese,
-              fb_Indian: c.fb40_indian,
-              fb_Japanese: c.fb40_japanese,
-
-              fb_otherRaces: c.fb40_other_races,
-              fb_white: c.fb40_white,
-              native: c.native_pop_1940,
-            },
-          },
-          hasPolygons: (c.total_area !== null),
+          hasADs: false,
+          mapIds: [],
           area: {
-            total: Math.round(c.total_area * 100) / 100,
-            a: Math.round(c.area_a * 100) / 100,
-            b: Math.round(c.area_b * 100) / 100,
-            c: Math.round(c.area_c * 100) / 100,
-            d: Math.round(c.area_d * 100) / 100,
+            total: 0,
+            a: 0,
+            b: 0,
+            c: 0,
+            d: 0,
           },
-          maps: [],
-          mapIds: c.map_ids,
         };
-
-        citiesData[c.ad_id].displayPop = parsePopSnippetDisplayData(citiesData[c.ad_id].population);
       });
 
-      // write the file
-      fs.writeFileSync('../data/Cities.json', JSON.stringify(citiesData));
-      console.log('wrote Cities.json');
+      console.log('querying area data');
+      const queryArea = 'select sum(st_area(the_geom_webmercator) / 1609.34^2 ) as area, holc_grade, ad_id from holc_polygons group by (ad_id, holc_grade) order by ad_id, holc_grade';
+      request({
+        url: `${url}${queryArea}`,
+        json: true,
+      }, (error, response, areas) => {
+        Object.keys(areas.rows).forEach((i) => {
+          const a = areas.rows[i];
+          // initialize if it doesn't exist
+          if (citiesData[a.ad_id] && a.holc_grade) {
+            citiesData[a.ad_id].hasPolygons = (citiesData[a.ad_id].hasPolygons || a.area > 0);
+            citiesData[a.ad_id].area[a.holc_grade.toLowerCase()] = Math.round(a.area * 100) / 100;
+            citiesData[a.ad_id].area.total += citiesData[a.ad_id].area[a.holc_grade.toLowerCase()];
+          }
+        });
 
-      eventEmitter.emit('citiesDataCreated');
+        console.log('querying bound boxes');
+        const queryBB = 'select ad_id, st_x(st_centroid(st_collect(holc_polygons.the_geom))) as center_lng, st_y(st_centroid(st_collect(holc_polygons.the_geom))) as center_lat, st_xmin(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmin, st_ymin(st_envelope(st_collect(holc_polygons.the_geom))) as bbymin, st_xmax(st_envelope(st_collect(holc_polygons.the_geom))) as bbxmax, st_ymax(st_envelope(st_collect(holc_polygons.the_geom))) as bbymax FROM holc_polygons group by ad_id';
+        request({
+          url: `${url}${queryBB}`,
+          json: true,
+        }, (error, response, bounds) => {
+          Object.keys(bounds.rows).forEach((i) => {
+            const b = bounds.rows[i];
+            if (citiesData[b.ad_id]) {
+              citiesData[b.ad_id].bounds = (b.bbymin && b.bbxmin && b.bbymax && b.bbxmax) ?
+                [
+                  [Math.round(b.bbymin * 1000) / 1000, Math.round(b.bbxmin * 1000) / 1000],
+                  [Math.round(b.bbymax * 1000) / 1000, Math.round(b.bbxmax * 1000) / 1000],
+                ] : null;
+              citiesData[b.ad_id].centerLat = b.center_lat;
+              citiesData[b.ad_id].centerLng = b.center_lng;
+            }
+          });
+
+          console.log('querying if has ADs');
+          const queryHasAds = 'SELECT ad_id, Count(data) FROM holc_ad_data JOIN holc_polygons ON holc_ad_data.polygon_id = holc_polygons.neighborhood_id GROUP BY ad_id';
+          request({
+            url: `${url}${queryHasAds}`,
+            json: true,
+          }, (error, response, adCount) => {
+            Object.keys(adCount.rows).forEach((i) => {
+              if (citiesData[adCount.rows[i].ad_id] && adCount.rows[i].count > 0) {
+                citiesData[adCount.rows[i].ad_id].hasADs = true;
+              }
+            });
+
+            console.log('querying map ids');
+            const queryMapIds = 'SELECT ad_id, map_id FROM digitalscholarshiplab.holc_maps_ads_join_v2';
+            request({
+              url: `${url}${queryMapIds}`,
+              json: true,
+            }, (error, response, mapIds) => {
+              Object.keys(mapIds.rows).forEach((i) => {
+                const m = mapIds.rows[i];
+                if (citiesData[m.ad_id]) {
+                  citiesData[m.ad_id].mapIds = [
+                    ...citiesData[m.ad_id].mapIds,
+                    m.map_id,
+                  ];
+                }
+              });
+
+              console.log('querying demography');
+              const queryDemography = 'select * from city_population_data';
+              request({
+                url: `${url}${queryDemography}`,
+                json: true,
+              }, (error, response, demographics) => {
+                Object.keys(demographics.rows).forEach((i) => {
+                  const p = demographics.rows[i];
+                  if (citiesData[p.city_id]) {
+                    console.log(p);
+                    citiesData[p.city_id].population = {
+                      1930: {
+                        total: p.total_pop_1930,
+
+                        AfricanAmerican: p.black_pop_1930,
+                        asianAmerican: p.asian_pacific_1930,
+                        nativeAmerican: p.american_indian_eskimo_1930,
+                        other: p.other_1930,
+                        white: p.white_pop_1930,
+
+                        fb: p.fb_30,
+                        fb_percent: p.fb30_percent,
+                        fb_AfricanAmerican: p.fb30_afr_amer,
+                        fb_allOther: p.fb30_all_other,
+                        fb_Chinese: p.fb30_chinese,
+                        fb_Indian: p.fb30_indian,
+                        fb_Japanese: p.fb30_japanese,
+
+                        fb_otherRaces: p.fb30_other_races,
+                        fb_white: p.fb30_white,
+                        native: p.native_pop_1930,
+                      },
+                      1940: {
+                        total: p.total_pop_1940,
+
+                        AfricanAmerican: p.black_pop_1940,
+                        asianAmerican: p.asian_pacific_1940,
+                        nativeAmerican: p.american_indian_eskimo_1940,
+                        other: p.other_1940,
+                        white: p.white_pop_1940,
+
+                        fb: p.fb_40,
+                        fb_percent: p.fb40_percent,
+                        fb_AfricanAmerican: p.fb40_afr_amer,
+                        fb_allOther: p.fb40_all_other,
+                        fb_Chinese: p.fb40_chinese,
+                        fb_Indian: p.fb40_indian,
+                        fb_Japanese: p.fb40_japanese,
+
+                        fb_otherRaces: p.fb40_other_races,
+                        fb_white: p.fb40_white,
+                        native: p.native_pop_1940,
+                      },
+                    };
+                    citiesData[p.city_id].displayPop = parsePopSnippetDisplayData(citiesData[p.city_id].population);
+                  }
+                });
+                // write the file
+                //console.log(JSON.stringify(citiesData));
+                fs.writeFileSync('../data/Cities.json', JSON.stringify(citiesData));
+                console.log('wrote Cities.json');
+
+                eventEmitter.emit('citiesDataCreated');
+              });
+            });
+          });
+        });
+      });
+    }
+  });
+};
+
+const createAreaData = () => {
+  const query = 'select ad_id, holc_id, holc_grade, sheets, name from holc_polygons';
+  request({
+    url: `${url}${query}`,
+    json: true,
+  }, (error, response, d) => {
+    const areas = d.rows;
+    areas.forEach((a) => {
+      const { ad_id, holc_id, holc_grade, sheets, name } = a;
+      if (citiesData[ad_id]) {
+        const { state, name: city, year } = citiesData[ad_id];
+        areasData[ad_id] = (areasData[ad_id]) ? areasData[ad_id] : {};
+        areasData[ad_id][holc_id] = {
+          ad_id,
+          name,
+          holc_grade,
+          sheets,
+          url: `//s3.amazonaws.com/holc/${state}/${city.replace(' ', '')}/${year || '19XX'}/`,
+          areaDesc: {},
+        };
+      }
+    });
+
+    console.log('areasData Created');
+    eventEmitter.emit('areasDataCreated');
+  });
+};
+
+const createPolygonFilesForCity = ({ ad_id: adId, name, state, year }) => {
+  console.log(`querying polygons for ${name}`);
+  const query = `select holc_id as id, holc_grade as grade, ST_asgeojson(the_geom, 4) as area_geojson, round(st_area(the_geom::geography)) as area, round(st_xmin(ST_SetSRID(the_geom,4326))::numeric, 3) as minlng , round(st_ymin(ST_SetSRID(the_geom, 4326))::numeric, 3) as minlat, round(st_xmax(ST_SetSRID(the_geom, 4326))::numeric, 3) as maxlng, round(st_ymax(ST_SetSRID(the_geom, 4326))::numeric, 3) as maxlat from holc_polygons where ad_id = ${adId}`;
+  request({
+    url: `${url}${query}`,
+    json: true,
+  }, (error, response, d) => {
+    const polygons = d.rows.map((p) => {
+      const { id, grade, area_geojson, area, minlat, minlng, maxlat, maxlng } = p;
+      const areaGeojson = JSON.parse(area_geojson);
+      const polygonBoundingBox = [[minlat, minlng], [maxlat, maxlng]];
+      let labelCoords;
+      if (areaGeojson.coordinates) {
+        // find the largest polygon
+        let largest = 0;
+        let iOfLargest = 0;
+        if (areaGeojson.type === 'MultiPolygon') {
+          areaGeojson.coordinates.forEach((coordinates, j) => {
+            const area = GeojsonArea.geometry({ type: 'Polygon', coordinates });
+            if (area > largest) {
+              iOfLargest = j;
+              largest = area;
+            }
+          });
+        }
+
+        // select the polygon to use
+        const theCoords = areaGeojson.coordinates[iOfLargest];
+
+        // calculate the point
+        if (theCoords) {
+          labelCoords = Polylabel(theCoords, 0.0001);
+          labelCoords = [labelCoords[1], labelCoords[0]].map(c => Math.round(c * 1000) / 1000);
+        }
+      }
+      return {
+        id,
+        ad_id: adId,
+        grade,
+        area_geojson: JSON.parse(area_geojson),
+        area,
+        polygonBoundingBox,
+        labelCoords,
+      };
+    });
+
+    const fileName = `${`${state}${name}${year || '19XX'}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
+    fs.writeFileSync(`../static/polygons/${fileName}`, JSON.stringify(polygons));
+    fs.writeFileSync(`../build/static/polygons/${fileName}`, JSON.stringify(polygons));
+    console.log(`wrote polygons/${fileName}\n`);
+
+    // run the next city
+    const adIds = Object.keys(citiesData).map(id => parseInt(id));
+    const iNum = adIds.findIndex(id => id === adId);
+    if (iNum < adIds.length - 1) {
+      const nextAdId = adIds[iNum + 1];
+      createPolygonFilesForCity(citiesData[nextAdId]);
+    }
+  });
+};
+
+const createADsForCity = (adId) => {
+  const { name, state, year } = citiesData[Object.keys(citiesData).find(id => parseInt(id) === parseInt(adId))];
+  console.log(`querying ADs for ${name}`);
+  const queryAreas = `SELECT holc_id, cat_id, sub_cat_id, _order as order, data FROM holc_ad_data right join holc_polygons on holc_ad_data.polygon_id = holc_polygons.neighborhood_id join holc_ads on city_id = holc_polygons.ad_id where holc_ads.city_id = ${adId} and holc_id is not null`;
+  request({
+    url: `${url}${queryAreas}`,
+    json: true,
+  }, (error, response, a) => {
+    a.rows.forEach((d) => {
+      const { holc_id: holcId, cat_id: catId, sub_cat_id: subcatId, order, data } = d;
+      if (data && !areasData[adId]) {
+        areasData[adId] = {};
+      }
+      if (data && !areasData[adId][holcId]) {
+        areasData[adId][holcId] = { areaDesc: false };
+      }
+      if (data && !areasData[adId][holcId].areaDesc) {
+        areasData[adId][holcId].areaDesc = {};
+      }
+
+      // define category id for area description if undefined
+      //console.log(catId, subcatId, order, areasData[adId][holcId].areaDesc[catId], catId && typeof areasData[adId][holcId].areaDesc[catId] === 'undefined');
+      if (catId && !subcatId && !order) {
+        areasData[adId][holcId].areaDesc[catId] = data;
+      } else if (catId && typeof areasData[adId][holcId].areaDesc[catId] === 'undefined') {
+        areasData[adId][holcId].areaDesc[catId] = {};
+      }
+      // check for subcategories
+      if (subcatId) {
+        // look for order
+        if (order) {
+          areasData[adId][holcId].areaDesc[catId][subcatId] = areasData[adId][holcId].areaDesc[catId][subcatId] || {};
+          areasData[adId][holcId].areaDesc[catId][subcatId][order] = data;
+        } else {
+          areasData[adId][holcId].areaDesc[catId][subcatId] = data;
+        }
+      } else if (order) {
+        areasData[adId][holcId].areaDesc[catId][order] = data;
+      }
+    });
+
+    // write the file
+    const fileName = `${`${state}${name}${year || '1911'}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
+    fs.writeFileSync(`../static/ADs/${fileName}`, JSON.stringify(areasData[adId]));
+    fs.writeFileSync(`../build/static/ADs/${fileName}`, JSON.stringify(areasData[adId]));
+    console.log(`wrote ADs/${fileName}\n`);
+
+    // run the next city
+    const adIds = Object.keys(areasData).map(id => parseInt(id));
+    const iNum = adIds.findIndex(id => id === adId);
+    if (iNum < adIds.length - 1) {
+      const nextAdId = adIds[iNum + 1];
+      createADsForCity(nextAdId);
     }
   });
 };
@@ -597,7 +821,19 @@ const createCityData = (cityId) => {
   });
 };
 
-eventEmitter.on('citiesDataCreated', () => createCityData(Object.keys(citiesData)[0]));
 eventEmitter.on('rastersDataCreated', () => createCitiesData());
 
+// eventEmitter.on('citiesDataCreated', () => {
+//   createAreaData();
+//   const adId = Object.keys(citiesData)[0];
+//   createPolygonFilesForCity(citiesData[adId]);
+// });
+
+// eventEmitter.on('areasDataCreated', () => {
+//   const adId = Object.keys(areasData)[0];
+//   createADsForCity(adId);
+// });
+
 createRastersData();
+//createCitiesData();
+

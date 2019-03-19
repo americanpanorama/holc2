@@ -4,6 +4,7 @@ import Form19370203 from '../../AreaDescription/Form19370203/presentational/Sear
 import Form19371001 from '../../AreaDescription/Form19371001/presentational/SearchResults';
 import Form1939 from '../../AreaDescription/Form1939/presentational/SearchResults';
 import { selectArea } from '../../../store/Actions';
+import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
   const formComponents = {
@@ -15,11 +16,13 @@ const mapStateToProps = (state) => {
     1939: Form1939,
   };
 
-  const { form_id: formId } = state.selectedCity.data.areaDescriptions;
+  console.log(getSelectedCityData(state));
+
+  const { form_id: formId, ad_id: adId } = getSelectedCityData(state);
 
   return {
     searchingADsFor: state.searchingADsFor,
-    adId: state.selectedCity.data.id,
+    adId,
     FormComponent: formComponents[formId],
   };
 };

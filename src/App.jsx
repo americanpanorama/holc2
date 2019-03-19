@@ -22,16 +22,18 @@ export default class App extends React.Component {
       const [key, value] = pair.split('=');
       hashValues[key] = value;
     });
-    if (hashValues.city || hashValues.area) {
+    if (hashValues.city || (hashValues.city && hashValues.area)) {
       const { cities } = Store.getState();
-      const adId = Object.keys(cities)
-        .map(id => cities[id])
-        .find(c => c.slug === hashValues.city).ad_id;
-      // load the area--it will also load the city
-      if (hashValues.area) {
-        Store.dispatch(selectArea(`${adId}-${hashValues.area}`));
-      } else {
-        Store.dispatch(selectCity(adId));
+      if (cities) {
+        const adId = Object.keys(cities)
+          .map(id => cities[id])
+          .find(c => c.slug === hashValues.city).ad_id;
+        // load the area--it will also load the city
+        if (hashValues.area) {
+          Store.dispatch(selectArea(`${adId}-${hashValues.area}`));
+        } else {
+          Store.dispatch(selectCity(adId));
+        }
       }
     }
     // //try to retrieve the users location

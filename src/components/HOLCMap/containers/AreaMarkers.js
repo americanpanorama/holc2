@@ -1,14 +1,12 @@
 import { connect } from 'react-redux';
 import AreaMarkers from '../presentational/AreaMarkers';
+import { getAreaMarkers } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
-  const { map, selectedCity, showHOLCMaps } = state;
+  const { map, selectedCity, selectedGrade, showHOLCMaps } = state;
   const { zoom } = map;
-  const { data: cityData, id: adId } = selectedCity;
   return {
-    labels: (zoom >= 12 && cityData && !showHOLCMaps)
-      ? cityData.labelPositions.map(l => ({ ...l, ad_id: adId }))
-      : [],
+    labels: getAreaMarkers(state),
     fontSize: 21 - ((16 - zoom) * 3),
   };
 };

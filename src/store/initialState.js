@@ -1,8 +1,25 @@
 import * as L from 'leaflet';
 
 import Cities from '../../data/Cities.json';
+import areaDescSelections from '../../data/areaDescSelections.json';
 import FormsMetadata from '../../data/formsMetadata.json';
 import calculateDimensions from './CalculateDimensions';
+
+
+const shuffleArray = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+};
+
+Object.keys(Cities).forEach((id) => {
+  const { slug } = Cities[id];
+  Cities[id].areaDescSelections = (areaDescSelections[slug])
+    ? areaDescSelections[slug]
+    : null;
+});
+
 const dimensions = calculateDimensions();
 
 // const basemap = (isRetina)
@@ -76,14 +93,13 @@ const center = [lat, lng];
 
 const basemap = (zoom < 9)
   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
-  : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
+  : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
+  //: 'https://api.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v7/{z}/{x}/{y}.png?style=mapbox://styles/nayers/cjjkbhzhcebop2rlq5hv0vghf&access_token=pk.eyJ1IjoibmF5ZXJzIiwiYSI6ImNqMXM1ZDFidDAwYjUzM212eHEyNzYyd2oifQ.I_na3uloyQM89sp3pnzcnQ';
 
 export default {
+  areaDescriptions: null,
   basemap,
-  selectedCity: {
-    data: null,
-    isFetching: false,
-  },
+  selectedCity: null,
   selectedCategory,
   selectedGrade: null,
   selectedArea: null,

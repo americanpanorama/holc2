@@ -15,8 +15,6 @@ export const selectCategory = eOrId => (dispatch, getState) => {
     id = eOrId.target.options.id;
   }
 
-
-
   dispatch({
     type: Actions.SELECT_CATEGORY,
     payload: id,
@@ -98,20 +96,21 @@ export const selectCity = eOrId => (dispatch, getState) => {
   //   });
   // }
 
-  return Promise.all([
-    fetch(`./static/cities/${path}`),
-    fetch(`./static/citiesSelected/${path}`),
-  ])
-    .then(responses => Promise.all(responses.map(r => r.json())))
-    .then(responsesJSON => dispatch({
-      type: Actions.SELECT_CITY_SUCCESS,
-      payload: Object.assign(responsesJSON[0], responsesJSON[1]),
-    }));
+  return fetch(`./static/ADs/${path}`)
+    .then(response => () => {
+      dispatch({
+        type: Actions.SELECT_CITY_SUCCESS,
+        payload: id,
+      });
+      dispatch({
+        type: Actions.LOAD_ADS,
+        payload: JSON.parse(response),
+      });
+    });
 };
 
 export const selectArea = eOrIds => (dispatch, getState) => {
   let ids = eOrIds;
-  console.log(ids);
   if (typeof eOrIds === 'object') {
     const ct = eOrIds.currentTarget || eOrIds.target;
     ids = ct.id || ct.options.id;
@@ -120,28 +119,28 @@ export const selectArea = eOrIds => (dispatch, getState) => {
     return (i === 0) ? parseInt(v, 10) : v;
   });
 
-  // load the city if necessary then the neighborhood
-  const { selectedCity, selectedCategory, selectedArea } = getState();
-  const selectedCityData = selectedCity.data;
+  console.log(adId, holcId);
 
-  if (!selectedCityData || selectedCityData.id !== parseInt(adId, 10)) {
+  // load the city if necessary then the neighborhood
+  const { selectedCity, selectedCategory, selectedArea, cities } = getState();
+
+  if (selectedCity !== parseInt(adId, 10)) {
     dispatch({
       type: Actions.SELECT_CITY_REQUEST,
       payload: adId,
     });
 
-    const { name, state, year } = getState().cities[adId];
+    const { name, state, year } = cities[adId];
     const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
-    return Promise.all([
-      fetch(`./static/cities/${path}`),
-      fetch(`./static/citiesSelected/${path}`),
-    ])
-      .then(responses => Promise.all(responses.map(r => r.json())))
-      .then((responsesJSON) => {
-        // update the selected city
+    return fetch(`./static/ADs/${path}`)
+      .then(response => () => {
         dispatch({
           type: Actions.SELECT_CITY_SUCCESS,
-          payload: Object.assign(responsesJSON[0], responsesJSON[1]),
+          payload: adId,
+        });
+        dispatch({
+          type: Actions.LOAD_ADS,
+          payload: JSON.parse(response),
         });
         // update the selected neighborhood
         dispatch({
@@ -233,8 +232,7 @@ export const updateMap = mapState => (dispatch, getState) => {
     });
 
     // select the city if there's only one and it's not already selected
-    if (visibleCityIds.length === 1 && selectedCity.isFetching !== visibleCityIds[0] &&
-      (!selectedCity.data || selectedCity.data.id !== visibleCityIds[0])) {
+    if (visibleCityIds.length === 1) {
       const { name, state, year } = getState().cities[visibleCityIds[0]];
       const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
 
@@ -248,21 +246,26 @@ export const updateMap = mapState => (dispatch, getState) => {
       });
 
       return Promise.all([
-        fetch(`./static/cities/${path}`),
-        fetch(`./static/citiesSelected/${path}`),
+        fetch(`./static/polygons/${path}`),
+        fetch(`./static/ADs/${path}`),
       ])
         .then(responses => Promise.all(responses.map(r => r.json())))
         .then((responsesJSON) => {
-          const cityData = responsesJSON[0];
-          const citySelectedData = responsesJSON[1];
+          const polygons = responsesJSON[0];
+          const ads = responsesJSON[1];
+
           dispatch({
             type: Actions.SELECT_CITY_SUCCESS,
-            payload: Object.assign(cityData, citySelectedData),
+            payload: visibleCityIds[0],
           });
 
-          const cityPolygons = Object.keys(cityData.polygons)
-            .map(id => cityData.polygons[id])
-            .map(p => ({ ...p, ad_id: cityData.id }));
+          dispatch({
+            type: Actions.LOAD_ADS,
+            payload: ads,
+          });
+
+          const cityPolygons = Object.keys(polygons)
+            .map(id => polygons[id]);
           dispatch({
             type: Actions.LOADED_POLYGONS,
             payload: cityPolygons,
@@ -282,7 +285,8 @@ export const updateMap = mapState => (dispatch, getState) => {
       && !map.loadingPolygonsFor.includes(c.ad_id));
 
     if (newCities.length > 0) {
-      const cityFiles = newCities.map(c => `./static/cities/${c.state}-${c.name}-${c.year}.json`);
+      const adIds = newCities.map(c => c.ad_id);
+      const cityFiles = newCities.map(c => `./static/polygons/${c.state}${c.name.replace(' ', '')}${c.year}.json`);
 
       dispatch({
         type: Actions.LOADING_POLYGONS,
@@ -291,10 +295,8 @@ export const updateMap = mapState => (dispatch, getState) => {
       return Promise.all(cityFiles.map(f => fetch(f)))
         .then(responses => Promise.all(responses.map(r => r.json())))
         .then((responsesJSON) => {
-          responsesJSON.forEach((c) => {
-            const cityPolygons = Object.keys(c.polygons)
-              .map(id => c.polygons[id])
-              .map(p => ({ ...p, ad_id: c.id }));
+          responsesJSON.forEach((polygons, i) => {
+            const cityPolygons = polygons.map(p => ({ ...p, ad_id: adIds[i] }));
             visiblePolygons = visiblePolygons.concat(cityPolygons);
           });
 

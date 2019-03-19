@@ -21,7 +21,12 @@ const AreaMarkers = ({ labels, fontSize }) => (
             opacity={1}
             permanent
           >
-            <span style={{ fontSize }}>
+            <span
+              style={{
+                fontSize,
+                color: p.color,
+              }}
+            >
               {p.id}
             </span>
           </Tooltip>

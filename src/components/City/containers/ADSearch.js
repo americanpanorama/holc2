@@ -1,8 +1,12 @@
 import { connect } from 'react-redux';
 import ADSearch from '../presentational/ADSearch';
 import { selectArea } from '../../../store/Actions';
+import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
+  const selectedCityData = getSelectedCityData(state);
+  const { areaDescriptions } = state;
+
   const parseADforSearch = (AD) => {
     const searchDown = (obj) => {
       let concat = '';
@@ -18,18 +22,20 @@ const mapStateToProps = (state) => {
     return searchDown(AD);
   };
 
-  const { byNeighborhood } = state.selectedCity.data.areaDescriptions;
-  const ADsForSearch = Object.keys(byNeighborhood).map(holcId => ({
-    holcId,
-    grade: byNeighborhood[holcId].holc_grade,
-    name: byNeighborhood[holcId].name,
-    areaDesc: byNeighborhood[holcId].areaDesc,
-    value: parseADforSearch(byNeighborhood[holcId].areaDesc),
-  }));
+
+  const ADsForSearch = (areaDescriptions)
+    ? Object.keys(areaDescriptions).map(holcId => ({
+      holcId,
+      grade: areaDescriptions[holcId].holc_grade,
+      name: areaDescriptions[holcId].name,
+      areaDesc: areaDescriptions[holcId].areaDesc,
+      value: parseADforSearch(areaDescriptions[holcId].areaDesc),
+    }))
+    : [];
 
   return {
     ADsForSearch,
-    city: state.selectedCity.data.name,
+    adId: selectedCityData.ad_id,
   };
 };
 

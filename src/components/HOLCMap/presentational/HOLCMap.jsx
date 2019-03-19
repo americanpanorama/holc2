@@ -88,9 +88,9 @@ export default class HOLCMap extends React.Component {
           // continuousWorld={true}
           // worldCopyJump={false}
         >
-          <BaseMap />
 
-          {/* JSX Comment 
+        <BaseMap />
+      {/* JSX Comment  
           {(aboveThreshold) ? <BaseMap /> : (
             <VectorGrid
               type="protobuf"
@@ -114,8 +114,7 @@ export default class HOLCMap extends React.Component {
                 },
               }}
             />
-          )}
-          */}
+          )} */}
           
           <ClickableCities />
           <HOLCRasters />

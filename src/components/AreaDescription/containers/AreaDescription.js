@@ -9,9 +9,11 @@ import Form1939Curated from '../Form1939/presentational/Selected';
 import AreaDescription from '../presentational/AreaDescription';
 
 import { selectCategory } from '../../../store/Actions';
+import { getSelectedCityData } from '../../../store/selectors';
 
 const MapStateToProps = (state) => {
-  const { selectedArea, selectedCity, showADSelections } = state;
+  const selectedCityData = getSelectedCityData(state);
+  const { selectedArea, showADSelections, areaDescriptions } = state;
   let adData = null;
   const formComponents = {
     full: {
@@ -34,12 +36,9 @@ const MapStateToProps = (state) => {
 
   let FormComponent;
 
-  if (selectedArea && selectedCity.data
-    && selectedCity.data.areaDescriptions
-    && selectedCity.data.areaDescriptions.byNeighborhood[selectedArea]
-    && selectedCity.data.areaDescriptions.byNeighborhood[selectedArea].areaDesc) {
-    const { form_id: formId, byNeighborhood } = selectedCity.data.areaDescriptions;
-    adData = byNeighborhood[selectedArea].areaDesc;
+  if (selectedArea && areaDescriptions && selectedCityData.form_id) {
+    const { form_id: formId } = selectedCityData;
+    adData = areaDescriptions[selectedArea].areaDesc;
     FormComponent = (showADSelections) ? formComponents.selected[formId]
       : formComponents.full[formId];
   }

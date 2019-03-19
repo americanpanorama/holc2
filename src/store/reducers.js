@@ -2,6 +2,10 @@ import { combineReducers } from 'redux';
 import A from './ActionTypes';
 import initialState from './initialState';
 
+const areaDescriptions = (state = initialState.areaDescriptions, action) => (
+  (action.type === A.LOAD_ADS) ? action.payload : state
+);
+
 const selectedCategory = (state = null, action) => {
   if (action.type === A.SELECT_CATEGORY) {
     return action.payload;
@@ -14,24 +18,15 @@ const selectedCategory = (state = null, action) => {
 
 const selectedCity = (state = { data: null, isFetching: false }, action) => {
   if (action.type === A.UNSELECT_CITY) {
-    return {
-      isFetching: false,
-      data: null,
-    };
+    return null;
   }
 
   if (action.type === A.SELECT_CITY_REQUEST) {
-    return {
-      isFetching: action.payload,
-      data: null,
-    };
+    return null;
   }
 
   if (action.type === A.SELECT_CITY_SUCCESS) {
-    return {
-      isFetching: false,
-      data: action.payload,
-    };
+    return action.payload;
   }
 
   return state;
@@ -228,6 +223,7 @@ const dimensions = (state = {}, action) => (
 );
 
 const combinedReducer = combineReducers({
+  areaDescriptions,
   selectedCategory,
   selectedCity,
   selectedGrade,
