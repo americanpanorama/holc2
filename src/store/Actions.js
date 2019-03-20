@@ -42,7 +42,8 @@ export const selectCity = eOrId => (dispatch, getState) => {
   }
   // get data from the city that you need for the path and to set the map zoom and center
   const { showCityStats, dimensions, cities, selectedCategory } = getState();
-  const { name, state, year, bounds } = cities[id];
+  console.log(id);
+  const { name, state, year, bounds } = cities.find(c => c.ad_id === parseInt(id));
   const { windowWidth, dataViewerWidth, mapHeight } = dimensions;
   const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
   const mapWidth = windowWidth;
@@ -118,8 +119,6 @@ export const selectArea = eOrIds => (dispatch, getState) => {
   const [adId, holcId] = ids.split('-').map((v, i) => {
     return (i === 0) ? parseInt(v, 10) : v;
   });
-
-  console.log(adId, holcId);
 
   // load the city if necessary then the neighborhood
   const { selectedCity, selectedCategory, selectedArea, cities } = getState();
@@ -232,8 +231,8 @@ export const updateMap = mapState => (dispatch, getState) => {
     });
 
     // select the city if there's only one and it's not already selected
-    if (visibleCityIds.length === 1) {
-      const { name, state, year } = getState().cities[visibleCityIds[0]];
+    if (visibleCityIds.length === 1 && selectedCity !== visibleCityIds[0]) {
+      const { name, state, year } = getState().cities.find(c => c.ad_id === visibleCityIds[0]);
       const path = `${`${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
 
       // load both the city and the polygons
@@ -286,7 +285,7 @@ export const updateMap = mapState => (dispatch, getState) => {
 
     if (newCities.length > 0) {
       const adIds = newCities.map(c => c.ad_id);
-      const cityFiles = newCities.map(c => `./static/polygons/${c.state}${c.name.replace(' ', '')}${c.year}.json`);
+      const cityFiles = newCities.map(c => `./static/polygons/${c.state}${c.name.replace(/[^a-zA-Z0-9]/g, '')}${c.year}.json`);
 
       dispatch({
         type: Actions.LOADING_POLYGONS,

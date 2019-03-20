@@ -16,8 +16,6 @@ const mapStateToProps = (state) => {
     1939: Form1939,
   };
 
-  console.log(getSelectedCityData(state));
-
   const { form_id: formId, ad_id: adId } = getSelectedCityData(state);
 
   return {

@@ -6,7 +6,7 @@ import dorlings from '../../../../data/Dorlings.json';
 import { constantsColors } from '../../../../data/constants.js';
 
 const mapStateToProps = (state) => {
-  const { map } = state;
+  const { map, cities } = state;
   const { zoom } = map;
 
   if (map.aboveThreshold) {
@@ -15,19 +15,20 @@ const mapStateToProps = (state) => {
     };
   }
 
-  const citiesList = Object.keys(state.cities)
-    .map((id) => {
-      const city = state.cities[id];
-      if (city.area.total >= 165) {
-        city.labelClass = 1;
-      } else if (city.area.total >= 30) {
-        city.labelClass = 2;
-      } else if (city.area.total >= 10) {
-        city.labelClass = 3;
-      } else {
-        city.labelClass = 4;
+  const citiesList = cities
+    .map((c) => {
+      let labelClass = 4;
+      if (c.area.total >= 165) {
+        labelClass = 1;
+      } else if (c.area.total >= 30) {
+        labelClass = 2;
+      } else if (c.area.total >= 10) {
+        labelClass = 3;
       }
-      return city;
+      return {
+        ...c,
+        labelClass,
+      };
     })
     .sort((a, b) => b.area.total - a.area.total);
     // .map((c) => {
@@ -52,7 +53,7 @@ const mapStateToProps = (state) => {
   const labelsSouthWest = ['Tacoma', 'San Jose', 'St.Petersburg'];
   const labelsSouthEast = [];
 
-  const cities = (state.map.aboveThreshold) ? [] :
+  const cities2 = (state.map.aboveThreshold) ? [] :
     citiesList.map((city) => {
       // the markers stay the same absolute size for zoom levels 5 and above; they shrink below that
       const rDivisor = 2 ** Math.max(5 - zoom, 0);
@@ -133,7 +134,7 @@ const mapStateToProps = (state) => {
     });
 
   return {
-    cities: cities.filter(c => c.offsetPoint && c.ad_id),
+    cities: cities2.filter(c => c.offsetPoint && c.ad_id),
   };
 };
 

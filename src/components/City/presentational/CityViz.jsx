@@ -45,7 +45,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
           fontWeight={400}
           fill="#666"
         >
-          Grade
+          Area
         </text>
 
         <text
@@ -56,7 +56,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
           fontWeight={400}
           fill="#666"
         >
-          Area
+          Grade
         </text>
 
         <g transform="translate(0, 25)">
@@ -66,7 +66,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
               transform={`translate(0, ${i * 25})`}
             >
               <rect
-                x={width / 2}
+                x={width / 2 - areaWidths[grade] - 20}
                 y={2}
                 width={areaWidths[grade]}
                 height={14}
@@ -74,9 +74,9 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
                 fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.25}
               />
               <text
-                x={width / 2 - 7}
+                x={width / 2}
                 y={15}
-                textAnchor="end"
+                textAnchor="start"
                 fontSize={16}
                 fill={(!selectedGrade || selectedGrade === grade) ? 'black' : 'silver'}
                 fontWeight={(selectedGrade && selectedGrade === grade) ? 400 : 'auto'}
@@ -84,11 +84,12 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
                 {`${grade} "${labels[grade]}"`}
               </text>
               <text
-                x={width / 2 + areaWidths[grade] + 5}
+                x={width / 2 - areaWidths[grade] - 25}
                 y={14}
                 fontSize={14}
-                textAnchor="start"
+                textAnchor="end"
                 fill={(!selectedGrade || selectedGrade === grade) ? '#222' : 'silver'}
+                className="stat"
               >
                 {`${Math.round(gradeStats.find(d => d.grade === grade).percent * 100)}%`}
               </text>

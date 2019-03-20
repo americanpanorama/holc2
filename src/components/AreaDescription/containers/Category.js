@@ -2,21 +2,21 @@ import { connect } from 'react-redux';
 import Category from '../presentational/Category';
 import { unselectCategory, toggleDataViewerFull } from '../../../store/Actions';
 import FormsMetadata from '../../../../data/formsMetadata.json';
+import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
   const values = { A: [], B: [], C: [], D: [] };
   let title;
-  const { selectedCity, selectedCategory } = state;
-  const { data: cityData } = selectedCity;
+  const { selectedCategory, areaDescriptions } = state;
+  const cityData = getSelectedCityData(state);
 
-  if (selectedCategory && cityData && cityData.areaDescriptions
-    && cityData.areaDescriptions.byNeighborhood) {
+  if (selectedCategory && cityData && areaDescriptions) {
     const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
-    const { form_id: formId, byNeighborhood } = cityData.areaDescriptions;
-    Object.keys(byNeighborhood)
+    const { form_id: formId } = cityData;
+    Object.keys(areaDescriptions)
       .sort(collator.compare)
       .forEach((holcId) => {
-        const { holc_grade: holcGrade, areaDesc } = byNeighborhood[holcId];
+        const { holc_grade: holcGrade, areaDesc } = state.areaDescriptions[holcId];
         const [cat, subcat] = selectedCategory.split('-');
 
         if (areaDesc && ['A', 'B', 'C', 'D'].includes(holcGrade)) {

@@ -6,6 +6,10 @@
 			svg {
 				display: block;
 				margin: 0 auto;
+
+				.stat {
+					@extend %lato-normal;
+				}
 			}
 		}
 	}

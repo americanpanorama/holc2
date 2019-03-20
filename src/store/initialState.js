@@ -20,6 +20,7 @@ Object.keys(Cities).forEach((id) => {
     : null;
 });
 
+
 const dimensions = calculateDimensions();
 
 // const basemap = (isRetina)
@@ -93,8 +94,8 @@ const center = [lat, lng];
 
 const basemap = (zoom < 9)
   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
-  : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
-  //: 'https://api.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v7/{z}/{x}/{y}.png?style=mapbox://styles/nayers/cjjkbhzhcebop2rlq5hv0vghf&access_token=pk.eyJ1IjoibmF5ZXJzIiwiYSI6ImNqMXM1ZDFidDAwYjUzM212eHEyNzYyd2oifQ.I_na3uloyQM89sp3pnzcnQ';
+  //: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
+  : 'https://api.mapbox.com/styles/v1/nayers/cjjkbhzhcebop2rlq5hv0vghf/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmF5ZXJzIiwiYSI6ImNqMXM1ZDFidDAwYjUzM212eHEyNzYyd2oifQ.I_na3uloyQM89sp3pnzcnQ';
 
 export default {
   areaDescriptions: null,

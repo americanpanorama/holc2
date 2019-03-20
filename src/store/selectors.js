@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect';
+import { constantsColors, constantsColorsVibrant, constantsPopLabels } from '../../data/constants';
 
+const getAdScan = state => state.adScan;
 const getAdSearchHOLCIds = state => state.adSearchHOLCIds;
 const getAreaDescriptions = state => state.areaDescriptions;
 const getCities = state => state.cities;
@@ -26,29 +28,17 @@ export const getAreaMarkers = createSelector(
 );
 
 export const getPolygons = createSelector(
-  [getVisiblePolygons, getShowHOLCMaps, getSelectedGrade, getSelectedCity, getSelectedArea, getAdSearchHOLCIds],
-  (polygons, showHOLCMaps, selectedGrade, selectedCity, selectedArea, adSearchHOLCIds) => {
-    const colors = {
-      A: '#76a865',
-      B: '#7cb5bd',
-      C: '#d8d165',
-      D: '#d9838d',
-    };
-
-    const fillColorsAdjusted = {
-      A: '#58ff2c', // '#58cc2c',
-      B: '#578DFF', //'#98f6ff',
-      C: 'yellow', //'#a79500',
-      D: '#FF3B4C', //'#ff536b',
-    };
-
+  [getVisiblePolygons, getShowHOLCMaps, getSelectedGrade, getSelectedCity, getSelectedArea, getAdSearchHOLCIds, getMapZoom],
+  (polygons, showHOLCMaps, selectedGrade, selectedCity, selectedArea, adSearchHOLCIds, zoom) => {
     // calculate the style each polygon
+    const zFillOpacity = 0.95 - Math.min((zoom - 9) / 4, 1) * 0.75;
+
     return polygons.map((p) => {
-      let fillColor = colors[p.grade];
-      let fillOpacity = (showHOLCMaps) ? 0 : 0.25;
-      let strokeColor = colors[p.grade];
-      let strokeOpacity = (showHOLCMaps) ? 0 : 1;
-      let weight = (showHOLCMaps) ? 0 : 1;
+      let fillColor = constantsColors[`grade${p.grade}`];
+      let fillOpacity = (showHOLCMaps) ? 0 : zFillOpacity;
+      let strokeColor = constantsColors[`grade${p.grade}`];
+      let strokeOpacity = (showHOLCMaps) ? 0 : 0.95;
+      let weight = (showHOLCMaps) ? 0 : 1.5;
 
       // styling for selected grade
       if (!showHOLCMaps && selectedGrade && selectedGrade !== p.grade) {
@@ -56,8 +46,11 @@ export const getPolygons = createSelector(
         strokeOpacity = 0.5;
       }
       if (showHOLCMaps && selectedGrade && selectedGrade === p.grade) {
-        fillOpacity = 0.25;
+        fillOpacity = 0.4;
         strokeOpacity = 1;
+        weight = 3;
+        fillColor = constantsColorsVibrant[`grade${p.grade}`];
+        strokeColor = 'black';
       }
 
       // styling for selected and unseleced polygons
@@ -65,8 +58,7 @@ export const getPolygons = createSelector(
         if (selectedArea === p.id) {
           weight = 3;
         } else {
-          fillOpacity = 0.04;
-          strokeOpacity = 0.5;
+          fillOpacity = zFillOpacity / 3;
         }
       }
       if (showHOLCMaps
@@ -75,7 +67,7 @@ export const getPolygons = createSelector(
         fillOpacity = 0.4;
         strokeOpacity = 1;
         weight = 3;
-        fillColor = fillColorsAdjusted[p.grade];
+        fillColor = constantsColorsVibrant[`grade${p.grade}`];
         strokeColor = 'black';
       }
 
@@ -94,7 +86,7 @@ export const getPolygons = createSelector(
           fillOpacity = 0.4;
           strokeOpacity = 1;
           weight = 3;
-          fillColor = fillColorsAdjusted[p.grade];
+          fillColor = constantsColorsVibrant[p.grade];
           strokeColor = 'black';
         }
       }
@@ -113,7 +105,37 @@ export const getPolygons = createSelector(
 
 export const getSelectedCityData = createSelector(
   [getSelectedCity, getCities],
-  (selectedCity, cities) => cities[selectedCity],
+  (selectedCity, cities) => cities.find(c => c.ad_id === selectedCity),
+);
+
+export const getSelectedCityPopulation = createSelector(
+  [getSelectedCityData],
+  (cityData) => {
+    const { population } = cityData;
+    if (!population || !population.total) {
+      return null;
+    }
+
+    const { total } = population;
+    const percents = Object.keys(population)
+      .filter(k => k !== 'total' && population[k] > 0 && population[k] / total >= 0.005)
+      .sort((a, b) => population[b] - population[a])
+      .map(k => ({
+        label: constantsPopLabels.find(pl => pl.key === k).label,
+        proportion: `${Math.round(population[k] / total * 1000) / 10}%`,
+      }));
+    return {
+      total,
+      percents,
+    };
+  },
+);
+
+export const getSelectedAreaDescription = createSelector(
+  [getSelectedArea, getSelectedCity, getAreaDescriptions],
+  (selectedArea, selectedCity, ads) => (
+    (ads[selectedArea] && ads[selectedArea].ad_id === selectedCity) ? ads[selectedArea] : null
+  ),
 );
 
 export const getSelectedAreaData = createSelector(
@@ -157,10 +179,50 @@ export const getSelectedAreaData = createSelector(
   },
 );
 
+export const getSearchOptions = createSelector(
+  [getCities],
+  cities => (
+    cities.map(c => ({
+      ad_id: c.ad_id,
+      searchName: c.searchName,
+      name: c.name,
+      state: c.state,
+      population: {
+        total: c.population.total,
+        percents: Object.keys(c.population)
+          .filter(k => k !== 'total' && c.population[k] > 0 && c.population[k] / c.population.total >= 0.005)
+          .sort((a, b) => c.population[b] - c.population[a])
+          .map(k => ({
+            label: constantsPopLabels.find(pl => pl.key === k).label,
+            proportion: `${Math.round(c.population[k] / c.population.total * 100)}%`,
+          })),
+      },
+      area: c.area,
+    }))
+  ),
+);
+
+export const getADScanMetadata = createSelector(
+  [getAdScan, getSelectedAreaDescription],
+  (adScan, ad) => {
+    const { zoom, center } = adScan;
+    const { url, sheets } = ad;
+    let maxBounds = [[-10, -180], [90, -60]];
+    if (sheets === 2) {
+      maxBounds = [[-10, -180], [90, 70]];
+    }
+    return {
+      center,
+      zoom,
+      maxBounds,
+      url,
+    };
+  },
+);
+
 export const getPopulation = createSelector(
   [getSelectedCity, getCities],
   (selectedCity, cities) => {
     const { population } = cities[selectedCity];
   },
 );
-

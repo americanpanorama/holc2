@@ -276,57 +276,32 @@ const createCitiesData = () => {
                 Object.keys(demographics.rows).forEach((i) => {
                   const p = demographics.rows[i];
                   if (citiesData[p.city_id]) {
-                    console.log(p);
                     citiesData[p.city_id].population = {
-                      1930: {
-                        total: p.total_pop_1930,
+                      total: parseInt(p.total_pop_1940),
 
-                        AfricanAmerican: p.black_pop_1930,
-                        asianAmerican: p.asian_pacific_1930,
-                        nativeAmerican: p.american_indian_eskimo_1930,
-                        other: p.other_1930,
-                        white: p.white_pop_1930,
-
-                        fb: p.fb_30,
-                        fb_percent: p.fb30_percent,
-                        fb_AfricanAmerican: p.fb30_afr_amer,
-                        fb_allOther: p.fb30_all_other,
-                        fb_Chinese: p.fb30_chinese,
-                        fb_Indian: p.fb30_indian,
-                        fb_Japanese: p.fb30_japanese,
-
-                        fb_otherRaces: p.fb30_other_races,
-                        fb_white: p.fb30_white,
-                        native: p.native_pop_1930,
-                      },
-                      1940: {
-                        total: p.total_pop_1940,
-
-                        AfricanAmerican: p.black_pop_1940,
-                        asianAmerican: p.asian_pacific_1940,
-                        nativeAmerican: p.american_indian_eskimo_1940,
-                        other: p.other_1940,
-                        white: p.white_pop_1940,
-
-                        fb: p.fb_40,
-                        fb_percent: p.fb40_percent,
-                        fb_AfricanAmerican: p.fb40_afr_amer,
-                        fb_allOther: p.fb40_all_other,
-                        fb_Chinese: p.fb40_chinese,
-                        fb_Indian: p.fb40_indian,
-                        fb_Japanese: p.fb40_japanese,
-
-                        fb_otherRaces: p.fb40_other_races,
-                        fb_white: p.fb40_white,
-                        native: p.native_pop_1940,
-                      },
+                      AfricanAmerican: parseInt(p.black_pop_1940),
+                      asianAmerican: parseInt(p.asian_pacific_1940),
+                      nativeAmerican: parseInt(p.american_indian_eskimo_1940),
+                      other: parseInt(p.other_1940),
+                      //white: parseInt(p.white_pop_1940),
+                      //fb: parseInt(p.fb_40),
+                      //fb_percent: parseInt(p.fb40_percent),
+                      fb_AfricanAmerican: parseInt(p.fb40_afr_amer),
+                      //fb_allOther: parseInt(p.fb40_all_other),
+                      fb_Chinese: parseInt(p.fb40_chinese),
+                      //fb_Indian: parseInt(p.fb40_indian),
+                      fb_Japanese: parseInt(p.fb40_japanese),
+                      //fb_otherRaces: parseInt(p.fb40_other_races),
+                      fb_white: parseInt(p.fb40_white),
+                      //native: parseInt(p.native_pop_1940),
+                      nativeWhite: parseInt(p.white_pop_1940) - (parseInt(p.fb40_white) || 0),
                     };
-                    citiesData[p.city_id].displayPop = parsePopSnippetDisplayData(citiesData[p.city_id].population);
                   }
                 });
                 // write the file
                 //console.log(JSON.stringify(citiesData));
-                fs.writeFileSync('../data/Cities.json', JSON.stringify(citiesData));
+                const citiesList = Object.keys(citiesData).map(id => citiesData[id]);
+                fs.writeFileSync('../data/Cities.json', JSON.stringify(citiesList));
                 console.log('wrote Cities.json');
 
                 eventEmitter.emit('citiesDataCreated');
@@ -356,7 +331,7 @@ const createAreaData = () => {
           name,
           holc_grade,
           sheets,
-          url: `//s3.amazonaws.com/holc/${state}/${city.replace(' ', '')}/${year || '19XX'}/`,
+          url: `//s3.amazonaws.com/holc/ads/${state}/${city.replace(' ', '')}/${year || '19XX'}/${holc_id}/{z}/{x}_{y}.png`,
           areaDesc: {},
         };
       }
@@ -485,354 +460,18 @@ const createADsForCity = (adId) => {
   });
 };
 
-const createCityData = (cityId) => {
-  const c = citiesData[cityId];
-  const cityData = {
-    id: parseInt(cityId),
-    name: c.name,
-    state: c.state,
-    year: c.year,
-    slug: c.slug,
-    form_id: c.form_id,
-    bucketPath: `//s3.amazonaws.com/holc/tiles/${c.state}/MAPPARENTFILENAME/${c.year}/`,
-    polygons: {},
-  };
-
-  const cityDataSelected = {
-    id: parseInt(cityId),
-    loopLatLng: [c.centerLat, c.centerLng],
-  };
-
-  const queryRingData = `WITH the_hull as (select ST_Collect(digitalscholarshiplab.holc_polygons.the_geom_webmercator) as hull, ad_id FROM digitalscholarshiplab.holc_polygons where ad_id = ${cityId} GROUP BY ad_id), maxdist as (SELECT st_distance_sphere(st_transform(st_endpoint(st_longestline(st_transform(ST_SetSRID(ST_MakePoint(looplng,looplat),4326),3857), hull)), 4326), ST_SetSRID(ST_MakePoint(looplng,looplat), 4326)) as outerringradius, st_length(st_longestline(st_transform(ST_SetSRID(ST_Point(looplng,looplat),4326),3857), hull)) / 3.5 as distintv, ST_Transform(ST_SetSRID(ST_MakePoint(looplng,looplat),4326),3857)::geometry as the_point from the_hull join holc_ads on the_hull.ad_id = holc_ads.city_id and holc_ads.city_id = ${cityId} Order by distintv DESC Limit 1 ), city_buffers as (SELECT ST_Transform((ST_Buffer(the_point,distintv * 3.5,'quad_segs=32')::geometry),3857) as buffer4, ST_Transform((ST_Buffer(the_point,distintv * 2.5,'quad_segs=32')::geometry),3857) as buffer3, ST_Transform((ST_Buffer(the_point,distintv * 1.5,'quad_segs=32')::geometry),3857) as buffer2, ST_Transform((ST_Buffer(the_point,distintv * 0.5,'quad_segs=32')::geometry),3857) as buffer1 FROM maxdist), city_rings as (SELECT ST_Difference(buffer4, buffer3) as the_geom_webmercator, 4 as ring_id, st_area(ST_Difference(buffer4, buffer3)) as ring_area from city_buffers union all select ST_Difference(buffer3, buffer2) as the_geom_webmercator, 3 as ring_id, st_area(ST_Difference(buffer3, buffer2)) as ring_area from city_buffers union all select ST_Difference(buffer2, buffer1) as the_geom_webmercator, 2 as ring_id, st_area(ST_Difference(buffer2, buffer1)) as ring_area from city_buffers union all select buffer1 as the_webmercator, 1 as ring_id, st_area(buffer1) as ring_area from city_buffers ), combined_grades as (SELECT holc_grade, ST_union(the_geom_webmercator) as the_geom_webmercator FROM digitalscholarshiplab.holc_polygons where ad_id = ${cityId} group by holc_grade) SELECT holc_grade as grade, ring_id as ring, ST_AsGeoJSON(ST_Transform(ST_Intersection(city_rings.the_geom_webmercator, combined_grades.the_geom_webmercator),4326), 4) as the_geojson, ST_AsGeoJSON(ST_Transform(ST_Difference(city_rings.the_geom_webmercator, combined_grades.the_geom_webmercator),4326), 4) as inverted_geojson, st_area(ST_Intersection(city_rings.the_geom_webmercator, combined_grades.the_geom_webmercator)) as area, ST_Area(city_rings.the_geom_webmercator) as ring_area, outerringradius FROM city_rings, combined_grades, maxdist`;
-
-  request({
-    url: `${url}${queryRingData}`,
-    json: true,
-  }, (error, response, ringData) => {
-    const rd = ringData.rows;
-
-    cityDataSelected.gradedArea = Object.keys(rd).reduce((cv, i) => cv + rd[i].area, 0);
-
-    cityDataSelected.gradedAreaOfRings = Object.keys(rd).reduce((cv, i) => ({
-      1: (rd[i].ring === 1) ? cv['1'] + rd[i].area : cv['1'],
-      2: (rd[i].ring === 2) ? cv['2'] + rd[i].area : cv['2'],
-      3: (rd[i].ring === 3) ? cv['3'] + rd[i].area : cv['3'],
-      4: (rd[i].ring === 4) ? cv['4'] + rd[i].area : cv['4'],
-    }), { 1: 0, 2: 0, 3: 0, 4: 0 });
-
-    cityDataSelected.gradedAreaByGrade = Object.keys(rd).reduce((cv, i) => ({
-      A: (rd[i].grade === 'A') ? cv.A + rd[i].area : cv.A,
-      B: (rd[i].grade === 'B') ? cv.B + rd[i].area : cv.B,
-      C: (rd[i].grade === 'C') ? cv.C + rd[i].area : cv.C,
-      D: (rd[i].grade === 'D') ? cv.D + rd[i].area : cv.D,
-    }), { A: 0, B: 0, C: 0, D: 0 });
-
-    cityDataSelected.gradeStats = ((gradedAreaByGrade, gradedArea) => {
-      const grades = ['A', 'B', 'C', 'D'];
-
-      return grades.map(grade => ({
-        grade,
-        percent: Math.round(gradedAreaByGrade[grade] / gradedArea * 10000) / 10000,
-      }));
-    })(cityDataSelected.gradedAreaByGrade, cityDataSelected.gradedArea);
-
-    cityDataSelected.ringAreaGeometry = ((rd1) => {
-      if (rd1.length === 0) {
-        return false;
-      }
-
-      const defaultProps = {
-        the_geojson: {},
-        inverted_geojson: {},
-        percent: 0,
-        overallPercent: 0,
-      };
-      const ringAreasGeometry = {
-        1: { A: defaultProps, B: defaultProps, C: defaultProps, D: defaultProps },
-        2: { A: defaultProps, B: defaultProps, C: defaultProps, D: defaultProps },
-        3: { A: defaultProps, B: defaultProps, C: defaultProps, D: defaultProps },
-        4: { A: defaultProps, B: defaultProps, C: defaultProps, D: defaultProps },
-      };
-
-      rd1.forEach((d) => {
-        ringAreasGeometry[d.ring].density = cityDataSelected.gradedAreaOfRings[d.ring] / d.ring_area;
-        ringAreasGeometry[d.ring][d.grade] = {
-          the_geojson: JSON.parse(d.the_geojson),
-          inverted_geojson: JSON.parse(d.inverted_geojson),
-          percent: d.area / cityDataSelected.gradedAreaOfRings[d.ring],
-          overallPercent: d.area / cityDataSelected.gradedArea,
-        };
-      });
-
-      return ringAreasGeometry;
-    })(rd);
-
-
-    cityDataSelected.ringStats = ((rd1) => {
-      if (!rd1 || Object.keys(rd1).length === 0) {
-        return false;
-      }
-
-      const formattedStats = [];
-      for (let ringId = 1; ringId <= 4; ringId++) {
-        const percents = [];
-        ['A', 'B', 'C', 'D'].forEach((grade) => {
-          if (rd1[ringId][grade].overallPercent > 0) {
-            percents.push({
-              percent: Math.round(rd1[ringId][grade].percent * 10000) / 10000,
-              overallPercent: Math.round(rd1[ringId][grade].overallPercent * 10000) / 10000,
-              opacity: Math.round(rd1[ringId].density * 100) / 100,
-              ringId: ringId,
-              grade: grade,
-            });
-          }
-        });
-        formattedStats.push({ percents: percents });
-      }
-
-      return formattedStats;
-    })(cityDataSelected.ringAreaGeometry);
-
-    cityDataSelected.outerRingRadius = (rd[0]) ? rd[0].outerringradius : false;
-
-    // get the bounding box and center of the polygons
-    const queryBBandCenter = `Select round(st_x(st_centroid(ST_SetSRID(st_extent(the_geom),4326)))::numeric, 3) as centerLng, round(st_y(st_centroid(ST_SetSRID(st_extent(the_geom),4326)))::numeric, 3) as centerLat, round(st_xmin(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as minlng, round(st_ymin(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as minlat, round(st_xmax(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as maxlng, round(st_ymax(ST_SetSRID(st_extent(the_geom),4326))::numeric, 3) as maxlat from digitalscholarshiplab.holc_polygons where ad_id = ${cityId}`;
-    request({
-      url: `${url}${queryBBandCenter}`,
-      json: true,
-    }, (error, response, bbAndCenter) => {
-      const polygonLatLngs = bbAndCenter.rows[0];
-      if (polygonLatLngs.minlat) {
-        cityData.polygonBoundingBox = [
-          [polygonLatLngs.minlat, polygonLatLngs.minlng],
-          [polygonLatLngs.maxlat, polygonLatLngs.maxlng],
-        ];
-        cityData.polygonsCenter = [polygonLatLngs.centerlat, polygonLatLngs.centerlng];
-      } else {
-        cityData.polygonBoundingBox = null;
-        cityData.polygonsCenter = null;
-      }
-
-      // get the inverted geojson
-      const queryGeojson = `SELECT ST_AsGeoJSON(ST_Transform(st_union(the_geom_webmercator), 4326)) as the_geom from holc_polygons where ad_id = ${cityId}`;
-      request({
-        url: `${url}${queryGeojson}`,
-        json: true,
-      }, (error, response, theGeojson) => {
-        if (theGeojson.rows[0].the_geom) {
-          cityDataSelected.inverted_geojson = ((theGeojson1) => {
-            //Create a new set of latlngs, adding our world-sized ring first
-            const NWHemisphere = [[0, 0], [0, 90], [-180, 90], [-180, 0], [0, 0]];
-            const newLatLngs = [NWHemisphere];
-            const holes = [];
-            const invertedGeojson = {
-              type: theGeojson1.type,
-            };
-
-            theGeojson1.coordinates.forEach((polygon) => {
-              polygon.forEach((polygonpieces, i2) => {
-                if (i2 === 0) {
-                  newLatLngs.push(polygonpieces);
-                } else {
-                  holes.push(polygonpieces);
-                }
-              });
-            });
-            invertedGeojson.coordinates = (holes.length > 0) ? [newLatLngs.concat(holes)] : [newLatLngs];
-            return invertedGeojson;
-          })(JSON.parse(theGeojson.rows[0].the_geom));
-        } else {
-          cityDataSelected.inverted_geojson = null;
-        }
-
-        // get the area descriptions and calculate label positions
-        const queryADs = `SELECT holc_ads.city_id as ad_id, dir_name, holc_ads.year, holc_ads.state, holc_polygons.name, sheets, form_id, holc_id, holc_grade, polygon_id, cat_id, sub_cat_id, _order as order, data, ST_asgeojson (holc_polygons.the_geom, 4) as the_geojson, round(st_xmin(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbxmin, round(st_ymin(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbymin, round(st_xmax(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbxmax, round(st_ymax(st_envelope(holc_polygons.the_geom))::numeric, 3) as bbymax, round(st_y(st_centroid(holc_polygons.the_geom))::numeric, 3) as centerlat, round(st_x(st_centroid(holc_polygons.the_geom))::numeric, 3) as centerlng, round((st_area(holc_polygons.the_geom::geography)/1000000 * 0.386102)::numeric, 3) as sqmi FROM holc_ad_data right join holc_polygons on holc_ad_data.polygon_id = holc_polygons.neighborhood_id join holc_ads on city_id = holc_polygons.ad_id where holc_ads.city_id = ${cityId}`;
-        request({
-          url: `${url}${queryADs}`,
-          json: true,
-        }, (error1, response1, theADsRaw) => {
-          const theADs = theADsRaw.rows;
-          cityDataSelected.areaDescriptions = {};
-          if (theADs && theADs.length > 0) {
-            // determine the label position
-            cityDataSelected.labelPositions = theADs
-              .filter((d, i) => theADs.findIndex(a => a.holc_id === d.holc_id) === i)
-              .map(ad => ({ the_geojson: JSON.parse(ad.the_geojson), id: ad.holc_id }))
-              .filter(d => d.the_geojson.coordinates)
-              .map((d) => {
-                let labelCoords;
-                // find the largest polygon
-                let largest = 0;
-                let iOfLargest = 0;
-                if (d.the_geojson.type === 'MultiPolygon') {
-                  d.the_geojson.coordinates.forEach((coordinates, j) => {
-                    const area = GeojsonArea.geometry({ type: 'Polygon', coordinates });
-                    if (area > largest) {
-                      iOfLargest = j;
-                      largest = area;
-                    }
-                  });
-                }
-
-                // select the polygon to use
-                const theCoords = d.the_geojson.coordinates[iOfLargest];
-
-                // calculate the point
-                if (theCoords) {
-                  labelCoords = Polylabel(theCoords, 0.0001);
-                  labelCoords = [labelCoords[1], labelCoords[0]];
-                }
-                return {
-                  id: d.id,
-                  point: labelCoords,
-                };
-              });
-
-            cityDataSelected.areaDescriptions.form_id = theADs[0].form_id;
-
-            cityDataSelected.areaDescriptions.byNeighborhood = ((rawAdData) => {
-              const bucketUrl = '//s3.amazonaws.com/holc/';
-              const adData = {};
-
-              rawAdData.forEach((row) => {
-                const {
-                  state,
-                  dir_name: dirName,
-                  year,
-                  holc_id: holcId,
-                  holc_grade: holcGrade,
-                  the_geojson: theGeojson,
-                  centerlat,
-                  centerlng,
-                  bbymin,
-                  bbxmin,
-                  bbymax,
-                  bbxmax,
-                  name,
-                  sqmi,
-                  sheets,
-                  cat_id: catId,
-                  sub_cat_id: subcatId,
-                  order,
-                  data,
-                } = row;
-                const urlPath = `${state}/${dirName}/${year}/`;
-                const adImageUrl = `${bucketUrl}ads/${urlPath}${holcId}`;
-
-                // append the polygons to the city data--probably refactor as this is not where this should go
-                cityData.polygons[holcId] = (cityData.polygons[holcId]) ? cityData.polygons[holcId] : {};
-                cityData.polygons[holcId].id = holcId;
-                cityData.polygons[holcId].grade = holcGrade;
-                cityData.polygons[holcId].area_geojson = (!cityData.polygons[holcId].area_geojson)
-                  ? JSON.parse(theGeojson)
-                  : cityData.polygons[holcId].area_geojson;
-
-                // define id if undefined
-                adData[holcId] = adData[holcId] || {};
-
-                adData[holcId].area_geojson_inverted = (!adData[holcId].area_geojson_inverted)
-                  ? ((geojson) => {
-                    //Create a new set of latlngs, adding our world-sized ring first
-                    const NWHemisphere = [[0, 0], [0, 90], [-180, 90], [-180, 0], [0, 0]];
-                    const newLatLngs = [NWHemisphere];
-                    const holes = [];
-
-                    geojson.coordinates.forEach((polygon) => {
-                      polygon.forEach((polygonpieces, i2) => {
-                        if (i2 === 0) {
-                          newLatLngs.push(polygonpieces);
-                        } else {
-                          holes.push(polygonpieces);
-                        }
-                      });
-                    });
-                    geojson.coordinates = (holes.length > 0) ? [newLatLngs.concat(holes)] : [newLatLngs];
-                    return geojson;
-                  })(JSON.parse(theGeojson))
-                  : adData[holcId].area_geojson_inverted;
-                adData[holcId].center = [centerlat, centerlng];
-                adData[holcId].boundingBox = [[bbymin, bbxmin], [bbymax, bbxmax]];
-                adData[holcId].name = name;
-                adData[holcId].holc_grade = holcGrade;
-                adData[holcId].sqmi = sqmi;
-
-                adData[holcId].url = `${bucketUrl}tiles/${urlPath}full-size/${holcId}.jpg`;
-                adData[holcId].tileUrl = `${adImageUrl}/{z}/{x}_{y}.png`;
-                adData[holcId].thumbnailUrl = `${adImageUrl}/thumbnail.jpg`;
-                adData[holcId].bucketPath = `${bucketUrl}tiles/${urlPath}`;
-
-                adData[holcId].sheets = sheets;
-
-                // define area description if undefined
-                if (typeof adData[holcId].areaDesc === 'undefined' || typeof adData[holcId].areaDesc === 'boolean') {
-                  adData[holcId].areaDesc = {};
-                }
-
-                // define category id for area description if undefined
-                if (catId && !subcatId && !order) {
-                  adData[holcId].areaDesc[catId] = data;
-                } else if (catId && typeof adData[holcId].areaDesc[catId] === 'undefined') {
-                  adData[holcId].areaDesc[catId] = {};
-                }
-                //console.log(553, holcId, catId, subcatId, order);
-                // check for subcategories
-                if (subcatId) {
-                  //console.log(556, holcId, catId, subcatId, order);
-                  // look for order
-                  if (order) {
-                    //console.log(561, holcId, catId, subcatId, order);
-                    adData[holcId].areaDesc[catId][subcatId] = adData[holcId].areaDesc[catId][subcatId] || {};
-                    //console.log(adData[holcId].areaDesc[catId][subcatId]);
-                    adData[holcId].areaDesc[catId][subcatId][order] = data;
-                    //console.log(adData[holcId].areaDesc[catId][subcatId]);
-                  } else {
-                    adData[holcId].areaDesc[catId][subcatId] = data;
-                  }
-                } else if (order) {
-                  adData[holcId].areaDesc[catId][order] = data;
-                }
-
-                if (Object.keys(adData[holcId].areaDesc).length === 0) {
-                  adData[holcId].areaDesc = false;
-                }
-              });
-
-              return adData;
-            })(theADs);
-          }
-
-          // write the files
-          const fileName = `${`${cityData.state}-${cityData.name}-${cityData.year}`.replace(/[^a-zA-Z0-9]/g, '')}.json`;
-          fs.writeFileSync(`../static/cities/${fileName}`, JSON.stringify(cityData));
-          fs.writeFileSync(`../build/static/cities/${fileName}`, JSON.stringify(cityData));
-          console.log(`wrote cities/${fileName}`);
-          fs.writeFileSync(`../static/citiesSelected/${fileName}`, JSON.stringify(cityDataSelected));
-          fs.writeFileSync(`../build/static/citiesSelected/${fileName}`, JSON.stringify(cityDataSelected));
-          console.log(`wrote citiesSelected/${fileName}`);
-
-          // run the next city
-          const iNum = Object.keys(citiesData).findIndex(id => id === cityId);
-          if (iNum < Object.keys(citiesData).length - 1) {
-            createCityData(Object.keys(citiesData)[iNum + 1]);
-          }
-        });
-      });
-    });
-  });
-};
-
 eventEmitter.on('rastersDataCreated', () => createCitiesData());
 
-// eventEmitter.on('citiesDataCreated', () => {
-//   createAreaData();
-//   const adId = Object.keys(citiesData)[0];
-//   createPolygonFilesForCity(citiesData[adId]);
-// });
+eventEmitter.on('citiesDataCreated', () => {
+  createAreaData();
+  const adId = Object.keys(citiesData)[0];
+  createPolygonFilesForCity(citiesData[adId]);
+});
 
-// eventEmitter.on('areasDataCreated', () => {
-//   const adId = Object.keys(areasData)[0];
-//   createADsForCity(adId);
-// });
+eventEmitter.on('areasDataCreated', () => {
+  const adId = Object.keys(areasData)[0];
+  createADsForCity(adId);
+});
 
 createRastersData();
 //createCitiesData();

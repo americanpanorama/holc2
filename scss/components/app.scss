@@ -33,7 +33,6 @@ circle {
 	
 	.neighborhoodPolygon,
 	.ringGradedArea {
-		mix-blend-mode: color;
 		&.gradeA {
 			fill: $gradeA;
 			stroke: $gradeA;

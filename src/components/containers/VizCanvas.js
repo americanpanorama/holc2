@@ -5,7 +5,7 @@ import ADImage from '../AreaDescription/containers/ADImage';
 
 const mapStateToProps = (state) => {
   const { selectedArea, selectedCity, showADScan } = state;
-  const VizComponent = (showADScan && selectedArea && selectedCity.data) ? ADImage : HOLCMap;
+  const VizComponent = (showADScan && selectedArea && selectedCity) ? ADImage : HOLCMap;
   return {
     VizComponent,
   };

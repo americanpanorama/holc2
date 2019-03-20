@@ -25,7 +25,7 @@ export default class ClickableCities extends React.Component {
       let collides = false;
 
       // get the bounding box for the label
-      if (this.labelRefs[c.ad_id].current) {
+      if (this.labelRefs[c.ad_id] && this.labelRefs[c.ad_id].current) {
         const styles = window.getComputedStyle(this.labelRefs[c.ad_id].current.leafletElement._container);
         if (styles.transform.match(/[0-9., -]+/)) {
           const x1 = parseInt(styles.transform.match(/[0-9., -]+/)[0].split(", ")[4]);

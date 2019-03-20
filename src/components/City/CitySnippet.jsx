@@ -27,7 +27,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
       </h4>
     )}
 
-    { (cityData.area) && (
+    { (cityData.area && cityData.area.total) && (
       <div className="barchart">
         <svg
           width={90}
@@ -77,27 +77,22 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
         { cityData.name + ((displayState) ? `,  ${cityData.state}` : '') }
       </a>
     </h1>
-    { (cityData.displayPop && cityData.displayPop[1940].total) && (
+    { (cityData.population && cityData.population.total) && (
       <div className="populationStats">
         <span className="catName">
           {'Population: '}
         </span>
         <span className="subcatData">
-          { cityData.displayPop[1940].total.toLocaleString() }
+          { cityData.population.total.toLocaleString() }
         </span>
       </div>
     )}
     <ul>
-      { cityData.displayPop && cityData.displayPop[1940].percents.map((pop) => {
-        if (Math.round(pop.proportion * 100) !== -1) {
-          return (
-            <li key={`pop1940${pop.label.replace(/ /g, '')}`}>
-              {`${Math.round(pop.proportion * 100)}% ${pop.label}`}
-            </li>
-          );
-        }
-        return null;
-      })}
+      { cityData.population.percents.map(pop => (
+        <li key={`pop${pop.label.replace(/ /g, '')}`}>
+          {`${pop.proportion} ${pop.label}`}
+        </li>
+      ))}
     </ul>
   </div>
 );
