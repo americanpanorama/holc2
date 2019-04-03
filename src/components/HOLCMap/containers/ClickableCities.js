@@ -118,7 +118,7 @@ const mapStateToProps = (state) => {
         city.rDist = rDist;
 
         // place the dorling at the non-colliding point
-        const dorling = dorlings[zoom].find(d => d.city === city.ad_id);
+        const dorling = dorlings[Math.max(zoom, 5)].find(d => d.city === city.ad_id);
         if (dorling && dorling.point) {
           const z = Math.max(zoom, 5);
           city.offsetPoint = dorlings[z].find(d => d.city === city.ad_id).point;
@@ -128,7 +128,8 @@ const mapStateToProps = (state) => {
         }
       }
 
-      city.showLabel = !['Brooklyn', 'Queens', 'Bronx', 'Staten Island', 'Manhattan'].includes(city.name);
+      city.showLabel = (!['Brooklyn', 'Queens', 'Bronx', 'Staten Island', 'Manhattan', 'Boston'].includes(city.name)
+        && city.population && city.population.total && city.population.total >= 500000);
 
       return city;
     });

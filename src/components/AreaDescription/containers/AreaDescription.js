@@ -9,12 +9,13 @@ import Form1939Curated from '../Form1939/presentational/Selected';
 import AreaDescription from '../presentational/AreaDescription';
 
 import { selectCategory } from '../../../store/Actions';
-import { getSelectedCityData } from '../../../store/selectors';
+import { getSelectedCityData, getSelectedAreaDescription } from '../../../store/selectors';
 
 const MapStateToProps = (state) => {
-  const selectedCityData = getSelectedCityData(state);
-  const { selectedArea, showADSelections, areaDescriptions } = state;
-  let adData = null;
+  const cityData = getSelectedCityData(state);
+  const areaDescription = getSelectedAreaDescription(state);
+  const adData = (areaDescription && areaDescription.areaDesc) ? areaDescription.areaDesc : undefined;
+  const { showADSelections } = state;
   const formComponents = {
     full: {
       1: FormQualitative,
@@ -36,9 +37,8 @@ const MapStateToProps = (state) => {
 
   let FormComponent;
 
-  if (selectedArea && areaDescriptions && selectedCityData.form_id) {
-    const { form_id: formId } = selectedCityData;
-    adData = areaDescriptions[selectedArea].areaDesc;
+  if (cityData.form_id) {
+    const { form_id: formId } = cityData;
     FormComponent = (showADSelections) ? formComponents.selected[formId]
       : formComponents.full[formId];
   }

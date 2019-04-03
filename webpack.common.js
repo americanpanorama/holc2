@@ -49,7 +49,7 @@ const config = {
       filename: 'index.html',
       appMountId: 'app-container',
       links: [
-        'https://fonts.googleapis.com/css?family=Merriweather:300|Lato:400,100,300|Lora:100,400,400i',
+        'https://fonts.googleapis.com/css?family=Merriweather:300|Lato:400,100,300|Lora:100,400,400i|PT+Sans:400',
         '//cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0/leaflet.css'
       ],
       scripts: ['https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.core.js'],

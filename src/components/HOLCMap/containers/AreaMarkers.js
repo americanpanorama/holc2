@@ -3,7 +3,7 @@ import AreaMarkers from '../presentational/AreaMarkers';
 import { getAreaMarkers } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
-  const { map, selectedCity, selectedGrade, showHOLCMaps } = state;
+  const { map } = state;
   const { zoom } = map;
   return {
     labels: getAreaMarkers(state),

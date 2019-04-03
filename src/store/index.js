@@ -12,15 +12,15 @@ const logger = createLogger({
 const hashManager = store => next => (action) => {
   const theNext = next(action);
   const nextState = store.getState();
-  const { map, selectedCity, showHOLCMaps, showADSelections, showADScan, adScan, selectedCategory } = store.getState();
+  const { map, selectedCity, showHOLCMaps, showADSelections, showADScan, adScan, selectedCategory, cities } = store.getState();
   const { zoom, center } = map;
-  //const { data: selectedCityData } = selectedCity;
+  const selectedCityData = (selectedCity) ? cities.find(c => c.ad_id === selectedCity) : null;
   const lat = Math.round(center[0] * 1000) / 1000;
   const lng = Math.round(center[1] * 1000) / 1000;
   const newHash = {
     loc: `${zoom}/${lat}/${lng}`,
     maps: (!showHOLCMaps) ? '0' : null,
-    //city: (selectedCityData) ? selectedCityData.slug : null,
+    city: (selectedCityData) ? selectedCityData.slug : null,
     area: (!selectedCategory) ? nextState.selectedArea : null,
     category: selectedCategory,
     adview: (!showADSelections) ? 'full' : null,

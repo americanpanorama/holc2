@@ -50,7 +50,7 @@ const calculateDimensions = () => {
     dimensions.dataViewerHeight = dimensions.windowHeight - dimensions.headerHeight - 40;
     dimensions.dataViewerWidth = 500;
   } else {
-    dimensions.dataViewerHeight = 100;
+    dimensions.dataViewerHeight = 'auto';
     dimensions.dataViewerWidth = 500;
     dimensions.dataViewerRight = 0;
     dimensions.dataViewerLeft = 0;

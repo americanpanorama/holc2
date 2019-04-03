@@ -10,7 +10,6 @@ const mapStateToProps = (state) => {
   if (!showCityStats && selectedCity) {
     show = 'showButton';
     cityName = getSelectedCityData(state).name;
-    console.log(getSelectedCityData(state));
   } else if (selectedCategory) {
     show = 'category';
   } else if (selectedArea) {

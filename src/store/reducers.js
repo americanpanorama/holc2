@@ -10,13 +10,13 @@ const selectedCategory = (state = null, action) => {
   if (action.type === A.SELECT_CATEGORY) {
     return action.payload;
   }
-  if (action.type === A.UNSELECT_CATEGORY) {
+  if (action.type === A.UNSELECT_CATEGORY || action.type === A.SELECT_AREA) {
     return null;
   }
   return state;
 };
 
-const selectedCity = (state = { data: null, isFetching: false }, action) => {
+const selectedCity = (state = initialState.selectedCity, action) => {
   if (action.type === A.UNSELECT_CITY) {
     return null;
   }
@@ -36,9 +36,15 @@ const selectedGrade = (state = null, action) => (
   (action.type === A.SELECT_GRADE) ? action.payload : state
 );
 
-const showADScan = (state = initialState.showADScan, action) => (
-  (action.type === A.TOGGLE_AD_SCAN) ? !state : state
-);
+const showADScan = (state = initialState.showADScan, action) => {
+  if (action.type === A.TOGGLE_AD_SCAN) {
+    return !state;
+  }
+  if (action.type === A.SELECT_CATEGORY) {
+    return false;
+  }
+  return state;
+};
 
 const showADSelections = (state = null, action) => (
   (action.type === A.TOGGLE_AD_SELECTION) ? !state : state
@@ -48,7 +54,8 @@ const selectedArea = (state = null, action) => {
   if (action.type === A.SELECT_AREA) {
     return action.payload;
   }
-  if (action.type === A.UNSELECT_AREA) {
+  if (action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
+    || action.type === A.UNSELECT_AREA) {
     return null;
   }
   return state;
@@ -186,9 +193,15 @@ const basemap = (state = initialState.basemap, action) => {
   return state;
 };
 
-const searchingADsFor = (state = false, action) => (
-  (action.type === A.SEARCHING_ADS) ? action.payload : state
-);
+const searchingADsFor = (state = false, action) => {
+  if (action.type === A.SEARCHING_ADS) {
+    return action.payload;
+  }
+  if (action.type === A.SELECT_AREA) {
+    return null;
+  }
+  return state;
+};
 
 const showContactUs = (state = false, action) => (
   (action.type === A.TOGGLE_CONTACT_US) ? action.payload : state
@@ -210,9 +223,15 @@ const selectedText = (state = false, action) => (
   (action.type === A.SELECT_TEXT) ? action.payload : state
 );
 
-const adSearchHOLCIds = (state = initialState.adSearchHOLCIds, action) => (
-  (action.type === A.SEARCHING_ADS_RESULTS) ? action.payload : state
-);
+const adSearchHOLCIds = (state = initialState.adSearchHOLCIds, action) => {
+  if (action.type === A.SELECT_AREA) {
+    return [];
+  }
+  if (action.type === A.SEARCHING_ADS_RESULTS) {
+    return action.payload;
+  }
+  return state;
+};
 
 // immutable--loaded from data that doesn't change
 const cities = (state = {}) => state;

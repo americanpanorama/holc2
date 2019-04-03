@@ -76,6 +76,10 @@
           border: #ddd;
           color: #bbb;
       }
+
+      @include for-phone-only {
+        width: 150px;
+      }
     }
   }
 
@@ -261,6 +265,18 @@ button.cityStats {
   height: 36px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
+
+  @include for-phone-only {
+    top: auto;
+    left: 50%;
+    width: 80%;
+    margin-left: -40%;
+    bottom: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
 }
 
 .adsearchbox {

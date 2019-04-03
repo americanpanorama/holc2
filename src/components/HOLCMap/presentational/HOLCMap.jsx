@@ -1,15 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Map, withLeaflet } from 'react-leaflet';
-import VectorGridDefault from 'react-leaflet-vectorgrid';
-import * as L from 'leaflet';
-import Proj4 from 'proj4leaflet';
+//import VectorGridDefault from 'react-leaflet-vectorgrid';
 
 // import * as L from 'leaflet';
 // import Proj4 from 'proj4leaflet';
 
 import BaseMap from '../containers/BaseMap';
 import ClickableCities from '../containers/ClickableCities';
+import CityMarkers from '../containers/CityMarkers';
 import HOLCRasters from '../containers/HOLCRasters';
 import AreaPolygons from '../containers/AreaPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
@@ -50,29 +49,9 @@ export default class HOLCMap extends React.Component {
   }
 
   render() {
-    const VectorGrid = withLeaflet(VectorGridDefault);
-    // console.log(VectorGrid);
-    const { zoom, center, aboveThreshold, style, className} = this.props;
-    // const crsParams = {
-    //   origin: [-2215235.82, 420644.41],
-    //   // bounds: [
-    //   //   [-8046094.81, 1819060.18],
-    //   //   [988364.71, 3511186.72],
-    //   // ],
-    //   resolutions: [8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1],
-    //   //transformation: L.Transformation(1, 0, -1, 0),
-    // };
-    // L.Proj = Proj4;
-    //const crs = new L.Proj.CRS('EPSG:2163', '+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs', crsParams);
-    // const crs = new L.Proj.CRS('EPSG:2400',
-    //   '+lon_0=15.808277777799999 +lat_0=0.0 +k=1.0 +x_0=1500000.0 ' +
-    //   '+y_0=0.0 +proj=tmerc +ellps=bessel +units=m ' +
-    //   '+towgs84=414.1,41.3,603.1,-0.855,2.141,-7.023,0 +no_defs',
-    //   {
-    //     resolutions: [8192, 4096, 2048] // 3 example zoom level resolutions
-    //   }
-    // );
-    //console.log(crs);
+    // const VectorGrid = withLeaflet(VectorGridDefault);
+    // // console.log(VectorGrid);
+    const { zoom, center, className } = this.props;
     return (
       <React.Fragment>
         <Map
@@ -84,9 +63,6 @@ export default class HOLCMap extends React.Component {
           zoomControl={false}
           onMoveEnd={this.onMapMoved}
           padding={0.3}
-          // crs={crs}
-          // continuousWorld={true}
-          // worldCopyJump={false}
         >
 
         <BaseMap />
@@ -117,9 +93,10 @@ export default class HOLCMap extends React.Component {
           )} */}
           
           <ClickableCities />
+          <CityMarkers />
           <HOLCRasters />
           <AreaPolygons />
-          <AreaMarkers /> 
+          <AreaMarkers />
         </Map>
 
         <div id="mapControls">

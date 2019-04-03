@@ -5,6 +5,8 @@ const mapStateToProps = state => ({
   url: state.basemap,
   key: (state.map.zoom >= 9) ? 'labels' : 'noLabels',
   zIndex: -1,
+  tileSize: 512,
+  zoomOffset: -1,
   detectRetina: true,
   continuousWorld: true,
 });

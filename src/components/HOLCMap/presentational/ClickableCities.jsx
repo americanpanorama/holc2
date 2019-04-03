@@ -72,7 +72,7 @@ export default class ClickableCities extends React.Component {
               onClick={onCitySelected}
               className='cityMarker'
             >
-              {(c.showLabel) && (
+              {(false && c.showLabel) && (
                 <Tooltip
                   className={`cityLabel class${c.labelClass}`}
                   direction={c.labelDirection}
@@ -90,7 +90,7 @@ export default class ClickableCities extends React.Component {
           </FeatureGroup>
         ))}
 
-
+      {/* JSX Comment
         <Marker
           position={[39.75, -73.15]}
         >
@@ -121,7 +121,7 @@ export default class ClickableCities extends React.Component {
               Greater Boston
             </span>
           </Tooltip>
-        </Marker>
+        </Marker>  */}
       </React.Fragment>
     );
   }

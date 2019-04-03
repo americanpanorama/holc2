@@ -2,7 +2,7 @@ import * as React from 'react';
 //import "babel-polyfill";
 //import './utils/carto.js';
 
-import { windowResized, selectCity, selectArea } from './store/Actions';
+import { windowResized, selectCity, selectArea, selectCategory } from './store/Actions';
 
 // components (views)
 import Masthead from './components/containers/Masthead';
@@ -25,14 +25,25 @@ export default class App extends React.Component {
     if (hashValues.city || (hashValues.city && hashValues.area)) {
       const { cities } = Store.getState();
       if (cities) {
-        const adId = Object.keys(cities)
-          .map(id => cities[id])
-          .find(c => c.slug === hashValues.city).ad_id;
+        const adId = cities.find(c => c.slug === hashValues.city).ad_id;
+        let loc;
+        if (hashValues.loc) {
+          const coords = hashValues.loc.split('/');
+          loc = {
+            zoom: coords[0],
+            lat: coords[1],
+            lng: coords[2],
+          };
+        }
         // load the area--it will also load the city
         if (hashValues.area) {
           Store.dispatch(selectArea(`${adId}-${hashValues.area}`));
         } else {
-          Store.dispatch(selectCity(adId));
+          Store.dispatch(selectCity(adId, loc));
+        }
+
+        if (hashValues.category) {
+          Store.dispatch(selectCategory(hashValues.category));
         }
       }
     }
@@ -64,14 +75,14 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div className="container">
+      <React.Fragment>
         <Masthead />
         <Search />
         <VizCanvas />
         <DataViewer />
         <DataViewerFull />
         <Text />
-      </div>
+      </React.Fragment>
     );
   }
 }

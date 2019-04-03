@@ -23,7 +23,7 @@ const AreaPolygons = ({ polygons, selectArea, mask }) => (
         opacity={p.strokeOpacity}
         weight={p.weight}
         style={p.style}
-        key={`areaPolygon-${p.ad_id}-${p.id}`}
+        key={`areaPolygon-${p.ad_id}-${p.id || p.arbId}`}
       />
     ))}
   </LayerGroup>

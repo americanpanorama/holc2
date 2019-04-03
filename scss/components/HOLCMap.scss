@@ -39,6 +39,8 @@
         fill: $gradeDOverlay;
       }
     }
+
+    mix-blend-mode: exclusion;
   }
 
   .neighborhoodLabelBG {
@@ -52,7 +54,8 @@
     box-shadow: none;
     font-size: 1.5em;
     line-height: 1.1;
-    color: #222;
+    color: #404040;
+    font-family: "PT Sans";
     background-color: transparent;
     text-shadow: -4px 0 3px #f5f5f3, 0 4px 3px #f5f5f3, 4px 0 3px #f5f5f3, 0 -4px 3px #f5f5f3;
     margin: 0;
@@ -106,6 +109,16 @@
       right: 148px;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
+
+      @include for-phone-only {
+        width: 36px;
+        display: block;
+        text-indent: -9999em;
+        background-image: url(./static/map-toggle-button.svg);
+        background-repeat: no-repeat;
+        padding: 0;
+        border: 1px solid $controlsColor;
+      }
     }
 
     &.zoomIn, &.zoomOut, &.resetView {

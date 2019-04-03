@@ -16,7 +16,7 @@ const mapStateToProps = (state) => {
     const newLatLngs = [NWHemisphere];
     const holes = [];
 
-    const selectedPolygon = polygons.find(p => p.ad_id === selectedCity && p.id == selectedArea);
+    const selectedPolygon = polygons.find(p => p.ad_id === selectedCity && p.id === selectedArea);
 
     if (selectedPolygon) {
       selectedPolygon.area_geojson.coordinates.forEach((polygon) => {

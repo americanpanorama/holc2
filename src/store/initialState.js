@@ -23,12 +23,6 @@ Object.keys(Cities).forEach((id) => {
 
 const dimensions = calculateDimensions();
 
-// const basemap = (isRetina)
-//   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager_nolabels/{z}/{x}/{y}@2x.png'
-//   : 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager_nolabels/{z}/{x}/{y}.png';
-
-// load varables from the hash
-
 let zoom = 5;
 let lat = 39.10;
 let lng = -94.58;
@@ -92,10 +86,12 @@ if (!adScan) {
 
 const center = [lat, lng];
 
-const basemap = (zoom < 9)
-  ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
-  //: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
-  : 'https://api.mapbox.com/styles/v1/nayers/cjjkbhzhcebop2rlq5hv0vghf/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmF5ZXJzIiwiYSI6ImNqMXM1ZDFidDAwYjUzM212eHEyNzYyd2oifQ.I_na3uloyQM89sp3pnzcnQ';
+// const basemap = (zoom < 9)
+//   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
+//   //: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
+//   : 'https://api.mapbox.com/styles/v1/nayers/cjjkbhzhcebop2rlq5hv0vghf/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmF5ZXJzIiwiYSI6ImNqMXM1ZDFidDAwYjUzM212eHEyNzYyd2oifQ.I_na3uloyQM89sp3pnzcnQ';
+
+const basemap = 'https://api.mapbox.com/styles/v1/ur-dsl/cjtyox5ms3ycd1flvhg7kihdi/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidXItZHNsIiwiYSI6ImNqdGs3MHhxdDAwd2E0NHA2bmxoZjM1Y2IifQ.y1wfhup4U2U8KvHuOpFCng';
 
 export default {
   areaDescriptions: null,

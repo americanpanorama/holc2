@@ -21,7 +21,7 @@ const Header = (props) => {
     <h2>
       <a
         href={`http://dsl.richmond.edu/panorama/redlining/#city=${slug}`}
-        onClick={onCitySelected}
+        onClick={() => { onCitySelected(); return false; }}
         id={adId}
       >
         {`${name}, `}

@@ -4,33 +4,40 @@ import PropTypes from 'prop-types';
 import CategoryDatum from '../containers/CategoryDatum';
 import CloseButton from '../../Buttons/presentational/Close';
 import FullScreenButton from '../../Buttons/presentational/FullScreen';
+import PreviousCategoryButton from '../containers/PreviousCategoryButton';
+import NextCategoryButton from '../containers/NextCategoryButton';
 
 const Category = ({ title, values, unselectCategory, toggleDataViewerFull }) => (
   <div id="adCategory">
-    <h3>
-      {title}
+    <header>
+      <PreviousCategoryButton />
+      <NextCategoryButton />
+      <h3>
+        {title}
 
-      <span
-        onClick={toggleDataViewerFull}
-        role="button"
-        tabIndex={0}
-        style={{
-          marginLeft: 5,
-        }}
-      >
-        <FullScreenButton />
-      </span>
-      <span
-        onClick={unselectCategory}
-        role="button"
-        tabIndex={0}
-        style={{
-          marginLeft: 5,
-        }}
-      >
-        <CloseButton />
-      </span>
-    </h3>
+        <span
+          onClick={toggleDataViewerFull}
+          role="button"
+          tabIndex={0}
+          style={{
+            marginLeft: 5,
+          }}
+        >
+          <FullScreenButton />
+        </span>
+        <span
+          onClick={unselectCategory}
+          role="button"
+          tabIndex={0}
+          style={{
+            marginLeft: 5,
+          }}
+        >
+          <CloseButton />
+        </span>
+
+      </h3>
+    </header>
 
     <div className="grade A">
       <h4>
