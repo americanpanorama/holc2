@@ -4,10 +4,10 @@ import { toggleADScan } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
-  const { hasADs, hasImages } = getSelectedCityData(state);
+  const { hasImages } = getSelectedCityData(state);
   return {
-    className: (!hasADs || !hasImages) ? 'inactive' : '',
-    disabled: !hasADs || !hasImages,
+    className: !hasImages ? 'inactive' : '',
+    disabled: !hasImages,
     label: (state.showADScan) ? 'Show Map' : 'Show Scan',
   };
 };

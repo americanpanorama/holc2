@@ -23,15 +23,18 @@ export const getAreaMarkers = createSelector(
     }
 
     return visiblePolygons
-      .filter(p => p.ad_id === selectedCity && p.id)
+      .filter(p => p.ad_id === selectedCity && p.id && p.labelCoords)
       .map((l) => {
         const color = ((selectedArea && l.id !== selectedArea)
           || (selectedGrade && l.grade !== selectedGrade)
           || (adSearchHOLCIds.length > 0 && !adSearchHOLCIds.includes(l.id)))
           ? 'silver' : 'black';
+        const key = (l.arbId) ? `areaPolygon-${l.ad_id}-${l.arbId}` :
+          `areaPolygon-${l.ad_id}-${l.id}`;
         return {
           point: l.labelCoords,
           ad_id: l.ad_id,
+          key,
           id: l.id,
           color,
         };
@@ -48,9 +51,11 @@ export const getPolygons = createSelector(
     return polygons.map((p) => {
       let fillColor = constantsColors[`grade${p.grade}`];
       let fillOpacity = (showHOLCMaps) ? 0 : zFillOpacity;
-      let strokeColor = constantsColors[`grade${p.grade}`];
+      let strokeColor = '#888'; //constantsColors[`grade${p.grade}`];
       let strokeOpacity = (showHOLCMaps) ? 0 : 0.95;
       let weight = (showHOLCMaps) ? 0 : 1.5;
+      const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}` :
+        `areaPolygon-${p.ad_id}-${p.id}`;
 
       // styling for selected grade
       if (!showHOLCMaps && selectedGrade && selectedGrade !== p.grade) {
@@ -108,6 +113,7 @@ export const getPolygons = createSelector(
 
       return {
         ...p,
+        key,
         fillColor,
         fillOpacity,
         strokeColor,

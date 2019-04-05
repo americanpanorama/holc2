@@ -113,7 +113,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
 
 CityViz.propTypes = {
   width: PropTypes.number.isRequired,
-  selectedGrade: PropTypes.bool,
+  selectedGrade: PropTypes.string,
   gradeStats: PropTypes.arrayOf(PropTypes.object),
   gradeSelected: PropTypes.func.isRequired,
   gradeUnselected: PropTypes.func.isRequired,

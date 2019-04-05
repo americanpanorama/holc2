@@ -6,9 +6,8 @@ import TranscriptionButton from '../containers/TranscriptionButton';
 import ImageButton from '../containers/ImageButton';
 
 const AreaDescription = ({ adData, FormComponent, selectCategory }) => {
-  if (!adData) {
-    return null;
-  }
+  console.log(adData, FormComponent);
+
 
   return (
     <div id="areaDescription">
@@ -17,10 +16,16 @@ const AreaDescription = ({ adData, FormComponent, selectCategory }) => {
         <TranscriptionButton />
         <ImageButton />
       </div>
-      <FormComponent
-        adData={adData}
-        selectCategory={selectCategory}
-      />
+      { (adData) ? (
+        <FormComponent
+          adData={adData}
+          selectCategory={selectCategory}
+        />
+      ) : (
+        <p className="explanation">
+          This area description has not yet been transcripted.
+        </p>
+      )}
     </div>
   );
 };

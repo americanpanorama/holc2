@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Button from '../presentational/Button';
-import { toggleADTranscription } from '../../../store/Actions';
+import { toggleADScan } from '../../../store/Actions';
 
 const mapStateToProps = () => ({
   className: 'closeScan',
@@ -8,7 +8,7 @@ const mapStateToProps = () => ({
 });
 
 const mapDispatchToProps = {
-  action: toggleADTranscription,
+  action: toggleADScan,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Button);

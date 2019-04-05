@@ -65,6 +65,7 @@ export default class ADSearchSnippet extends React.Component {
               //onMouseLeave={ this.props.onNeighborhoodUnhighlighted }
               id={`${adId}-${d.holcId}`}
               className={`adSearchResult grade${d.grade}`}
+              key={`adSearchResultFor-${adId}-${d.holcId}`}
             >
 
               <h4>

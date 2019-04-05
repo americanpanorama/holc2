@@ -10,6 +10,7 @@ const mapStateToProps = (state) => {
   return {
     selections,
     adId: state.selectedCity,
+    isSearchingADs: !!state.searchingADsFor,
   };
 };
 

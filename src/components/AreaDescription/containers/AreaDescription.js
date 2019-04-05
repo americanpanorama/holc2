@@ -14,7 +14,8 @@ import { getSelectedCityData, getSelectedAreaDescription } from '../../../store/
 const MapStateToProps = (state) => {
   const cityData = getSelectedCityData(state);
   const areaDescription = getSelectedAreaDescription(state);
-  const adData = (areaDescription && areaDescription.areaDesc) ? areaDescription.areaDesc : undefined;
+  const adData = (areaDescription && areaDescription.areaDesc && Object.keys(areaDescription.areaDesc).length > 0)
+    ? areaDescription.areaDesc : undefined;
   const { showADSelections } = state;
   const formComponents = {
     full: {

@@ -7,7 +7,7 @@ const AreaMarkers = ({ labels, fontSize }) => (
     { labels.map(p => (
       <FeatureGroup
         className="areaMarker"
-        key={`areaMarker-${p.ad_id}-${p.id}`}
+        key={p.key}
       >
         <CircleMarker
           center={p.point}

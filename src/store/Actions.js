@@ -4,6 +4,8 @@ import Actions from './ActionTypes';
 import calculateDimensions from './CalculateDimensions';
 import Rasters from '../../data/Rasters.json';
 
+import { getSelectedCityData } from './selectors';
+
 // UTILITY FUNCTIONS
 const getCityFilePath = (adId, cities) => {
   const { name, state, year } = cities.find(c => c.ad_id === adId);
@@ -111,7 +113,8 @@ export const selectArea = eOrId => (dispatch, getState) => {
     (i === 0) ? parseInt(v, 10) : v
   ));
 
-  const { selectedCity, selectedCategory, selectedArea, cities } = getState();
+  const { selectedCity, selectedCategory, selectedArea, cities, showADScan } = getState();
+  const cityData = getSelectedCityData(getState());
   // load the city if necessary then the neighborhood
   if (selectedCity !== adId) {
     dispatch({
@@ -131,6 +134,13 @@ export const selectArea = eOrId => (dispatch, getState) => {
           type: Actions.SELECT_AREA,
           payload: holcId,
         });
+
+        // if not yet transcribed, show the ad scan
+        if (selectedCity.hasImages && !selectedCity.hasADs && !showADScan) {
+          dispatch({
+            type: Actions.TOGGLE_AD_SCAN,
+          });
+        }
       })
       .catch((err) => {
         console.warn('Fetch Error :-S', err);
@@ -142,6 +152,13 @@ export const selectArea = eOrId => (dispatch, getState) => {
     type: Actions.SELECT_AREA,
     payload: (selectedArea !== holcId || selectedCategory) ? holcId : null,
   });
+  
+  // if not yet transcribed, show the ad scan
+  if (cityData.hasImages && !cityData.hasADs && !showADScan && (selectedArea !== holcId)) {
+    dispatch({
+      type: Actions.TOGGLE_AD_SCAN,
+    });
+  }
   return null;
 };
 

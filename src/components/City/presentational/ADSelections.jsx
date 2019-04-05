@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ADSearch from '../containers/ADSearch';
 
-const ADSelections = ({ selections, adId, selectArea }) => (
+const ADSelections = ({ selections, adId, isSearchingADs, selectArea }) => (
   <section className="adSelections">
     <h3>
       Area Descriptions
@@ -10,7 +10,7 @@ const ADSelections = ({ selections, adId, selectArea }) => (
 
     <ADSearch />
 
-    {(selections) && (
+    {(selections && !isSearchingADs) && (
       <div>
         <h4>
           Selections from the Area Descriptions
@@ -45,6 +45,7 @@ export default ADSelections;
 ADSelections.propTypes = {
   selections: PropTypes.arrayOf(PropTypes.object),
   adId: PropTypes.number.isRequired,
+  isSearchingADs: PropTypes.bool.isRequired,
   selectArea: PropTypes.func.isRequired,
 };
 

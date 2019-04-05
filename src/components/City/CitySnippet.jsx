@@ -9,25 +9,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
     tabIndex={0}
     id={cityData.ad_id}
   >
-    { (cityData.hasADs && cityData.hasImages) && (
-      <h4>
-        area descriptions data &amp; scans
-      </h4>
-    )}
-
-    { (!cityData.hasADs && cityData.hasImages) && (
-      <h4>
-        area descriptions scans
-      </h4>
-    )}
-
-    { (cityData.hasADs && !cityData.hasImages) && (
-      <h4>
-        area descriptions data
-      </h4>
-    )}
-
-    { (cityData.area && cityData.area.total) && (
+    { (cityData.area && cityData.area.total > 0) && (
       <div className="barchart">
         <svg
           width={90}
@@ -88,7 +70,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
       </div>
     )}
     <ul>
-      { cityData.population.percents.map(pop => (
+      { cityData.population && cityData.population.percents && cityData.population.percents.map(pop => (
         <li key={`pop${pop.label.replace(/ /g, '')}`}>
           {`${pop.proportion} ${pop.label}`}
         </li>

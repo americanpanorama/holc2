@@ -45,14 +45,6 @@ const mapStateToProps = (state) => {
   const citiesWithAreas = citiesList.filter(c => c.area && c.area.total);
   const largestArea = Math.max(...citiesWithAreas.map(c => c.area.total));
   
-  const labelsWest = ['San Diego', 'Los Angeles', 'Portland', 'Seattle', 'San Francisco'];
-  const labelsNorth = [];
-  const labelsNorthEast = ['Sacramento', 'Tampa'];
-  const labelsNorthWest = ['Oakland'];
-  const labelsEast = ['Spokane', 'Fresno', 'Stockton', 'Miami', 'Jacksonville'];
-  const labelsSouthWest = ['Tacoma', 'San Jose', 'St.Petersburg'];
-  const labelsSouthEast = [];
-
   const cities2 = (state.map.aboveThreshold) ? [] :
     citiesList.map((city) => {
       // the markers stay the same absolute size for zoom levels 5 and above; they shrink below that
@@ -88,25 +80,209 @@ const mapStateToProps = (state) => {
           </svg>`;
         const iconUrl = encodeURI(`data:image/svg+xml,${svgString.trim().replace(/ +(?= )/g, '')}`).replace(/#/g, '%23');
 
-        // default is above
-        let radians = Math.PI * 1.5;
+        // default is below
+        let radians = Math.PI * 0.5;
         let direction = 'center';
 
-        // below
-        if (['Tacoma', 'St.Petersburg', 'Albany', 'Greensboro', 'Buffalo', 'San Jose', 'Toledo', 'Lake County Gary', 'Norfolk', 'Camden'].includes(city.name)) {
-          radians = Math.PI * 0.5;
+        // above
+        if (['Niagara Falls', 'Philadelphia', 'Winston Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
+          radians = Math.PI * 1.5;
         }
 
         // west
-        if (['Essex County', 'San Francisco'].includes(city.name)) {
+        if (['Essex County', 'Hartford', 'St.Louis', 'St. Louis', 'Omaha', 'Minneapolis'].includes(city.name)) {
           radians = 0;
           direction = 'left';
         }
 
-        if (['Bergen Co.', 'Winston Salem'].includes(city.name)) {
+        // east
+        if (['Troy', 'East Hartford', 'East St. Louis', 'Council Bluffs', 'St. Paul', 'StPaul'].includes(city.name)) {
+          radians = Math.PI * 2;
+          direction = 'right';
+        }
+
+        // northeast
+        if (zoom === 7 && ['Haverhill'].includes(city.name)) {
+          radians = Math.PI * 1.75;
+          direction = 'right';
+        }
+
+        // northwest
+        if (['Bergen Co.'].includes(city.name)) {
           radians = Math.PI * 1.75;
           direction = 'left';
         }
+
+        city.showLabel = (!['Brooklyn', 'Queens', 'Bronx', 'Staten Island', 'Manhattan', 'Boston', 'Quincy', 'Newton', 'Medford', 'Needham', 'Dedham', 'Milton', 'Lexington', 'Malden', 'Watertown', 'Chelsea', 'Everett', 'Cambridge', 'Waltham', 'Arlington', 'Winchester', 'Brookline', 'Braintree', 'Belmont', 'Winthrop', 'Somerville', 'Melrose', 'Saugus', 'Revere'].includes(city.name));
+
+        if (zoom === 8 && ['Lower Westchester Co.', 'Hudson County'].includes(city.name)) {
+          city.showLabel = false;
+        }
+
+        if (zoom <= 7) {
+          // above
+          if (['Manchester', 'Cleveland', 'Holyoke Chicopee', 'East Hartford', 'Newport News', 'Chicago', 'Milwaukee Co.', 'Tampa', 'Dallas', 'South Bend', 'SouthBend' ].includes(city.name)) {
+            radians = Math.PI * 1.5;
+            direction = 'center';
+          }
+          if (city.name === 'Springfield' && city.state === 'OH') {
+            radians = Math.PI * 1.5;
+            direction = 'center';
+          }
+          // east
+          if (['New Castle', 'Racine'].includes(city.name)) {
+            radians = Math.PI * 2;
+            direction = 'right';
+          }
+
+          // northwest
+          if (['Philadelphia'].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'left';
+          }
+          // northeast 
+          if (['Pontiac'].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'right';
+          }
+          // southeast 
+          if (['New Britain', 'New Haven', 'Lake County Gary'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'right';
+          }
+
+          // southwest
+          if (['Waterbury', 'Akron'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'left';
+          }
+
+          if (['Stamford, Darien, and New Canaan', 'Lower Westchester Co.', 'Hudson County'].includes(city.name)) {
+            city.showLabel = false;
+          }
+        }
+
+        if (zoom <= 6) {
+          // above
+          if (['Utica', 'Oshkosh', 'Muncie', 'Terre Haute', 'Seattle', 'Sacramento', 'Poughkeepsie', 'Lynchburg', 'Decatur', 'Altoona', 'Houston', 'Muskegon', 'Des Moines', 'Waterloo', 'St. Joseph', 'St.Joseph'].includes(city.name)) {
+            radians = Math.PI * 1.5;
+            direction = 'center';
+          }
+
+          // east
+          if (['Camden', 'Durham', 'Albany', 'Stockton'].includes(city.name)) {
+            radians = Math.PI * 2;
+            direction = 'right';
+          }
+
+          // west
+          if (['Saginaw', 'San Francisco'].includes(city.name)) {
+            radians = 0;
+            direction = 'left';
+          }
+
+          // northwest
+          if (['Manchester', 'Hartford', 'Winston Salem', 'Topeka'].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'left';
+          }
+          // northeast 
+          if (['Haverhill', 'Youngstown', 'Newport News', 'SouthBend', 'South Bend', 'Detroit', 'Chicago'].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'right';
+          }
+          // southeast 
+          if (['Brockton', 'Pittsburgh', 'Council Bluffs'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'right';
+          }
+
+          // southwest
+          if (['Aurora'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'left';
+          }
+
+          if (['Hamilton', 'Lake County Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
+            city.showLabel = false;
+          }
+          if (city.name === 'Springfield' && city.state === 'OH') {
+            city.showLabel = false;
+          }
+        }
+
+        if (zoom <= 5) {
+          // below
+          if (['Pittsburgh', 'Chicago'].includes(city.name)) {
+            radians = Math.PI * 0.5;
+            direction = 'center';
+          }
+
+          // above
+          if (['Memphis', 'Sioux City', 'SiouxCity', 'Los Angeles', 'Fresno', 'Knoxville', 'Saginaw', 'Rochester'].includes(city.name)) {
+            radians = Math.PI * 1.5;
+            direction = 'center';
+          }
+
+          // east
+          if (['Charlotte', 'Columbia'].includes(city.name)) {
+            radians = Math.PI * 2;
+            direction = 'right';
+          }
+
+          // west
+          if (['Chicago'].includes(city.name)) {
+            radians = 0;
+            direction = 'left';
+          }
+
+          // northwest
+          if (['Oakland', 'Nashville'].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'left';
+          }
+          // north-northwest
+          if (['St.Louis', 'St. Louis'].includes(city.name)) {
+            radians = Math.PI * 1.55;
+            direction = 'left';
+          }
+          // northeast 
+          if (['Atlanta', 'St. Paul', 'StPaul'].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'right';
+          }
+
+          // north-northeast
+          if (['Detroit'].includes(city.name)) {
+            radians = Math.PI * 1.6;
+            direction = 'right';
+          }
+          // southeast 
+          if ([ 'Norfolk', 'Augusta', 'Macon', 'Baltimore'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'right';
+          }
+          // south southeast 
+          if (['Des Moines'].includes(city.name)) {
+            radians = Math.PI * 0.55;
+            direction = 'right';
+          }
+
+          // southwest
+          if (['Birmingham'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'left';
+          }
+
+
+          if (['Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex County', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton/Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
+            city.showLabel = false;
+          }
+          if ((city.name === 'Columbus' && city.state === 'GA') || (city.name === 'Rochester' && city.state === 'MN')) {
+            city.showLabel = false;
+          }
+        }
+
         const labelOffset = [Math.cos(radians) * (rDist / 2), Math.sin(radians) * (rDist / 2 + 10)];
         city.icon = L.icon({
           iconUrl,
@@ -114,6 +290,7 @@ const mapStateToProps = (state) => {
           iconAnchor: [rDist / 2, rDist / 2],
           tooltipAnchor: labelOffset,
         });
+        city.markerKey = `labelFor${city.id}-${labelOffset.join('-')}`;
 
         city.rDist = rDist;
 
@@ -128,14 +305,47 @@ const mapStateToProps = (state) => {
         }
       }
 
-      city.showLabel = (!['Brooklyn', 'Queens', 'Bronx', 'Staten Island', 'Manhattan', 'Boston'].includes(city.name)
-        && city.population && city.population.total && city.population.total >= 500000);
+//        && city.population && city.population.total && city.population.total >= 500000);
+
+
 
       return city;
     });
 
+  // Greater Boston label
+  const bostonPos = {
+    8: [42.3, -70.95],
+    7: [42.2, -70.75],
+    6: [42.2, -70.75],
+    5: [41, -69],
+  };
+  const bostonLabel = {
+    label: 'Greater Boston',
+    offsetPoint: bostonPos[zoom],
+    direction: 'right',
+  };
+
+  const nyPos = {
+    8: [40.4, -73.95],
+    7: [40.2, -73.65],
+    6: [39.6, -73.55],
+    5: [38, -72.5],
+  };
+
+  const nyLabel = {
+    label: 'Boroughs of New York',
+    offsetPoint: nyPos[zoom],
+    direction: 'right',
+  };
+
+  const otherLabels = [
+    bostonLabel,
+    nyLabel,
+  ];
+
   return {
     cities: cities2.filter(c => c.offsetPoint && c.ad_id),
+    otherLabels,
   };
 };
 
