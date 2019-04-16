@@ -7,7 +7,6 @@ import ADSearchSnippet from '../containers/ADSearchSnippet';
 import TheStore from '../../../store';
 import { adSearchingHOLCIds, searchingADsFor } from '../../../store/Actions';
 
-
 export default class ADSearch extends React.Component {
   constructor() {
     super();
@@ -19,7 +18,10 @@ export default class ADSearch extends React.Component {
 
   onSearchingADs() {
     TheStore.dispatch(searchingADsFor(this.adSearch.current.state.entryValue));
-    const results = this.adSearch.current.state.searchResults.map(r => r.holcId);
+    const results = this.adSearch.current.state.searchResults.map(r => ({
+      adId: r.adId,
+      holcId: r.holcId,
+    }));
     TheStore.dispatch(adSearchingHOLCIds(results));
   }
 

@@ -13,22 +13,22 @@ const getSelectedCity = state => state.selectedCity;
 const getSelectedGrade = state => state.selectedGrade;
 const getShowHOLCMaps = state => state.showHOLCMaps;
 const getVisiblePolygons = state => state.map.visiblePolygons;
+const getHighlightedPolygons = state => state.map.highlightedPolygons;
 const getVisibleRasters = state => state.map.visibleRasters;
 
 export const getAreaMarkers = createSelector(
-  [getSelectedCity, getMapZoom, getVisiblePolygons, getShowHOLCMaps, getSelectedGrade, getSelectedArea, getAdSearchHOLCIds],
-  (selectedCity, zoom, visiblePolygons, showHOLCMaps, selectedGrade, selectedArea, adSearchHOLCIds) => {
-    if (zoom < 12 || showHOLCMaps) {
+  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getSelectedCity],
+  (polygons, highlightedPolygons, showHOLCMaps, zoom, selectedCity) => {
+    if (zoom < 10 || showHOLCMaps) {
       return [];
     }
 
-    return visiblePolygons
+    return polygons
       .filter(p => p.ad_id === selectedCity && p.id && p.labelCoords)
       .map((l) => {
-        const color = ((selectedArea && l.id !== selectedArea)
-          || (selectedGrade && l.grade !== selectedGrade)
-          || (adSearchHOLCIds.length > 0 && !adSearchHOLCIds.includes(l.id)))
-          ? 'silver' : 'black';
+        const color = (highlightedPolygons.length === 0 ||
+          highlightedPolygons.some(hp => hp.adId === l.ad_id && hp.holcId === l.id))
+          ? 'black' : 'silver';
         const key = (l.arbId) ? `areaPolygon-${l.ad_id}-${l.arbId}` :
           `areaPolygon-${l.ad_id}-${l.id}`;
         return {
@@ -43,8 +43,8 @@ export const getAreaMarkers = createSelector(
 );
 
 export const getPolygons = createSelector(
-  [getVisiblePolygons, getShowHOLCMaps, getSelectedGrade, getSelectedCity, getSelectedArea, getAdSearchHOLCIds, getMapZoom],
-  (polygons, showHOLCMaps, selectedGrade, selectedCity, selectedArea, adSearchHOLCIds, zoom) => {
+  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom],
+  (polygons, highlightedPolygons, showHOLCMaps, zoom) => {
     // calculate the style each polygon
     const zFillOpacity = 0.95 - Math.min((zoom - 9) / 4, 1) * 0.75;
 
@@ -54,60 +54,30 @@ export const getPolygons = createSelector(
       let strokeColor = '#888'; //constantsColors[`grade${p.grade}`];
       let strokeOpacity = (showHOLCMaps) ? 0 : 0.95;
       let weight = (showHOLCMaps) ? 0 : 1.5;
+      const idObj = {
+        adId: p.ad_id,
+        holcId: p.id,
+      };
       const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}` :
         `areaPolygon-${p.ad_id}-${p.id}`;
 
-      // styling for selected grade
-      if (!showHOLCMaps && selectedGrade && selectedGrade !== p.grade) {
-        fillOpacity = 0.02;
-        strokeOpacity = 0.5;
-      }
-      if (showHOLCMaps && selectedGrade && selectedGrade === p.grade) {
-        fillOpacity = 0.4;
-        strokeOpacity = 1;
-        weight = 3;
-        fillColor = constantsColorsVibrant[`grade${p.grade}`];
-        strokeColor = 'black';
-      }
-
-      // styling for selected and unseleced polygons
-      if (!showHOLCMaps && selectedCity === p.ad_id && selectedArea) {
-        if (selectedArea === p.id) {
-          weight = 3;
-          strokeColor = 'black';
-        } else {
-          fillOpacity = zFillOpacity / 3;
-        }
-      }
-      if (showHOLCMaps
-        && selectedCity === p.ad_id
-        && selectedArea && selectedArea === p.id) {
-        fillOpacity = 0.4;
-        strokeOpacity = 1;
-        weight = 3;
-        fillColor = constantsColorsVibrant[`grade${p.grade}`];
-        strokeColor = 'black';
-      }
-
-      // styling for search results
-      if (adSearchHOLCIds.length > 0) {
-        if (!showHOLCMaps) {
-          if (adSearchHOLCIds.includes(p.id)) {
+      if (highlightedPolygons.length > 0) {
+        if (highlightedPolygons.some(hp => hp.adId === p.ad_id && hp.holcId === p.id)) {
+          if (!showHOLCMaps) {
             weight = 3;
             fillOpacity = Math.min(0.9, zFillOpacity * 1.5);
             strokeColor = 'black';
           } else {
-            fillOpacity = 0.04;
-            strokeOpacity = 0.5;
+            strokeColor = 'black';
+            fillOpacity = 0.5;
+            strokeOpacity = 1;
+            weight = 3;
+            fillColor = constantsColorsVibrant[`grade${p.grade}`];
           }
-        }
-
-        if (showHOLCMaps && adSearchHOLCIds.includes(p.id)) {
-          fillOpacity = 0.5;
-          strokeOpacity = 1;
-          weight = 3;
-          fillColor = constantsColorsVibrant[`grade${p.grade}`];
+        } else if (!showHOLCMaps) {
           strokeColor = 'black';
+          fillOpacity = 0.04;
+          strokeOpacity = 0.5;
         }
       }
 
@@ -121,6 +91,28 @@ export const getPolygons = createSelector(
         weight,
       };
     });
+  },
+);
+
+export const getRasters = createSelector(
+  [getShowHOLCMaps, getVisibleRasters, getHighlightedPolygons, getSelectedCity],
+  (showHOLCMaps, rasters, highlightedPolygons, selectedCity) => {
+    if (!showHOLCMaps) {
+      return [];
+    }
+
+    if (highlightedPolygons.length > 0) {
+      console.log(rasters.map(raster => ({
+        ...raster,
+        className: 'greyscale',
+      })));
+      return rasters.map(raster => ({
+        ...raster,
+        className: 'greyscale',
+      }));
+    }
+
+    return rasters;
   },
 );
 

@@ -9,9 +9,28 @@
   background-color: rgba(white, 0.97);
   overflow-y: scroll;
 
+  .close {
+    background-color: $controlsColor;
+    position: fixed;
+    top: $header-height;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    color: white;
+    border-radius: 0;
+    border: none;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 0;
+
+    z-index: 1100;
+
+  }
+
   #textContent {
     font-family: 'Merriweather';
-    width: 600px;
+    width: 90%;
+    max-width: 600px;
     line-height: 1.9;
     margin: 20px auto;
 

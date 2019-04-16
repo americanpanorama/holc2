@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import ADSelections from '../presentational/ADSelections';
-import { selectArea } from '../../../store/Actions';
+import { selectArea, highlightArea, unhighlightArea } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
@@ -16,6 +16,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   selectArea,
+  highlightArea,
+  unhighlightArea,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ADSelections);

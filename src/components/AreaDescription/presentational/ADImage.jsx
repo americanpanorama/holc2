@@ -43,7 +43,7 @@ export default class ADImage extends React.Component {
         <Map
           center={center}
           zoom={zoom}
-          minZoom={3}
+          minZoom={1}
           maxZoom={7}
           zoomControl={false}
           //maxBounds={maxBounds}
@@ -57,7 +57,7 @@ export default class ADImage extends React.Component {
             detectRetina
             maxNativeZoom={4}
             maxZoom={8}
-            noWrap={true}
+            noWrap
           />
         </Map>
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 export default class ADSearchSnippet extends React.Component {
   render() {
-    const { searchingADsFor, adId, options, FormComponent, onOptionSelected } = this.props;
+    const { searchingADsFor, adId, options, FormComponent, onOptionSelected, highlightArea, unhighlightArea } = this.props;
 
     if (!searchingADsFor || searchingADsFor.length <= 1) {
       return null;
@@ -61,8 +61,8 @@ export default class ADSearchSnippet extends React.Component {
           return (
             <div
               onClick={onOptionSelected}
-              //onMouseEnter={ this.props.onNeighborhoodHighlighted }
-              //onMouseLeave={ this.props.onNeighborhoodUnhighlighted }
+              onMouseEnter={highlightArea}
+              onMouseLeave={unhighlightArea}
               id={`${adId}-${d.holcId}`}
               className={`adSearchResult grade${d.grade}`}
               key={`adSearchResultFor-${adId}-${d.holcId}`}
@@ -90,6 +90,8 @@ ADSearchSnippet.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
   FormComponent: PropTypes.func.isRequired,
   onOptionSelected: PropTypes.func.isRequired,
+  highlightArea: PropTypes.func.isRequired,
+  unhighlightArea: PropTypes.func.isRequired,
 };
 
 ADSearchSnippet.defaultProps = {

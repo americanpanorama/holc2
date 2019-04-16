@@ -10,8 +10,6 @@ const Stats = () => (
     <Population />
     <CityViz />
     <ADSelections />
-
-
   </div>
 );
 

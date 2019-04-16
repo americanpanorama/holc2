@@ -46,12 +46,12 @@ const calculateDimensions = () => {
     height: dimensions.mapHeight,
   };
 
-  if (dimensions.size === 'desktop' || dimensions.size === 'tablet') {
+  if (dimensions.size !== 'mobile') {
     dimensions.dataViewerHeight = dimensions.windowHeight - dimensions.headerHeight - 40;
     dimensions.dataViewerWidth = 500;
   } else {
     dimensions.dataViewerHeight = 'auto';
-    dimensions.dataViewerWidth = 500;
+    dimensions.dataViewerWidth = dimensions.windowWidth;
     dimensions.dataViewerRight = 0;
     dimensions.dataViewerLeft = 0;
     dimensions.dataViewerBottom = 0;
@@ -111,7 +111,7 @@ const calculateDimensions = () => {
   };
 
   dimensions.tilesHeight = dimensions.windowHeight - dimensions.headerHeight - 2*dimensions.containerPadding;
-  dimensions.dataViewerWidth = Math.max(700, Math.min(500, dimensions.windowWidth / 3));
+   dimensions.dataViewerWidth = (dimensions.size !== 'mobile')? Math.max(700, Math.min(500, dimensions.windowWidth / 3)) : dimensions.windowWidth;
   dimensions.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : dimensions.windowWidth * 0.644 - 2*dimensions.containerPadding;
   dimensions.dataViewerTitleHeight = (document.getElementsByClassName('dataViewerTitle').length > 0) ? document.getElementsByClassName('dataViewerTitle')[0].offsetHeight: 30;
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Button from '../../AreaDescription/presentational/Button';
+import CloseButton from '../containers/CloseButton';
 
-const Text = ({ TextComponent, selectText }) => {
+const Text = ({ TextComponent }) => {
   if (!TextComponent) {
     return null;
   }
@@ -10,11 +10,7 @@ const Text = ({ TextComponent, selectText }) => {
   return (
     <div id="text">
       <div id="textContent">
-        <Button
-          label="close"
-          className="text"
-          action={selectText}
-        />
+        <CloseButton />
         <TextComponent />
       </div>
     </div>
@@ -25,7 +21,6 @@ export default Text;
 
 Text.propTypes = {
   TextComponent: PropTypes.func,
-  selectText: PropTypes.func.isRequired,
 };
 
 Text.defaultProps = {

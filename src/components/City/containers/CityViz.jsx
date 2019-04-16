@@ -1,9 +1,10 @@
 import { connect } from 'react-redux';
 import CityViz from '../presentational/CityViz';
-import { gradeSelected, gradeUnselected } from '../../../store/Actions';
+import { selectGrade, unselectGrade } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
+  const { dataViewerWidth } = state.dimensions;
   const selectedCityData = getSelectedCityData(state);
   const { area } = selectedCityData;
   const { selectedGrade } = state;
@@ -19,13 +20,13 @@ const mapStateToProps = (state) => {
   return {
     gradeStats,
     selectedGrade,
-    width: 400,
+    width: Math.min(400, dataViewerWidth * 0.9),
   };
 };
 
 const mapDispatchToProps = {
-  gradeSelected,
-  gradeUnselected,
+  selectGrade,
+  unselectGrade,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CityViz);

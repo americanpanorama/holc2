@@ -5,19 +5,18 @@ import areaDescSelections from '../../data/areaDescSelections.json';
 import FormsMetadata from '../../data/formsMetadata.json';
 import calculateDimensions from './CalculateDimensions';
 
-
 const shuffleArray = (array) => {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
   }
+  return array;
 };
 
 Object.keys(Cities).forEach((id) => {
   const { slug } = Cities[id];
   Cities[id].areaDescSelections = (areaDescSelections[slug])
-    ? areaDescSelections[slug]
-    : null;
+    ? shuffleArray(areaDescSelections[slug]) : null;
 });
 
 
@@ -59,28 +58,41 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
 
 // initialize the position for the adscan if it isn't specified in the url
 if (!adScan) {
-  const { windowWidth, dataViewerWidth, mapHeight } = dimensions;
+  const { windowWidth: mapWidth, dataViewerWidth, mapHeight, size } = dimensions;
   L.Map.include({
-    getSize: () => new L.Point(windowWidth, mapHeight),
+    getSize: () => new L.Point(mapWidth, mapHeight),
   });
   const map = new L.Map(document.createElement('div'), {
     center: [0, 0],
     zoom: 0,
   });
-  const bounds = [[-10, -180], [90, -60]];
-  const featureGroup = new L.FeatureGroup([
-    new L.Marker(bounds[0]),
-    new L.Marker(bounds[1]),
-  ]);
-  const sheetBounds = featureGroup.getBounds();
-  const { lat: adY, lng: adXOfBounds } = sheetBounds.getCenter();
-  // offset the bounds to take account of the dataViewer
-  const adX = adXOfBounds - (dataViewerWidth / 2 / windowWidth) * (bounds[1][1] - bounds[0][1]);
-  const adZoom = map.getBoundsZoom(sheetBounds);
+
+  // defaults for mobile
+  let adZoom = 2;
+  let adCenter = [65.22, -123.57];
+  if (size !== 'mobile') {
+    const bounds = [[-10, -180], [90, -60]];
+    const horizontalOffsetRatio = ((dataViewerWidth + 40) / mapWidth) / ((mapWidth - (dataViewerWidth + 40)) / mapWidth);
+    const verticalOffsetRatio = 0;
+    const offsetLng = bounds[0][1] - (bounds[1][1] - bounds[0][1]) * horizontalOffsetRatio;
+    const offsetLat = bounds[0][0] - (bounds[1][0] - bounds[0][0]) * verticalOffsetRatio;
+
+    // [[-90, -180], [90, 37]]
+    const featureGroup = new L.FeatureGroup([
+      new L.Marker([offsetLat, offsetLng]),
+      new L.Marker(bounds[1]),
+    ]);
+    const sheetBounds = featureGroup.getBounds();
+    const { lat: adY, lng: adX } = sheetBounds.getCenter();
+    adCenter = [adY, adX];
+
+    // offset the bounds to take account of the dataViewer
+    adZoom = map.getBoundsZoom(sheetBounds);
+  }
 
   adScan = {
     zoom: adZoom,
-    center: [adY, adX],
+    center: adCenter,
   };
 }
 
@@ -100,10 +112,7 @@ export default {
   selectedCategory,
   selectedGrade: null,
   selectedArea: null,
-  selectedRingGrade: {
-    ringId: null,
-    grade: null,
-  },
+  inspectedArea: null,
   selectedText: null,
   adScan,
   map: {
@@ -114,7 +123,9 @@ export default {
     aboveThreshold: false,
     visibleRasters: [],
     visiblePolygons: [],
+    highlightedPolygons: [],
     loadingPolygonsFor: [],
+    userPosition: null,
   },
   showADScan,
   showADSelections,

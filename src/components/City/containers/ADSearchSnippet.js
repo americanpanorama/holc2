@@ -4,7 +4,7 @@ import FormQualitative from '../../AreaDescription/presentational/FormQualitativ
 import Form19370203 from '../../AreaDescription/Form19370203/presentational/SearchResults';
 import Form19371001 from '../../AreaDescription/Form19371001/presentational/SearchResults';
 import Form1939 from '../../AreaDescription/Form1939/presentational/SearchResults';
-import { selectArea } from '../../../store/Actions';
+import { selectArea, highlightArea, unhighlightArea } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
@@ -28,6 +28,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   selectArea,
+  highlightArea,
+  unhighlightArea,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ADSearchSnippet);

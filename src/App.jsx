@@ -1,8 +1,6 @@
 import * as React from 'react';
-//import "babel-polyfill";
-//import './utils/carto.js';
 
-import { windowResized, selectCity, selectArea, selectCategory } from './store/Actions';
+import { windowResized, selectCity, selectArea, selectCategory, userLocated } from './store/Actions';
 
 // components (views)
 import Masthead from './components/containers/Masthead';
@@ -47,26 +45,15 @@ export default class App extends React.Component {
         }
       }
     }
-    // //try to retrieve the users location
-    // if (navigator.geolocation && !HashManager.getState().nogeo) {
-    //   navigator.geolocation.getCurrentPosition((position) => {
-    //     AppActions.userLocated([position.coords.latitude, position.coords.longitude], this.state.selectedCity);
-    //   }, (error) => {
-    //     console.warn('Geolocation error occurred. Error code: ' + error.code);
-    //   });
-    // }
 
-    // document.addEventListener('touchstart', (e) => {
-    //   if (this.dragging) {
-    //     e.preventDefault();
-    //   }
-    // });
-
-    // document.addEventListener('touchmove', (e) => {
-    //   if (this.dragging) {
-    //     e.preventDefault();
-    //   }
-    // });
+    // try to retrieve the users location
+    if (!hashValues.nogeo && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        Store.dispatch(userLocated([position.coords.latitude, position.coords.longitude], !hashValues.city, !hashValues.loc));
+      }, (error) => {
+        console.warn(`Geolocation error occurred. Error code: ${error.code}`);
+      });
+    }
   }
 
   componentDidMount() {

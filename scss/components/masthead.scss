@@ -61,11 +61,16 @@ header#masthead {
     }
 
     ul {
+      padding: 0;
+      margin: 0;
       @include for-phone-only {
         float: none;
         position: fixed;
         top: $header-height;
         right: 0;
+        border-left: 1px solid $controlsColor;
+        border-bottom: 1px solid $controlsColor;
+        border-bottom-left-radius: 10px;
       }
     }
 
@@ -77,17 +82,28 @@ header#masthead {
       color: white;
       margin-top: 0;
 
+      &:hover {
+        color: $controlsColorLightGrey;
+      }
+
       @include for-phone-only {
         text-align: right;
         display: block;
-        background-color: $controlsColor;
+        background-color: $controlsColorLightGrey;
         margin: 0;
-        padding: 5px 5px 5px 20px;
-      }
-    }
+        padding: 5px 5px 5px 0;
+        color: #333;
+        width: 10px + 36 * 3 - 5;
 
-    li:hover {
-      color: $controlsColorLightGrey;
+        &:last-child {
+          border-bottom-left-radius: 10px;
+        }
+
+        &:hover {
+          color: white;
+          background-color: $controlsColor;
+        }
+      }
     }
   }
 }

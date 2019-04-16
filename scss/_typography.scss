@@ -31,7 +31,8 @@
 body {
 	@extend %merriweather-normal;
 	line-height: 1.0;
-	font-size: 1.6rem; /* sets to around 16px */
+	//font-size: 1.6rem; /* sets to around 16px */
+  font-size: calc(14px + (14 - 11) * ((100vw - 300px) / (1600 - 300)));
 }
 
 h1 { font-size: 2em; }

@@ -1,10 +1,10 @@
-#search {
+#search .typeahead{
 	@extend %lato-normal;
 	overflow-y: hidden;
 	position: fixed;
 	top: $header-height;
 	right: 368px;
-	z-index: 1001;
+	z-index: 1099;
 	pointer-events: none;
 	background-color: transparent;
 
@@ -22,6 +22,7 @@
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
 		height: 35px;
+
 		
 		&:focus {
 			width: 600px;
@@ -29,7 +30,6 @@
 		}
 	}
 
-	.typeahead {
 		overflow-y: visible;
 
 		.searchResults {
@@ -57,21 +57,29 @@
 				padding-bottom: 20px;
 			}
 		}
-	}
 
 	@include for-phone-only {
-		right: 204px;
+		left: 10px;
+		right: 184px;
+
+		input {
+			font-size: 16px;
+		}
+
+		input:focus & {
+			right: 10px;
+			width: calc(100vw - 20px);
+		}
 
 		input:focus {
-			width: auto;
-
-			.typeahead & {
-				#search & {
-					right: 20px;
-					left: 20px;
-				}
-			}
+			font-size: 16px;
+			width: calc(100vw - 20px);
 		}
+
+		.searchResults {
+			width: calc(100vw - 22px);
+		}
+
 	}
 
 

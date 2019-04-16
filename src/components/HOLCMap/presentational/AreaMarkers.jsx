@@ -11,7 +11,7 @@ const AreaMarkers = ({ labels, fontSize }) => (
       >
         <CircleMarker
           center={p.point}
-          radius={1}
+          radius={0.1}
           className="neighborhoodLabelBG"
         >
           <Tooltip

@@ -38,7 +38,7 @@ const MapStateToProps = (state) => {
 
   let FormComponent;
 
-  if (cityData.form_id) {
+  if (cityData && cityData.form_id) {
     const { form_id: formId } = cityData;
     FormComponent = (showADSelections) ? formComponents.selected[formId]
       : formComponents.full[formId];

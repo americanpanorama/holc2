@@ -15,9 +15,8 @@ body#garbage {
   // tighten up as needed for your application.
 
   /* ----------- Phones ----------- */
-  @media screen
-    and (max-width: 750px) {
-      font-size: 16px;
+  @include for-phone-only {
+      font-size: 10px;
   }
 
   /* ----------- Tablets ----------- */

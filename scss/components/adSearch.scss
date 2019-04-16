@@ -11,7 +11,18 @@
 
 .adSearchResult,
 .adSelection {
-	margin-top: 20px;
+  &.gradeA:hover {
+    background-color: lighten($gradeA, 30%);
+  }
+  &.gradeB:hover {
+    background-color: lighten($gradeB, 25%);
+  }
+  &.gradeC:hover {
+    background-color: lighten($gradeC, 30%);
+  }
+  &.gradeD:hover {
+    background-color: lighten($gradeD, 20%);
+  }
 	
 	li {
 		font-weight: normal;
@@ -27,6 +38,7 @@
 
 	
 	h4 {
+    margin: 0 0 10px 0;
 		text-align: center;
 		color: white;
 		font-weight: normal;

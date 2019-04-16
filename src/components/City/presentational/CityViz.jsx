@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselected }) => {
+const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade }) => {
   if (!gradeStats) {
     return null;
   }
@@ -21,12 +21,12 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
   };
   const areaWidths = {};
   grades.forEach((grade) => {
-    areaWidths[grade] = width / 2 * gradeStats.find(d => d.grade === grade).percent;
+    areaWidths[grade] = (width * 0.34 - 10) * gradeStats.find(d => d.grade === grade).percent;
     return null;
   });
 
   return (
-    <section className='cityViz'>
+    <section className="cityViz">
       <h3>
         Areas by Grade
       </h3>
@@ -38,10 +38,9 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
         }}
       >
         <text
-          x={width / 2 - 17}
+          x={width * 0.34 - 10}
           y={16}
           textAnchor="end"
-          fontSize={16}
           fontWeight={400}
           fill="#666"
         >
@@ -49,10 +48,9 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
         </text>
 
         <text
-          x={width / 2 + 10}
+          x={width * 0.34 + 10}
           y={16}
           textAnchor="start"
-          fontSize={16}
           fontWeight={400}
           fill="#666"
         >
@@ -66,7 +64,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
               transform={`translate(0, ${i * 25})`}
             >
               <rect
-                x={width / 2 - areaWidths[grade] - 20}
+                x={(width * 0.34 - 10) - areaWidths[grade]}
                 y={2}
                 width={areaWidths[grade]}
                 height={14}
@@ -74,19 +72,17 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
                 fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.25}
               />
               <text
-                x={width / 2}
+                x={width * 0.34 + 10}
                 y={15}
                 textAnchor="start"
-                fontSize={16}
                 fill={(!selectedGrade || selectedGrade === grade) ? 'black' : 'silver'}
                 fontWeight={(selectedGrade && selectedGrade === grade) ? 400 : 'auto'}
               >
                 {`${grade} "${labels[grade]}"`}
               </text>
               <text
-                x={width / 2 - areaWidths[grade] - 25}
+                x={(width * 0.34 - 10) - areaWidths[grade] - 5}
                 y={14}
-                fontSize={14}
                 textAnchor="end"
                 fill={(!selectedGrade || selectedGrade === grade) ? '#222' : 'silver'}
                 className="stat"
@@ -99,8 +95,8 @@ const CityViz = ({ width, selectedGrade, gradeStats, gradeSelected, gradeUnselec
                 width={width}
                 height={25}
                 fill="transparent"
-                onMouseEnter={gradeSelected}
-                onMouseLeave={gradeUnselected}
+                onMouseEnter={selectGrade}
+                onMouseLeave={unselectGrade}
                 id={grade}
               />
             </g>
@@ -115,8 +111,8 @@ CityViz.propTypes = {
   width: PropTypes.number.isRequired,
   selectedGrade: PropTypes.string,
   gradeStats: PropTypes.arrayOf(PropTypes.object),
-  gradeSelected: PropTypes.func.isRequired,
-  gradeUnselected: PropTypes.func.isRequired,
+  selectGrade: PropTypes.func.isRequired,
+  unselectGrade: PropTypes.func.isRequired,
 };
 
 CityViz.defaultProps = {

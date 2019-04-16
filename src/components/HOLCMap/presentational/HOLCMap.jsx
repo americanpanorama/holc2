@@ -8,6 +8,7 @@ import CityMarkers from '../containers/CityMarkers';
 import HOLCRasters from '../containers/HOLCRasters';
 import AreaPolygons from '../containers/AreaPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
+import UserLocation from '../containers/UserLocation';
 import MapToggleControl from '../containers/MapToggleControl';
 import ZoomInButton from '../containers/ZoomInButton';
 import ZoomOutButton from '../containers/ZoomOutButton';
@@ -47,17 +48,17 @@ export default class HOLCMap extends React.Component {
   render() {
     // const VectorGrid = withLeaflet(VectorGridDefault);
     // // console.log(VectorGrid);
-    const { zoom, center, className } = this.props;
+    const { zoom, center, className} = this.props;
     return (
       <React.Fragment>
         <Map
           zoom={zoom}
           center={center}
           id="the_map"
-          className={`${className}`}
           ref={this.map}
           zoomControl={false}
           onMoveEnd={this.onMapMoved}
+          className={className}
           padding={0.3}
         >
           <BaseMap />
@@ -66,13 +67,16 @@ export default class HOLCMap extends React.Component {
           <HOLCRasters />
           <AreaPolygons />
           <AreaMarkers />
+          <UserLocation />
         </Map>
 
         <div id="mapControls">
           <MapToggleControl />
-          <ZoomInButton />
-          <ZoomOutButton />
-          <ResetViewButton />
+          <div id="zoomControls">
+            <ZoomInButton />
+            <ZoomOutButton />
+            <ResetViewButton />
+          </div>
         </div>
       </React.Fragment>
     );

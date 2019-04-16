@@ -3,7 +3,7 @@ import * as L from 'leaflet';
 import ClickableCities from '../presentational/ClickableCities';
 import { selectCity } from '../../../store/Actions';
 import dorlings from '../../../../data/Dorlings.json';
-import { constantsColors } from '../../../../data/constants.js';
+import { constantsColors } from '../../../../data/constants';
 
 const mapStateToProps = (state) => {
   const { map, cities } = state;
@@ -12,6 +12,7 @@ const mapStateToProps = (state) => {
   if (map.aboveThreshold) {
     return {
       cities: [],
+      otherLabels: [],
     };
   }
 
@@ -31,17 +32,7 @@ const mapStateToProps = (state) => {
       };
     })
     .sort((a, b) => b.area.total - a.area.total);
-    // .map((c) => {
-    //   const areaBreak1 = state.cities.find(c => c.name === 'Philadelphia').area.total;
-    //   const city = state.cities[id];
-    //   if (state.cities.area.total >= areaBreak1) {
-    //     city.labelClass = 1;
-    //   } else {
-    //     city.labelClass = 2;
-    //   }
-    //   return city;
 
-    // });
   const citiesWithAreas = citiesList.filter(c => c.area && c.area.total);
   const largestArea = Math.max(...citiesWithAreas.map(c => c.area.total));
   
@@ -186,6 +177,7 @@ const mapStateToProps = (state) => {
             radians = Math.PI * 1.75;
             direction = 'left';
           }
+
           // northeast 
           if (['Haverhill', 'Youngstown', 'Newport News', 'SouthBend', 'South Bend', 'Detroit', 'Chicago'].includes(city.name)) {
             radians = Math.PI * 1.75;
@@ -219,7 +211,7 @@ const mapStateToProps = (state) => {
           }
 
           // above
-          if (['Memphis', 'Sioux City', 'SiouxCity', 'Los Angeles', 'Fresno', 'Knoxville', 'Saginaw', 'Rochester'].includes(city.name)) {
+          if (['Memphis', 'Sioux City', 'SiouxCity', 'Los Angeles', 'Fresno', 'Knoxville', 'Saginaw', 'Rochester', 'Denver'].includes(city.name)) {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
@@ -283,6 +275,88 @@ const mapStateToProps = (state) => {
           }
         }
 
+        if (zoom <= 4) {
+          // below
+          if (['St.Louis', 'St. Louis'].includes(city.name)) {
+            radians = Math.PI * 0.5;
+            direction = 'center';
+          }
+
+          // above
+          if (['Denver', 'Mobile', 'Duluth'].includes(city.name)) {
+            radians = Math.PI * 1.5;
+            direction = 'center';
+          }
+
+          // east
+          if (['Savannah', 'Jacksonville', 'Fresno', 'Norfolk', 'Tampa'].includes(city.name)) {
+            radians = Math.PI * 2;
+            direction = 'right';
+          }
+
+          // west
+          if (['Birmingham', 'Los Angeles', 'Fort Worth', 'St. Petersburg', 'Tacoma', 'SiouxCity', 'Sioux City', 'Topeka'].includes(city.name)) {
+            radians = 0;
+            direction = 'left';
+          }
+
+          // northwest
+          if ([].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'left';
+          }
+          // north-northwest
+          if ([].includes(city.name)) {
+            radians = Math.PI * 1.55;
+            direction = 'left';
+          }
+          // northeast 
+          if ([].includes(city.name)) {
+            radians = Math.PI * 1.75;
+            direction = 'right';
+          }
+
+          // north-northeast
+          if ([].includes(city.name)) {
+            radians = Math.PI * 1.6;
+            direction = 'right';
+          }
+          // southeast 
+          if (['Durham'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'right';
+          }
+          // south southeast 
+          if ([].includes(city.name)) {
+            radians = Math.PI * 0.55;
+            direction = 'right';
+          }
+
+          // southwest
+          if (['St.Petersburg', 'Wichita'].includes(city.name)) {
+            radians = Math.PI * 0.25;
+            direction = 'left';
+          }
+
+          // south southeast 
+          if (['Chicago'].includes(city.name)) {
+            radians = Math.PI * 0.4;
+            direction = 'left';
+          }
+
+
+          if (['Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St.Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
+            city.showLabel = false;
+          }
+          if (false) {
+            city.showLabel = false;
+          }
+        }
+
+        if (zoom <= 3) {
+          city.showLabel = false;
+        }
+
         const labelOffset = [Math.cos(radians) * (rDist / 2), Math.sin(radians) * (rDist / 2 + 10)];
         city.icon = L.icon({
           iconUrl,
@@ -312,17 +386,29 @@ const mapStateToProps = (state) => {
       return city;
     });
 
+  const svgString = "<svg xmlns='http://www.w3.org/2000/svg' width='1000' height='1000'><rect x='0' y='0' width='1' height='1' fill='transparent' stroke='transparent' /></svg>";
+  const transparentIconUrl = encodeURI(`data:image/svg+xml,${svgString}`).replace('#','%23');
+
+  const transparentIcon = L.icon({
+    iconUrl: transparentIconUrl,
+    iconSize: [1, 1],
+    iconAnchor: [0, 0],
+  });
+
   // Greater Boston label
   const bostonPos = {
     8: [42.3, -70.95],
     7: [42.2, -70.75],
     6: [42.2, -70.75],
     5: [41, -69],
+    4: [41, -70],
+    3: [41, -70],
   };
   const bostonLabel = {
     label: 'Greater Boston',
     offsetPoint: bostonPos[zoom],
     direction: 'right',
+    icon: transparentIcon,
   };
 
   const nyPos = {
@@ -330,18 +416,21 @@ const mapStateToProps = (state) => {
     7: [40.2, -73.65],
     6: [39.6, -73.55],
     5: [38, -72.5],
+    4: [37.3, -72.7],
+    3: [37.3, -72.7],
   };
 
   const nyLabel = {
     label: 'Boroughs of New York',
     offsetPoint: nyPos[zoom],
     direction: 'right',
+    icon: transparentIcon,
   };
 
-  const otherLabels = [
+  const otherLabels = (zoom >= 4) ? [
     bostonLabel,
     nyLabel,
-  ];
+  ] : [];
 
   return {
     cities: cities2.filter(c => c.offsetPoint && c.ad_id),

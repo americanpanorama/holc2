@@ -48,6 +48,10 @@
     background-color: transparent;
   }
 
+  .cityLabelMarker img {
+    visibility: hidden;
+  }
+
   .neighborhoodLabel,
   .cityLabel {
     border: none;
@@ -94,6 +98,17 @@
 
 #mapControls {
 
+  #zoomControls {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    height: 36px;
+
+    @include for-phone-only {
+      right: 10px;
+    }
+  }
+
   button {
     background-color: $controlsColor;
     position: absolute;
@@ -111,6 +126,7 @@
       border-bottom-right-radius: 10px;
 
       @include for-phone-only {
+        right: 133px;
         width: 36px;
         display: block;
         text-indent: -9999em;
@@ -126,22 +142,26 @@
       width: 36px;
       font-weight: bold;
       font-size: 1.2em;
+      display: inline-block;
     }
 
     &.zoomIn {
-      right: 92px;
       border-bottom-left-radius: 10px;
+      top: 0;
+      right: 72px;
     }
 
     &.zoomOut {
-      right: 56px;
       border-right: 1px solid white;
       border-left: 1px solid white;
+      top: 0;
+      right: 36px;
     }
 
     &.resetView {
-      right: 20px;
       border-bottom-right-radius: 10px;
+      top: 0;
+      right: 0;
     }
   }
 }

@@ -25,6 +25,7 @@ const mapStateToProps = (state) => {
 
   const ADsForSearch = (areaDescriptions)
     ? Object.keys(areaDescriptions).map(holcId => ({
+      adId: selectedCityData.ad_id,
       holcId,
       grade: areaDescriptions[holcId].holc_grade,
       name: areaDescriptions[holcId].name,

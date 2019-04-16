@@ -1,9 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const Minimize = () => (
+const Minimize = ({ onClick }) => (
   <svg
     width={20}
     height={20}
+    onClick={onClick}
+    className="closeButton"
   >
     <g transform={`translate(${20 / 2} ${20 / 2}) rotate(45)`}>
       <circle
@@ -34,3 +37,11 @@ const Minimize = () => (
 );
 
 export default Minimize;
+
+Minimize.propTypes = {
+  onClick: PropTypes.func,
+};
+
+Minimize.defaultProps = {
+  onClick: () => false,
+};

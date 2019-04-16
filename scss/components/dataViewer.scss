@@ -7,7 +7,7 @@
   min-width: 400px;
   max-width: 700px;
   overflow: scroll;
-  background: rgba(235, 235, 235, 0.9);
+  background: $textBackground;
   border: 1px solid $background;
   border-radius: 10px;
 
@@ -25,13 +25,14 @@
   }
 
   @include for-phone-only {
+    top: calc(50% - 22.5px + 45px);
+    left: 0;
     border: 0;
     border-top: 1px solid $background;
     padding: 0;
     margin: 0;
-    margin-top: 400px;
-    position: sticky;
-    top: 25%;
+    height: calc(50% - 22.5px);
+
 
     width: 100%;
   

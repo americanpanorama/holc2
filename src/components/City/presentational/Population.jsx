@@ -7,7 +7,7 @@ const Population = ({ stats }) => {
   }
 
   return (
-    <section>
+    <section className="demographics">
       <h3>
         Demographics
       </h3>

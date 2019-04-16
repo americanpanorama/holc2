@@ -1,6 +1,14 @@
 .cityStats {
+  display:flex;
+  flex-flow: row wrap;
+  justify-content:space-between;
+
 	section {
-		margin: 50px 0;
+		margin: 35px auto;
+
+		@include for-phone-only {
+			margin: 10px auto;
+		}
 
 		&.cityViz {
 			svg {
@@ -11,8 +19,23 @@
 					@extend %lato-normal;
 				}
 			}
+			@include for-phone-only {
+				order: 2;
+			}
+		}
+		&.demographics {
+			@include for-phone-only {
+				order: 3;
+			}
+		}
+
+		&.adSelections {
+			@include for-phone-only {
+				order: 1;
+			}
 		}
 	}
+
 
 	li {
 		list-style: none;
@@ -128,7 +151,6 @@
 
 	td {
 		text-align: right;
-		padding: 2px 10px;
 
 		.total {
 			color: #0c789a;
@@ -136,11 +158,15 @@
 
 		&.cat {
 			text-align: left;
+			width: calc(66% - 10px);
+			padding: 2px 0 2px 10px;
 		}
 
 		&.stat {
 			@extend %lato-normal;
 			font-weight: 700;
+			width: calc(34% - 10px);
+			padding: 2px 10px 2px 0;
 		}
 	}
 }

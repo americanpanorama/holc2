@@ -90,6 +90,10 @@
     margin: 20px 40px 0 20px;
     padding: 0;
 
+    @include for-phone-only {
+      margin: 5px 10px;
+    }
+
     li {
       list-style: none;
       margin-bottom: 0px;
@@ -118,6 +122,10 @@
     .catData {
       display: block;
       margin: 7px 0 7px 34px;
+
+      @include for-phone-only {
+        margin: 5px 0 5px 10px;
+      }
     }
 
     .catSelectable {
@@ -294,10 +302,12 @@ button.cityStats {
 }
 
 .adSelection {
-  margin: 30px auto;
-  width: 90%;
+  margin: 0px auto !important;
+  width: 100%;
   line-height: 1.9em;
   font-size: 1.2em;
+  cursor: pointer;
+
 
   .catName {
     @extend %lato-light;
@@ -305,4 +315,65 @@ button.cityStats {
     font-size: 0.9em;
     float: right;
   }
+
+  .selectionText {
+    padding: 0 10px 30px 10px;
+
+
+  }
+}
+
+.adSelections {
+  h4 {
+    margin-bottom: 20px;
+  }
+}
+
+#adCategory {
+  ul {
+    margin: 10px 0;
+
+    li {
+      padding: 10px;
+      border: 1px solid transparent;
+      &:hover {
+        background-color: darken($textBackground, 5%);
+        border: 1px solid darken($textBackground, 50%);
+        border-radius: 5px;
+      }
+    }
+  }
+
+  .A {
+    ul li:hover {
+      background-color: lighten($gradeA, 30%);
+      border: 1px solid $gradeA;
+      border-radius: 5px;
+    }
+  }
+
+  .B {
+    ul li:hover {
+      background-color: lighten($gradeB, 30%);
+      border: 1px solid $gradeB;
+      border-radius: 5px;
+    }
+  }
+
+  .C {
+    ul li:hover {
+      background-color: lighten($gradeC, 30%);
+      border: 1px solid $gradeC;
+      border-radius: 5px;
+    }
+  }
+
+  .D {
+    ul li:hover {
+      background-color: lighten($gradeD, 25%);
+      border: 1px solid $gradeD;
+      border-radius: 5px;
+    }
+  }
+
 }

@@ -25,6 +25,10 @@ const selectedCity = (state = initialState.selectedCity, action) => {
     return null;
   }
 
+  if (action.type === A.MOVE_MAP && action.payload.zoom < 9) {
+    return null;
+  }
+
   if (action.type === A.SELECT_CITY_SUCCESS) {
     return action.payload;
   }
@@ -55,15 +59,32 @@ const selectedArea = (state = null, action) => {
     return action.payload;
   }
   if (action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
-    || action.type === A.UNSELECT_AREA) {
+    || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY) {
     return null;
   }
+
+  if (action.type === A.MOVE_MAP && action.payload.zoom < 9) {
+    return null;
+  }
+
   return state;
 };
 
-const selectedRingGrade = (state = null, action) => (
-  (action.type === A.SELECT_RING_GRADE) ? action.payload : state
-);
+const inspectedArea = (state = null, action) => {
+  if (action.type === A.INSPECT_AREA) {
+    return action.payload;
+  }
+  if (action.type === A.SELECT_AREA || action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
+    || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY) {
+    return null;
+  }
+
+  if (action.type === A.MOVE_MAP && action.payload.zoom < 9) {
+    return null;
+  }
+
+  return state;
+};
 
 const visibleCities = (state = [], action) => {
   if (action.type === A.SHOW_VISIBLE_CITIES) {
@@ -86,6 +107,7 @@ const map = (state = initialState.map, action) => {
   if (action.type === A.ZOOM_IN) {
     return {
       ...state,
+      aboveThreshold: (state.zoom + 1 >= 9),
       zoom: state.zoom + 1,
     };
   }
@@ -93,6 +115,7 @@ const map = (state = initialState.map, action) => {
   if (action.type === A.ZOOM_OUT) {
     return {
       ...state,
+      aboveThreshold: (state.zoom + 1 >= 9),
       zoom: state.zoom - 1,
     };
   }
@@ -108,6 +131,34 @@ const map = (state = initialState.map, action) => {
     return {
       ...state,
       movingTo: null,
+    };
+  }
+
+  if (action.type === A.LOCATED_USER) {
+    return {
+      ...state,
+      userPosition: action.payload,
+    };
+  }
+
+  if (action.type === A.SEARCHING_ADS_RESULTS) {
+    return {
+      ...state,
+      highlightedPolygons: action.payload,
+    };
+  }
+
+  if (action.type === A.HIGHLIGHT_AREAS) {
+    return {
+      ...state,
+      highlightedPolygons: action.payload,
+    };
+  }
+
+  if (action.type === A.UNHIGHLIGHT_AREA || action.type === A.SELECT_CITY_REQUEST) {
+    return {
+      ...state,
+      highlightedPolygons: [],
     };
   }
 
@@ -247,7 +298,7 @@ const combinedReducer = combineReducers({
   selectedCity,
   selectedGrade,
   selectedArea,
-  selectedRingGrade,
+  inspectedArea,
   showCityStats,
   visibleCities,
   map,
