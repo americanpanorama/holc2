@@ -11,6 +11,11 @@
 		}
 
 		&.cityViz {
+
+			height: 185px;
+			overflow-y: visible;
+			z-index: 10;
+			
 			svg {
 				display: block;
 				margin: 0 auto;

@@ -20,7 +20,7 @@ const mapStateToProps = (state) => {
   return {
     gradeStats,
     selectedGrade,
-    width: Math.min(400, dataViewerWidth * 0.9),
+    width: Math.max(400, dataViewerWidth * 0.9),
   };
 };
 

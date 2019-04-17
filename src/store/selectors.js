@@ -14,7 +14,9 @@ const getSelectedGrade = state => state.selectedGrade;
 const getShowHOLCMaps = state => state.showHOLCMaps;
 const getVisiblePolygons = state => state.map.visiblePolygons;
 const getHighlightedPolygons = state => state.map.highlightedPolygons;
+const getLoadingPolygonsFor = state => state.map.loadingPolygonsFor;
 const getVisibleRasters = state => state.map.visibleRasters;
+const getLoadingCity = state => state.loadingCity;
 
 export const getAreaMarkers = createSelector(
   [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getSelectedCity],
@@ -119,6 +121,16 @@ export const getRasters = createSelector(
 export const getSelectedCityData = createSelector(
   [getSelectedCity, getCities],
   (selectedCity, cities) => cities.find(c => c.ad_id === selectedCity),
+);
+
+export const getLoadingCityData = createSelector(
+  [getLoadingCity, getCities],
+  (cityId, cities) => cities.find(c => c.ad_id === cityId),
+);
+
+export const getLoadingPolygonsCitiesData = createSelector(
+  [getLoadingPolygonsFor, getCities],
+  (cityIds, cities) => cities.filter(c => cityIds.includes(c.ad_id)),
 );
 
 export const getSelectedCityPopulation = createSelector(
@@ -333,5 +345,31 @@ export const getCityMarkers = createSelector(
         label: r.city,
         id: r.id,
       }));
+  },
+);
+
+export const getLoadingNotification = createSelector(
+  [getLoadingCityData, getLoadingPolygonsCitiesData],
+  (cityData, loadingPolygonsCitiesData) => {
+    let notification = '';
+    if (cityData || loadingPolygonsCitiesData.length > 0) {
+      // add the city data if it's polygons are not already being loaded
+      let citiesData;
+      if (loadingPolygonsCitiesData.length === 0) {
+        citiesData = [cityData];
+      } else if (!cityData) {
+        citiesData = loadingPolygonsCitiesData;
+      } else {
+        citiesData = (!loadingPolygonsCitiesData.map(c => c.ad_id).includes(cityData.ad_id))
+          ? [
+            ...loadingPolygonsCitiesData,
+            cityData,
+          ]
+          : loadingPolygonsCitiesData;
+      }
+      console.log(`loading ${citiesData.map(c => c.name).join(', ')}`);
+      notification = `loading ${citiesData.map(c => c.name).join(', ')}`;
+    }
+    return notification;
   },
 );

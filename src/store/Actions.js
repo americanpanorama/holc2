@@ -71,13 +71,20 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
   const id = getEventId(eOrId, 'number');
 
   // get data from the city that you need for the path and to set the map zoom and center
-  const { cities, dimensions, map } = getState();
+  const { cities, dimensions, map, selectedCity, loadingCity } = getState();
+
+  // do nothing if it's alreeady loaded or is being loaded
+  if (selectedCity === id || loadingCity === id) {
+    return null;
+  }
+
   const { bounds } = cities.find(c => c.ad_id === id);
   const path = getCityFilePath(id, cities);
   const { lat, lng, zoom } = coords || calculateCenterAndZoom(bounds, dimensions);
 
   dispatch({
     type: Actions.SELECT_CITY_REQUEST,
+    payload: id,
   });
 
   dispatch({
@@ -252,7 +259,7 @@ export const updateMap = mapState => (dispatch, getState) => {
       return null;
     }
 
-    const { map, selectedCity } = getState();
+    const { map, selectedCity, loadingCity } = getState();
     const { visiblePolygons } = map;
 
     // execute to load rasters before the async task of loading new polygons or city
@@ -267,16 +274,19 @@ export const updateMap = mapState => (dispatch, getState) => {
     });
 
     // select the city if there's only one and it's not already selected
-    if (visibleCityIds.length === 1 && selectedCity !== visibleCityIds[0]) {
+    if (visibleCityIds.length === 1 && selectedCity !== visibleCityIds[0]
+      && loadingCity !== visibleCityIds[0]) {
       const path = getCityFilePath(visibleCityIds[0], cities);
 
       // load both the city and the polygons
       dispatch({
         type: Actions.SELECT_CITY_REQUEST,
+        payload: visibleCityIds[0],
       });
 
       dispatch({
         type: Actions.LOADING_POLYGONS,
+        payload: [visibleCityIds[0]],
       });
 
       return Promise.all([
@@ -341,6 +351,7 @@ export const updateMap = mapState => (dispatch, getState) => {
 
       dispatch({
         type: Actions.LOADING_POLYGONS,
+        payload: cityIdsToAdd,
       });
 
       return Promise.all(paths.map(fp => fetch(fp)))
@@ -541,6 +552,7 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
 
       dispatch({
         type: Actions.SELECT_CITY_REQUEST,
+        payload: id,
       });
 
       return Promise.all([

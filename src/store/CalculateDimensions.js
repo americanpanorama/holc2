@@ -111,7 +111,7 @@ const calculateDimensions = () => {
   };
 
   dimensions.tilesHeight = dimensions.windowHeight - dimensions.headerHeight - 2*dimensions.containerPadding;
-   dimensions.dataViewerWidth = (dimensions.size !== 'mobile')? Math.max(700, Math.min(500, dimensions.windowWidth / 3)) : dimensions.windowWidth;
+  dimensions.dataViewerWidth = (dimensions.size !== 'mobile')? Math.min(700, dimensions.windowWidth / 3) : dimensions.windowWidth;
   dimensions.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : dimensions.windowWidth * 0.644 - 2*dimensions.containerPadding;
   dimensions.dataViewerTitleHeight = (document.getElementsByClassName('dataViewerTitle').length > 0) ? document.getElementsByClassName('dataViewerTitle')[0].offsetHeight: 30;
 

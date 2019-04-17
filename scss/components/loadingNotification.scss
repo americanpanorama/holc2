@@ -1,0 +1,27 @@
+#loadingNotification {
+  position: fixed;
+  height: 34px;
+  padding: 10px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+  bottom: 0;
+  right: 20px;
+  animation: colorchange 1s infinite;
+  -webkit-animation: colorchange 1s infinite;
+  color: white;
+  z-index: 1100;
+}
+
+@keyframes colorchange
+{
+  0%   {background: $headerRed}
+  50%  {background: $controlsColor;}
+  100% {background: $headerRed}
+}
+
+@-webkit-keyframes colorchange /* Safari and Chrome - necessary duplicate */
+{
+  0%   {background: $headerRed}
+  50%  {background: $controlsColor;}
+  100% {background: $headerRed}
+}

@@ -336,11 +336,6 @@ button.cityStats {
     li {
       padding: 10px;
       border: 1px solid transparent;
-      &:hover {
-        background-color: darken($textBackground, 5%);
-        border: 1px solid darken($textBackground, 50%);
-        border-radius: 5px;
-      }
     }
   }
 
@@ -348,7 +343,6 @@ button.cityStats {
     ul li:hover {
       background-color: lighten($gradeA, 30%);
       border: 1px solid $gradeA;
-      border-radius: 5px;
     }
   }
 
@@ -356,7 +350,6 @@ button.cityStats {
     ul li:hover {
       background-color: lighten($gradeB, 30%);
       border: 1px solid $gradeB;
-      border-radius: 5px;
     }
   }
 
@@ -364,7 +357,6 @@ button.cityStats {
     ul li:hover {
       background-color: lighten($gradeC, 30%);
       border: 1px solid $gradeC;
-      border-radius: 5px;
     }
   }
 
@@ -372,8 +364,14 @@ button.cityStats {
     ul li:hover {
       background-color: lighten($gradeD, 25%);
       border: 1px solid $gradeD;
-      border-radius: 5px;
     }
   }
+}
 
+#dataViewerFull {
+  #adCategory {
+      li {
+        border-radius: 5px;
+      }
+    }
 }

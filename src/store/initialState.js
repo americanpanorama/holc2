@@ -109,6 +109,7 @@ export default {
   areaDescriptions: null,
   basemap,
   selectedCity: null,
+  loadingCity: null,
   selectedCategory,
   selectedGrade: null,
   selectedArea: null,

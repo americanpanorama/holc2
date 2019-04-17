@@ -8,6 +8,7 @@ import Search from './components/Search/containers/Search';
 import VizCanvas from './components/containers/VizCanvas';
 import DataViewer from './components/DataViewer/containers/DataViewer';
 import DataViewerFull from './components/DataViewer/containers/DataViewerFull';
+import LoadingNotification from './components/containers/LoadingNotification';
 import Text from './components/Text/containers/Text';
 
 import Store from './store';
@@ -68,6 +69,7 @@ export default class App extends React.Component {
         <VizCanvas />
         <DataViewer />
         <DataViewerFull />
+        <LoadingNotification />
         <Text />
       </React.Fragment>
     );

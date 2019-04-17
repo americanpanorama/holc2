@@ -36,6 +36,18 @@ const selectedCity = (state = initialState.selectedCity, action) => {
   return state;
 };
 
+const loadingCity = (state = null, action) => {
+  if (action.type === A.SELECT_CITY_REQUEST) {
+    return action.payload;
+  }
+
+  if (action.type === A.SELECT_CITY_SUCCESS) {
+    return null;
+  }
+
+  return state;
+};
+
 const selectedGrade = (state = null, action) => (
   (action.type === A.SELECT_GRADE) ? action.payload : state
 );
@@ -173,6 +185,16 @@ const map = (state = initialState.map, action) => {
     };
   }
 
+  if (action.type === A.LOADING_POLYGONS) {
+    return {
+      ...state,
+      loadingPolygonsFor: [
+        ...state.loadingPolygonsFor,
+        ...action.payload,
+      ],
+    };
+  }
+
   if (action.type === A.SELECT_CITY_SUCCESS) {
     // add them if they're not already in the polygons array
     const extantCityIds = [...new Set(state.visiblePolygons.map(p => p.ad_id))];
@@ -296,6 +318,7 @@ const combinedReducer = combineReducers({
   areaDescriptions,
   selectedCategory,
   selectedCity,
+  loadingCity,
   selectedGrade,
   selectedArea,
   inspectedArea,

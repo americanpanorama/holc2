@@ -1,5 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { constantsColors, constantsLightenedColors } from '../../../../data/constants';
 
 const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade }) => {
   if (!gradeStats) {
@@ -32,7 +33,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
       </h3>
       <svg
         width={width}
-        height={125}
+        height={270}
         style={{
           marginTop: 20,
         }}
@@ -69,13 +70,14 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
                 width={areaWidths[grade]}
                 height={14}
                 fill={gradeColors[grade]}
-                fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.25}
+                fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.1}
               />
               <text
                 x={width * 0.34 + 10}
                 y={15}
                 textAnchor="start"
-                fill={(!selectedGrade || selectedGrade === grade) ? 'black' : 'silver'}
+                fill="black"
+                fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.1}
                 fontWeight={(selectedGrade && selectedGrade === grade) ? 400 : 'auto'}
               >
                 {`${grade} "${labels[grade]}"`}
@@ -102,6 +104,232 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
             </g>
           ))}
         </g>
+
+        {(selectedGrade === 'A') && (
+          <g
+            transform={`translate(${width / 2 - 199}, 50)`}
+            style={{ pointerEvents: 'none' }}
+          >
+            <rect
+              x={0}
+              y={0}
+              width={398}
+              height={5 * 1.4 * 16}
+              rx={10}
+              ry={10}
+              fill={constantsLightenedColors.gradeA}
+              fillOpacity={0.9}
+              stroke={constantsColors.gradeA}
+            />
+            <text
+              x={0}
+              y={25}
+              fill="black"
+              fontSize="16px"
+              textAnchor="start"
+            >
+              <tspan
+                x={10}
+                dy="0"
+              >
+                HOLC described A areas as "'hot spots' ... where
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                good mortgage lenders with available funds are
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                willing to make their maximum loans ...
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                &#8212;perhaps up to 75-80% of appraisal."
+              </tspan>
+            </text>
+          </g>
+        )}
+
+        {(selectedGrade === 'B') && (
+          <g transform={`translate(${width / 2 - 199}, 75)`}>
+            <rect
+              x={0}
+              y={0}
+              width={398}
+              height={6 * 1.4 * 16}
+              rx={10}
+              ry={10}
+              fill={constantsLightenedColors.gradeB}
+              fillOpacity={0.9}
+              stroke={constantsColors.gradeB}
+            />
+            <text
+              x={0}
+              y={25}
+              fill="black"
+              fontSize="16px"
+              textAnchor="start"
+            >
+              <tspan
+                x={10}
+                dy="0"
+              >
+                HOLC described B areas as "still good" but not
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                as "hot" as A areas. "They are neighborhoods
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                where good mortgage lenders will have a
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                tendency to hold commitments 10-15%
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.4em"
+              >
+                under the limit," or around 65% of appraisal.
+              </tspan>
+            </text>
+          </g>
+        )}
+
+        {(selectedGrade === 'C') && (
+          <g transform={`translate(${width / 2 - 199}, 100)`}>
+            <rect
+              x={0}
+              y={0}
+              width={398}
+              height={7 * 1.4 * 16}
+              rx={10}
+              ry={10}
+              fill={constantsLightenedColors.gradeC}
+              fillOpacity={0.9}
+              stroke={constantsColors.gradeC}
+            />
+            <text
+              x={0}
+              y={25}
+              fill="black"
+              fontSize="16px"
+              textAnchor="start"
+            >
+              <tspan
+                x={10}
+                dy="0"
+              >
+                C neighborhoods were characterized by 
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                "obsolecence [and] infiltration of lower grade
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                population." "Good mortgage lenders are more 
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                conservative in Third grade or C areas and hold
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+               commitments under the lending ratio for the A
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+               and B areas.
+              </tspan>
+            </text>
+          </g>
+        )}
+
+        {(selectedGrade === 'D') && (
+          <g transform={`translate(${width / 2 - 199}, 125)`}>
+            <rect
+              x={0}
+              y={0}
+              width={398}
+              height={6 * 1.4 * 16}
+              rx={10}
+              ry={10}
+              fill={constantsLightenedColors.gradeD}
+              fillOpacity={0.9}
+              stroke={constantsColors.gradeD}
+            />
+            <text
+              x={0}
+              y={25}
+              fill="black"
+              fontSize="16px"
+              textAnchor="start"
+            >
+              <tspan
+                x={10}
+                dy="0"
+              >
+                HOLC described D areas as "characterized by 
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                detrimental influences in a pronounced degree,
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                underdesirable population or an infiltration of
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                it." They recommended lenders "refuse to make
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                loans in these areas [or] only on a conservative
+              </tspan>
+              <tspan
+                x={10}
+                dy="1.2em"
+              >
+                basis."
+              </tspan>
+            </text>
+          </g>
+        )}
+
       </svg>
     </section>
   );
