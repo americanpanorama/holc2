@@ -31,24 +31,32 @@ export default class HOLCMap extends React.Component {
   }
 
   onMapMoved() {
+    const { zoom: oldZoom, center: oldCenter, bounds: oldBounds } = this.props;
     const theMap = this.map.current.leafletElement;
     const zoom = theMap.getZoom();
     const center = [theMap.getCenter().lat, theMap.getCenter().lng];
     const latLngBounds = theMap.getBounds();
     const bounds = [[latLngBounds.getNorthWest().lat, latLngBounds.getNorthWest().lng],
       [latLngBounds.getSouthEast().lat, latLngBounds.getSouthEast().lng]];
-    TheStore.dispatch(updateMap({
-      zoom,
-      center,
-      bounds,
-      movingTo: null,
-    }));
+    // only dispatch if something has changed
+    if (!oldBounds || oldBounds.length !== bounds.length
+      || !oldBounds[0].every((value, index) => value === bounds[0][index])
+      || !oldBounds[1].every((value, index) => value === bounds[1][index])
+      || !oldCenter.every((value, index) => value === center[index])
+      || oldZoom !== zoom) {
+      TheStore.dispatch(updateMap({
+        zoom,
+        center,
+        bounds,
+        movingTo: null,
+      }));
+    }
   }
 
   render() {
     // const VectorGrid = withLeaflet(VectorGridDefault);
     // // console.log(VectorGrid);
-    const { zoom, center, className} = this.props;
+    const { zoom, center, className } = this.props;
     return (
       <React.Fragment>
         <Map
@@ -86,8 +94,13 @@ export default class HOLCMap extends React.Component {
 HOLCMap.propTypes = {
   zoom: PropTypes.number.isRequired,
   center: PropTypes.arrayOf(PropTypes.number).isRequired,
+  bounds: PropTypes.arrayOf(PropTypes.array),
   className: PropTypes.string.isRequired,
   style: PropTypes.shape({
     height: PropTypes.number,
   }).isRequired,
+};
+
+HOLCMap.defaultProps = {
+  bounds: undefined,
 };

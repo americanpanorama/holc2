@@ -1,3 +1,4 @@
+import { batchActions } from 'redux-batched-actions';
 import * as L from 'leaflet';
 import { geoContains } from 'd3';
 import TheStore from '.';
@@ -78,41 +79,48 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
     return null;
   }
 
-  const { bounds } = cities.find(c => c.ad_id === id);
   const path = getCityFilePath(id, cities);
+  const { bounds } = cities.find(c => c.ad_id === id);
   const { lat, lng, zoom } = coords || calculateCenterAndZoom(bounds, dimensions);
 
-  dispatch({
-    type: Actions.SELECT_CITY_REQUEST,
-    payload: id,
-  });
-
-  dispatch({
-    type: Actions.MOVE_MAP,
-    payload: {
-      ...map,
-      zoom,
-      center: [lat, lng],
-      aboveThreshold: true,
-      movingTo: {
+  dispatch(batchActions([
+    {
+      type: Actions.SELECT_CITY_REQUEST,
+      payload: id,
+    },
+    {
+      type: Actions.MOVE_MAP,
+      payload: {
+        ...map,
         zoom,
         center: [lat, lng],
+        aboveThreshold: true,
+        movingTo: {
+          zoom,
+          center: [lat, lng],
+        },
       },
     },
-  });
+  ]));
 
   return fetch(`./static/ADs/${path}`)
-    .then(() => {
-      dispatch({
-        type: Actions.SELECT_CITY_SUCCESS,
-        payload: id,
-      });
+    .then(response => response.json())
+    .then((ads) => {
+      dispatch(batchActions([
+        {
+          type: Actions.SELECT_CITY_SUCCESS,
+          payload: id,
+        },
+        {
+          type: Actions.LOAD_ADS,
+          payload: ads,
+        },
+      ]));
     })
     .catch((err) => {
       console.warn('Fetch Error :-S', err);
     });
 };
-
 
 export const selectArea = eOrId => (dispatch, getState) => {
   const ids = getEventId(eOrId);
@@ -122,40 +130,44 @@ export const selectArea = eOrId => (dispatch, getState) => {
 
   const { selectedCity, selectedCategory, selectedArea, cities, showADScan } = getState();
   const cityData = getSelectedCityData(getState());
+  const actions = [];
   // load the city if necessary then the neighborhood
   if (selectedCity !== adId) {
-    dispatch({
-      type: Actions.SELECT_CITY_SUCCESS,
-      payload: adId,
-    });
-
     return fetch(`./static/ADs/${getCityFilePath(adId, cities)}`)
       .then(response => response.json())
       .then((ads) => {
-        dispatch({
-          type: Actions.LOAD_ADS,
-          payload: ads,
-        });
-        // update the selected neighborhood
-        dispatch({
-          type: Actions.SELECT_AREA,
-          payload: holcId,
-        });
-
-        dispatch({
-          type: Actions.HIGHLIGHT_AREAS,
-          payload: [{
-            adId,
-            holcId,
-          }],
-        });
+        actions.push(
+          {
+            type: Actions.SELECT_CITY_SUCCESS,
+            payload: adId,
+          },
+          {
+            type: Actions.LOAD_ADS,
+            payload: ads,
+          },
+          // update the selected neighborhood
+          {
+            type: Actions.SELECT_AREA,
+            payload: holcId,
+          },
+        );
 
         // if not yet transcribed, show the ad scan
         if (selectedCity && selectedCity.hasImages && !selectedCity.hasADs && !showADScan) {
-          dispatch({
+          actions.push({
             type: Actions.TOGGLE_AD_SCAN,
           });
+        } else {
+          actions.push({
+            type: Actions.HIGHLIGHT_AREAS,
+            payload: [{
+              adId,
+              holcId,
+            }],
+          });
         }
+
+        dispatch(batchActions(actions));
       })
       .catch((err) => {
         console.warn('Fetch Error :-S', err);
@@ -163,25 +175,27 @@ export const selectArea = eOrId => (dispatch, getState) => {
   }
 
   // if the city is alread loaded just update the selected neighborhood
-  dispatch({
+  actions.push({
     type: Actions.SELECT_AREA,
     payload: (selectedArea !== holcId || selectedCategory) ? holcId : null,
-  });
-
-  dispatch({
-    type: Actions.HIGHLIGHT_AREAS,
-    payload: (selectedArea !== holcId || selectedCategory) ? [{
-      adId,
-      holcId,
-    }] : [],
   });
   
   // if not yet transcribed, show the ad scan
   if (cityData.hasImages && !cityData.hasADs && !showADScan && (selectedArea !== holcId)) {
-    dispatch({
+    actions.push({
       type: Actions.TOGGLE_AD_SCAN,
     });
+  } else {
+    actions.push({
+      type: Actions.HIGHLIGHT_AREAS,
+      payload: (selectedArea !== holcId || selectedCategory) ? [{
+        adId,
+        holcId,
+      }] : [],
+    });
   }
+
+  dispatch(batchActions(actions));
   return null;
 };
 
@@ -221,6 +235,10 @@ export const mapMoveEnd = () => ({
   type: Actions.MOVE_MAP_END,
 });
 
+export const geolocating = () => ({
+  type: Actions.GEOLOCATING,
+});
+
 export const updateMap = mapState => (dispatch, getState) => {
   const aboveThreshold = (mapState.zoom >= 9);
 
@@ -236,137 +254,141 @@ export const updateMap = mapState => (dispatch, getState) => {
         visiblePolygons: [],
       },
     });
+    return null;
   }
 
-  if (aboveThreshold) {
-    const { cities } = getState();
-    const latLngBounds = L.latLngBounds([...mapState.bounds]);
+  const { cities } = getState();
+  const latLngBounds = L.latLngBounds([...mapState.bounds]);
 
-    const visibleRasters = Rasters.filter(raster => (
-      raster.bounds && raster.bounds[0][0] && latLngBounds.intersects(raster.bounds)
-    ));
+  const visibleRasters = Rasters.filter(raster => (
+    raster.bounds && raster.bounds[0][0] && latLngBounds.intersects(raster.bounds)
+  ));
 
-    const visibleCityIds = cities
-      .filter(c => c.bounds && latLngBounds.intersects(c.bounds))
-      .map(c => c.ad_id);
+  const visibleCityIds = cities
+    .filter(c => c.bounds && latLngBounds.intersects(c.bounds))
+    .map(c => c.ad_id);
 
-    // if there aren't any cities visible, clear the selected city
-    if (visibleCityIds.length === 0) {
-      dispatch({
-        type: Actions.SELECT_CITY_SUCCESS,
-        payload: null,
-      });
-      return null;
-    }
-
-    const { map, selectedCity, loadingCity } = getState();
-    const { visiblePolygons } = map;
-
-    // execute to load rasters before the async task of loading new polygons or city
+  // if there aren't any cities visible, clear the selected city
+  if (visibleCityIds.length === 0) {
     dispatch({
-      type: Actions.MOVE_MAP,
-      payload: {
-        ...mapState,
-        aboveThreshold,
-        visibleRasters,
-        visiblePolygons,
-      },
+      type: Actions.SELECT_CITY_SUCCESS,
+      payload: null,
     });
+    return null;
+  }
 
-    // select the city if there's only one and it's not already selected
-    if (visibleCityIds.length === 1 && selectedCity !== visibleCityIds[0]
-      && loadingCity !== visibleCityIds[0]) {
-      const path = getCityFilePath(visibleCityIds[0], cities);
+  const { map, selectedCity, loadingCity } = getState();
+  const { visiblePolygons } = map;
 
-      // load both the city and the polygons
-      dispatch({
+  // execute to load rasters before the async task of loading new polygons or city
+  dispatch({
+    type: Actions.MOVE_MAP,
+    payload: {
+      ...mapState,
+      aboveThreshold,
+      visibleRasters,
+      visiblePolygons,
+    },
+  });
+
+  // select the city if there's only one and it's not already selected
+  if (visibleCityIds.length === 1 && selectedCity !== visibleCityIds[0]
+    && loadingCity !== visibleCityIds[0]) {
+    const path = getCityFilePath(visibleCityIds[0], cities);
+
+    // load both the city and the polygons
+    dispatch(batchActions([
+      {
         type: Actions.SELECT_CITY_REQUEST,
         payload: visibleCityIds[0],
-      });
-
-      dispatch({
+      },
+      {
         type: Actions.LOADING_POLYGONS,
         payload: [visibleCityIds[0]],
-      });
+      },
+    ]));
 
-      return Promise.all([
-        fetch(`./static/polygons/${path}`),
-        fetch(`./static/ADs/${path}`),
-      ])
-        .then(responses => Promise.all(responses.map(r => r.json())))
-        .then((responsesJSON) => {
-          const polygons = responsesJSON[0];
-          const ads = responsesJSON[1];
+    return Promise.all([
+      fetch(`./static/polygons/${path}`),
+      fetch(`./static/ADs/${path}`),
+    ])
+      .then(responses => Promise.all(responses.map(r => r.json())))
+      .then((responsesJSON) => {
+        const polygons = responsesJSON[0];
+        const ads = responsesJSON[1];
 
-          dispatch({
+        dispatch(batchActions([
+          {
             type: Actions.SELECT_CITY_SUCCESS,
             payload: visibleCityIds[0],
-          });
-
-          dispatch({
+          },
+          {
             type: Actions.LOAD_ADS,
             payload: ads,
-          });
-
-          dispatch({
+          },
+          {
             type: Actions.LOADED_POLYGONS,
             payload: polygons,
-          });
+          },
+        ]));
+      });
+  }
+
+  // get the current, old, and new cities id of the polygons
+  const cityIdsExtant = [...new Set(visiblePolygons.map(p => p.ad_id))];
+  const cityIdsToDrop = cityIdsExtant.filter(id => !visibleCityIds.includes(id));
+  const cityIdsToAdd = visibleCityIds.filter(adId => !cityIdsExtant.includes(adId)
+    && !map.loadingPolygonsFor.includes(adId));
+
+  // if there's nothing to update, stop
+  if (cityIdsToDrop.length === 0 && cityIdsToAdd.length === 0) {
+    return null;
+  }
+
+  // drop those that aren't visible anymore
+  let updatedVisiblePolygons = visiblePolygons;
+  if (cityIdsToDrop.length > 0) {
+    updatedVisiblePolygons = updatedVisiblePolygons.filter(p => !cityIdsToDrop.includes(p.ad_id));
+  }
+
+  const actions = [];
+
+  // deselect city if it's no longer visible
+  if (selectedCity && !updatedVisiblePolygons.includes(selectedCity)) {
+    actions.push({
+      type: Actions.UNSELECT_CITY,
+    });
+  }
+
+  // update if there isn't anything to add
+  // otherwise, load the polygon files
+  if (cityIdsToAdd.length === 0) {
+    actions.push({
+      type: Actions.LOADED_POLYGONS,
+      payload: updatedVisiblePolygons,
+    });
+    dispatch(batchActions(actions));
+  } else {
+    const paths = cityIdsToAdd.map(adId => `./static/polygons/${getCityFilePath(adId, cities)}`);
+
+    actions.push({
+      type: Actions.LOADING_POLYGONS,
+      payload: cityIdsToAdd,
+    });
+    dispatch(batchActions(actions));
+
+    return Promise.all(paths.map(fp => fetch(fp)))
+      .then(responses => Promise.all(responses.map(r => r.json())))
+      .then((cityPolygons) => {
+        cityPolygons.forEach((polygons) => {
+          updatedVisiblePolygons = updatedVisiblePolygons.concat(polygons);
         });
-    }
 
-    // get the current, old, and new cities id of the polygons
-    const cityIdsExtant = [...new Set(visiblePolygons.map(p => p.ad_id))];
-    const cityIdsToDrop = cityIdsExtant.filter(id => !visibleCityIds.includes(id));
-    const cityIdsToAdd = visibleCityIds.filter(adId => !cityIdsExtant.includes(adId)
-      && !map.loadingPolygonsFor.includes(adId));
-
-    // if there's nothing to update, stop
-    if (cityIdsToDrop.length === 0 && cityIdsToAdd.length === 0) {
-      return null;
-    }
-
-    // drop those that aren't visible anymore
-    let updatedVisiblePolygons = visiblePolygons;
-    if (cityIdsToDrop.length > 0) {
-      updatedVisiblePolygons = updatedVisiblePolygons.filter(p => !cityIdsToDrop.includes(p.ad_id));
-    }
-
-    // deselect city if it's no longer visible
-    if (selectedCity && !updatedVisiblePolygons.includes(selectedCity)) {
-      dispatch({
-        type: Actions.UNSELECT_CITY,
-      });
-    }
-
-    // update if there isn't anything to add
-    // otherwise, load the polygon files
-    if (cityIdsToAdd.length === 0) {
-      dispatch({
-        type: Actions.LOADED_POLYGONS,
-        payload: updatedVisiblePolygons,
-      });
-    } else {
-      const paths = cityIdsToAdd.map(adId => `./static/polygons/${getCityFilePath(adId, cities)}`);
-
-      dispatch({
-        type: Actions.LOADING_POLYGONS,
-        payload: cityIdsToAdd,
-      });
-
-      return Promise.all(paths.map(fp => fetch(fp)))
-        .then(responses => Promise.all(responses.map(r => r.json())))
-        .then((cityPolygons) => {
-          cityPolygons.forEach((polygons) => {
-            updatedVisiblePolygons = updatedVisiblePolygons.concat(polygons);
-          });
-
-          dispatch({
-            type: Actions.LOADED_POLYGONS,
-            payload: updatedVisiblePolygons,
-          });
+        dispatch({
+          type: Actions.LOADED_POLYGONS,
+          payload: updatedVisiblePolygons,
         });
-    }
+      });
   }
   return null;
 };
@@ -447,12 +469,11 @@ export const toggleDataViewerFull = () => ({
   type: Actions.TOGGLE_DATA_VIEWER_FULL,
 });
 
-export const resetMapView = () => (dispatch, getState) => {
-  // remove the selected city from the store
-  dispatch({
-    type: Actions.UNSELECT_CITY,
-  });
+export const toggleLandingPage = () => ({
+  type: Actions.TOGGLE_LANDING_PAGE,
+});
 
+export const resetMapView = () => (dispatch, getState) => {
   const { windowWidth: mapWidth, mapHeight } = getState().dimensions;
 
   // calculate the map zoom and center
@@ -470,22 +491,27 @@ export const resetMapView = () => (dispatch, getState) => {
     new L.Marker(bounds[1]),
   ]);
   const zoom = map.getBoundsZoom(featureGroup.getBounds());
-  dispatch({
-    type: Actions.MOVE_MAP,
-    payload: {
-      ...getState().map,
-      movingTo: {
+  dispatch(batchActions([
+    {
+      type: Actions.UNSELECT_CITY,
+    },
+    {
+      type: Actions.MOVE_MAP,
+      payload: {
+        ...getState().map,
+        movingTo: {
+          zoom,
+          center,
+        },
         zoom,
         center,
+        bounds,
+        aboveThreshold: false,
+        visibleRasters: [],
+        visiblePolygons: [],
       },
-      zoom,
-      center,
-      bounds,
-      aboveThreshold: false,
-      visibleRasters: [],
-      visiblePolygons: [],
     },
-  });
+  ]));
 };
 
 export const zoomIn = () => ({
@@ -520,22 +546,24 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
     payload: position,
   });
 
-  const PythagorasEquirectangular = (lat1, lon1, lat2, lon2) => {
-    const Deg2Rad = deg => deg * Math.PI / 180;
-    const lat1R = Deg2Rad(lat1);
-    const lat2R = Deg2Rad(lat2);
-    const lon1R = Deg2Rad(lon1);
-    const lon2R = Deg2Rad(lon2);
-    const R = 6371; // km
-    const x = (lon2R - lon1R) * Math.cos((lat1R + lat2R) / 2);
-    const y = (lat2R - lat1R);
-    const d = Math.sqrt(x * x + y * y) * R;
-    return d;
-  };
-
   // locate the closest city
   if (selectFromPosition) {
-    const cityDists = getState().cities
+    const PythagorasEquirectangular = (lat1, lon1, lat2, lon2) => {
+      const Deg2Rad = deg => deg * Math.PI / 180;
+      const lat1R = Deg2Rad(lat1);
+      const lat2R = Deg2Rad(lat2);
+      const lon1R = Deg2Rad(lon1);
+      const lon2R = Deg2Rad(lon2);
+      const R = 6371; // km
+      const x = (lon2R - lon1R) * Math.cos((lat1R + lat2R) / 2);
+      const y = (lat2R - lat1R);
+      const d = Math.sqrt(x * x + y * y) * R;
+      return d;
+    };
+
+    // calculate closest city
+    const { cities } = getState();
+    const cityDists = cities
       .filter(c => c.centerLat && c.centerLng)
       .map(c => ({
         ad_id: c.ad_id,
@@ -545,10 +573,8 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
     if (cityDists[0].dist <= 20) {
       const id = cityDists[0].ad_id;
       // get data from the city that you need for the path and to set the map zoom and center
-      const { cities, dimensions, map } = getState();
-      const { bounds } = cities.find(c => c.ad_id === id);
+      
       const path = getCityFilePath(id, cities);
-      const { lat, lng, zoom } = calculateCenterAndZoom(bounds, dimensions);
 
       dispatch({
         type: Actions.SELECT_CITY_REQUEST,
@@ -563,14 +589,23 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
         .then((responsesJSON) => {
           const polygons = responsesJSON[0];
           const ads = responsesJSON[1];
+          const { dimensions, map } = getState();
+          const { bounds } = cities.find(c => c.ad_id === id);
+          const { lat, lng, zoom } = calculateCenterAndZoom(bounds, dimensions);
 
-          dispatch({
-            type: Actions.SELECT_CITY_SUCCESS,
-            payload: id,
-          });
+          const actions = [
+            {
+              type: Actions.SELECT_CITY_SUCCESS,
+              payload: id,
+            },
+            {
+              type: Actions.LOAD_ADS,
+              payload: ads,
+            },
+          ];
 
           if (moveMap) {
-            dispatch({
+            actions.push({
               type: Actions.MOVE_MAP,
               payload: {
                 ...map,
@@ -586,15 +621,10 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
             });
           }
 
-          dispatch({
-            type: Actions.LOAD_ADS,
-            payload: ads,
-          });
-
           // test to see if you can select the polygon
           polygons.every((p) => {
             if (geoContains(p.area_geojson, [position[1], position[0]])) {
-              dispatch({
+              Actions.push({
                 type: Actions.SELECT_AREA,
                 payload: p.id,
               });
@@ -602,6 +632,8 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
             }
             return true;
           });
+
+          dispatch(batchActions(actions));
         });
     }
   }

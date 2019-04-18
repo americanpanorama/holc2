@@ -146,10 +146,18 @@ const map = (state = initialState.map, action) => {
     };
   }
 
+  if (action.type === A.GEOLOCATING) {
+    return {
+      ...state,
+      geolocating: true,
+    };
+  }
+
   if (action.type === A.LOCATED_USER) {
     return {
       ...state,
       userPosition: action.payload,
+      geolocating: false,
     };
   }
 
@@ -296,6 +304,10 @@ const selectedText = (state = false, action) => (
   (action.type === A.SELECT_TEXT) ? action.payload : state
 );
 
+const landingPage = (state = true, action) => (
+  (action.type === A.TOGGLE_LANDING_PAGE) ? !state : state
+);
+
 const adSearchHOLCIds = (state = initialState.adSearchHOLCIds, action) => {
   if (action.type === A.SELECT_AREA) {
     return [];
@@ -338,6 +350,7 @@ const combinedReducer = combineReducers({
   cities,
   formsMetadata,
   dimensions,
+  landingPage,
 });
 
 export default combinedReducer;

@@ -16,6 +16,7 @@ const getVisiblePolygons = state => state.map.visiblePolygons;
 const getHighlightedPolygons = state => state.map.highlightedPolygons;
 const getLoadingPolygonsFor = state => state.map.loadingPolygonsFor;
 const getVisibleRasters = state => state.map.visibleRasters;
+const isGeolocating = state => state.map.geolocating;
 const getLoadingCity = state => state.loadingCity;
 
 export const getAreaMarkers = createSelector(
@@ -159,7 +160,7 @@ export const getSelectedCityPopulation = createSelector(
 export const getSelectedAreaDescription = createSelector(
   [getSelectedArea, getSelectedCity, getAreaDescriptions],
   (selectedArea, selectedCity, ads) => (
-    (ads[selectedArea] && ads[selectedArea].ad_id === selectedCity) ? ads[selectedArea] : null
+    (ads && ads[selectedArea] && ads[selectedArea].ad_id === selectedCity) ? ads[selectedArea] : null
   ),
 );
 
@@ -168,12 +169,12 @@ export const getSelectedAreaData = createSelector(
   (selectedArea, selectedCity, ads, polygons) => {
     const cityPolygons = polygons.filter(p => p.ad_id === selectedCity);
     const polygon = cityPolygons.find(p => p.id === selectedArea);
-    const areaDesc = (ads[selectedArea] && ads[selectedArea].ad_id === selectedCity)
+    const areaDesc = (ads && ads[selectedArea] && ads[selectedArea].ad_id === selectedCity)
       ? ads[selectedArea]
       : null;
 
     const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-    const adIds = Object.keys(ads).sort(collator.compare);
+    const adIds = (ads) ? Object.keys(ads).sort(collator.compare) : [];
     const previousHOLCId = adIds[adIds.indexOf(selectedArea) - 1];
     const previousPolygon = cityPolygons.find(p => p.id === previousHOLCId);
     const previousAreaMetadata = (previousPolygon) ?
@@ -349,9 +350,12 @@ export const getCityMarkers = createSelector(
 );
 
 export const getLoadingNotification = createSelector(
-  [getLoadingCityData, getLoadingPolygonsCitiesData],
-  (cityData, loadingPolygonsCitiesData) => {
-    let notification = '';
+  [getLoadingCityData, getLoadingPolygonsCitiesData, isGeolocating],
+  (cityData, loadingPolygonsCitiesData, geolocating) => {
+    const notifications = [];
+    if (geolocating) {
+      notifications.push('determining your location');
+    }
     if (cityData || loadingPolygonsCitiesData.length > 0) {
       // add the city data if it's polygons are not already being loaded
       let citiesData;
@@ -367,9 +371,8 @@ export const getLoadingNotification = createSelector(
           ]
           : loadingPolygonsCitiesData;
       }
-      console.log(`loading ${citiesData.map(c => c.name).join(', ')}`);
-      notification = `loading ${citiesData.map(c => c.name).join(', ')}`;
+      notifications.push(`loading ${citiesData.map(c => c.name).join(', ')}`);
     }
-    return notification;
+    return notifications.join('; ');
   },
 );

@@ -1,4 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
+import { enableBatching } from 'redux-batched-actions';
 import ReduxThunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import appReducer from './reducers';
@@ -40,6 +41,6 @@ const hashManager = store => next => (action) => {
   return theNext;
 };
 
-const store = applyMiddleware(ReduxThunk, logger, hashManager)(createStore)(appReducer, initialState);
+const store = applyMiddleware(ReduxThunk, logger, hashManager)(createStore)(enableBatching(appReducer), initialState);
 
 export default store;

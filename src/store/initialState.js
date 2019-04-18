@@ -127,6 +127,7 @@ export default {
     highlightedPolygons: [],
     loadingPolygonsFor: [],
     userPosition: null,
+    geolocating: false,
   },
   showADScan,
   showADSelections,
@@ -141,4 +142,5 @@ export default {
   cities: Cities,
   formsMetadata: FormsMetadata,
   dimensions,
+  landingPage: true,
 };

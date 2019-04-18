@@ -1,0 +1,28 @@
+#landingView {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  background: url(./static/imageBG1920x1080.png) no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+
+  h1 {
+    text-align: center;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    @include for-phone-only {
+      font-size: 0.6em;
+    }
+  }
+
+  .elevatorIntro {
+    max-width: 600px;
+    margin: 20px auto;
+    line-height: 1.4;
+  }
+}

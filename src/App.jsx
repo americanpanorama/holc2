@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { windowResized, selectCity, selectArea, selectCategory, userLocated } from './store/Actions';
+import { windowResized, selectCity, selectArea, selectCategory, userLocated, geolocating } from './store/Actions';
 
 // components (views)
 import Masthead from './components/containers/Masthead';
@@ -10,6 +10,7 @@ import DataViewer from './components/DataViewer/containers/DataViewer';
 import DataViewerFull from './components/DataViewer/containers/DataViewerFull';
 import LoadingNotification from './components/containers/LoadingNotification';
 import Text from './components/Text/containers/Text';
+import LandingView from './components/containers/LandingView';
 
 import Store from './store';
 
@@ -49,6 +50,7 @@ export default class App extends React.Component {
 
     // try to retrieve the users location
     if (!hashValues.nogeo && navigator.geolocation) {
+      Store.dispatch(geolocating());
       navigator.geolocation.getCurrentPosition((position) => {
         Store.dispatch(userLocated([position.coords.latitude, position.coords.longitude], !hashValues.city, !hashValues.loc));
       }, (error) => {
@@ -71,6 +73,7 @@ export default class App extends React.Component {
         <DataViewerFull />
         <LoadingNotification />
         <Text />
+        <LandingView />
       </React.Fragment>
     );
   }

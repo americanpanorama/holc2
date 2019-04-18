@@ -2,26 +2,25 @@
   position: fixed;
   height: 34px;
   padding: 10px;
-  border-top-right-radius: 5px;
-  border-top-left-radius: 5px;
   bottom: 0;
-  right: 20px;
+  right: 0;
+  left: 0;
+  text-align: center;
   animation: colorchange 1s infinite;
   -webkit-animation: colorchange 1s infinite;
-  color: white;
   z-index: 1100;
 }
 
 @keyframes colorchange
 {
-  0%   {background: $headerRed}
-  50%  {background: $controlsColor;}
-  100% {background: $headerRed}
+  0%   {background: rgba($headerRed, 0.1)}
+  50%  {background: rgba($controlsColor, 0.1)}
+  100% {background: rgba($headerRed, 0.1)}
 }
 
 @-webkit-keyframes colorchange /* Safari and Chrome - necessary duplicate */
 {
-  0%   {background: $headerRed}
-  50%  {background: $controlsColor;}
-  100% {background: $headerRed}
+  0%   {background: rgba($headerRed, 0.1)}
+  50%  {background: rgba($controlsColor, 0.1)}
+  100% {background: rgba($headerRed, 0.1)}
 }
