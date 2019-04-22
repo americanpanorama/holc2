@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const TranscriptionButton = ({ label, disabled, className, action, style }) => (
+const Button = ({ label, disabled, className, action, style }) => (
   <button
     onClick={action}
     className={className}
@@ -13,9 +13,9 @@ const TranscriptionButton = ({ label, disabled, className, action, style }) => (
   </button>
 );
 
-export default TranscriptionButton;
+export default Button;
 
-TranscriptionButton.propTypes = {
+Button.propTypes = {
   className: PropTypes.string,
   disabled: PropTypes.bool,
   label: PropTypes.string.isRequired,
@@ -23,7 +23,7 @@ TranscriptionButton.propTypes = {
   style: PropTypes.object,
 };
 
-TranscriptionButton.defaultProps = {
+Button.defaultProps = {
   className: '',
   disabled: false,
   style: {},

@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect';
 import FormsMetadata from '../../data/formsMetadata.json';
+import Rasters from '../../data/Rasters.json';
+import stateAbbrs from '../../data/state_abbr.json';
 import { constantsColors, constantsColorsVibrant, constantsPopLabels } from '../../data/constants';
 
 const getAdScan = state => state.adScan;
@@ -374,5 +376,65 @@ export const getLoadingNotification = createSelector(
       notifications.push(`loading ${citiesData.map(c => c.name).join(', ')}`);
     }
     return notifications.join('; ');
+  },
+);
+
+export const getDownloadData = createSelector(
+  [getCities],
+  (cities) => {
+    const citiesByState = [];
+    cities.forEach((city) => {
+      const cityDownloadData = {
+        adId: city.ad_id,
+        city: city.name,
+        rasters: city.mapIds.map((mId) => {
+          const raster = Rasters.find(r => r.id === mId);
+          if (raster) {
+            const { file_name: fileName, name, mapUrl, rectifiedUrl } = Rasters.find(r => r.id === mId);
+            return {
+              fileName,
+              name,
+              mapUrl,
+              rectifiedUrl,
+            };
+          }
+          console.warn(`no raster for ${mId}`);
+          return false;
+        }),
+      };
+      if (cityDownloadData) {
+        const i = citiesByState.findIndex(cbs => cbs.state === stateAbbrs[city.state]);
+        if (i !== -1) {
+          citiesByState[i].cities.push(cityDownloadData);
+        } else {
+          citiesByState.push({
+            state: stateAbbrs[city.state],
+            cities: [cityDownloadData],
+          });
+        }
+      }
+    });
+
+    citiesByState.forEach((stateData, i3) => {
+      citiesByState[i3].cities = citiesByState[i3].cities.sort((a, b) => {
+        if (a.city < b.city) {
+          return -1;
+        }
+        if (a.city > b.city) {
+          return 1;
+        }
+        return 0;
+      });
+    });
+
+    return citiesByState.sort((a, b) => {
+      if (a.state < b.state) {
+        return -1;
+      }
+      if (a.state > b.state) {
+        return 1;
+      }
+      return 0;
+    });
   },
 );

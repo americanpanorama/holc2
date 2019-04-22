@@ -4,10 +4,11 @@ import PropTypes from 'prop-types';
 import CategoryDatum from '../containers/CategoryDatum';
 import CloseButton from '../../Buttons/presentational/Close';
 import FullScreenButton from '../../Buttons/presentational/FullScreen';
+import UnFullScreenButton from '../../Buttons/presentational/UnFullScreen';
 import PreviousCategoryButton from '../containers/PreviousCategoryButton';
 import NextCategoryButton from '../containers/NextCategoryButton';
 
-const Category = ({ title, values, unselectCategory, toggleDataViewerFull }) => (
+const Category = ({ title, values, unselectCategory, showDataViewerFull, toggleDataViewerFull }) => (
   <div id="adCategory">
     <header>
       <PreviousCategoryButton />
@@ -19,11 +20,12 @@ const Category = ({ title, values, unselectCategory, toggleDataViewerFull }) => 
           onClick={toggleDataViewerFull}
           role="button"
           tabIndex={0}
+          title={(showDataViewerFull) ? 'undo full screen' : 'expand to full screen'}
           style={{
             marginLeft: 5,
           }}
         >
-          <FullScreenButton />
+          {(showDataViewerFull) ? <UnFullScreenButton /> : <FullScreenButton />}
         </span>
         <span
           onClick={unselectCategory}
@@ -113,6 +115,7 @@ Category.propTypes = {
   }).isRequired,
   unselectCategory: PropTypes.func.isRequired,
   toggleDataViewerFull: PropTypes.func.isRequired,
+  showDataViewerFull: PropTypes.bool.isRequired,
 };
 
 Category.defaultProps = {

@@ -10,6 +10,7 @@ const Header = (props) => {
     name,
     onStateSelected,
     state,
+    showMinimizeButton,
     toggleCityStats,
   } = props;
 
@@ -35,17 +36,19 @@ const Header = (props) => {
         { state }
       </span>
 
-      <span
-        onClick={toggleCityStats}
-        role="button"
-        tabIndex={0}
-        style={{
-          float: 'right',
-          marginLeft: 20,
-        }}
-      >
-        <MinimizeButton />
-      </span>
+      { (showMinimizeButton) && (
+        <span
+          onClick={toggleCityStats}
+          role="button"
+          tabIndex={0}
+          style={{
+            float: 'right',
+            marginLeft: 20,
+          }}
+        >
+          <MinimizeButton />
+        </span>
+      )}
     </h2>
   );
 };
@@ -57,6 +60,7 @@ Header.propTypes = {
   name: PropTypes.string,
   onStateSelected: PropTypes.func.isRequired,
   state: PropTypes.string,
+  showMinimizeButton: PropTypes.bool,
   toggleCityStats: PropTypes.func.isRequired,
 };
 
@@ -65,6 +69,7 @@ Header.defaultProps = {
   adId: undefined,
   name: undefined,
   state: undefined,
+  showMinimizeButton: undefined,
 };
 
 export default Header;

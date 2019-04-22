@@ -51,6 +51,12 @@ export default class Masthead extends React.Component {
               </li>
               <li
                 onClick={selectText}
+                id="downloads"
+              >
+                Downloads & Data
+              </li>
+              <li
+                onClick={selectText}
                 id="about"
               >
                 About

@@ -3,7 +3,10 @@ import Category from '../presentational/Category';
 import { unselectCategory, toggleDataViewerFull } from '../../../store/Actions';
 import { getSelectedCategoryData } from '../../../store/selectors';
 
-const mapStateToProps = state => getSelectedCategoryData(state);
+const mapStateToProps = state => ({
+  ...getSelectedCategoryData(state),
+  showDataViewerFull: state.showDataViewerFull,
+});
 
 const mapDispatchToProps = {
   unselectCategory,

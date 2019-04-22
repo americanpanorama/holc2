@@ -5,24 +5,129 @@
   right: 0;
   bottom: 0;
   z-index: 2000;
-  background: url(./static/imageBG1920x1080.png) no-repeat center center fixed;
-  background-size: cover;
-  color: white;
+  margin: 0;
+  padding: 0;
 
-  h1 {
-    text-align: center;
+  line-height: 1.4;
 
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  header {
+    height: 67%;
+    margin: 0;
+    padding: 0;
+    background: url(./static/imageBG1920x1080.png) no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    position: relative;
 
-    @include for-phone-only {
-      font-size: 0.6em;
+    .container {
+      position: absolute;
+      top: 33%;
+      left: 50%;
+      transform: translate(-50%, -33%);
+      max-width: 1000px;
+    }
+    h1 {
+      margin: 0;
+      padding: 0;
+      text-align: center;
+
+      .header-main {
+        text-transform: uppercase;
+        font-size: 0.9em;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        display: block;
+
+        @include for-phone-only {
+          font-size: 0.6em;
+        }
+      }
+
+      .header-sub {
+        font-size: 0.7em;
+        letter-spacing: 0.06em;
+        font-weight: 100;
+        padding-left: 10px;
+        opacity: 0.8;
+        display: block;
+      }
+
+      @include for-phone-only {
+        font-size: 0.6em;
+      }
+    }
+
+
+    .elevatorIntro {
+      
+      font-size: calc(16px + (14 - 11) * ((100vw - 300px) / (1600 - 300)));
+      line-height: 1.9;
+      margin: 30px 20px;
+
+
     }
   }
 
-  .elevatorIntro {
-    max-width: 600px;
-    margin: 20px auto;
-    line-height: 1.4;
+  .howTos {
+    pointer-events: none;
+    background: rgba($textBackground, 1);
+    height: 33%;
+    text-align: center;
+
+    .container {
+      position: absolute;
+      bottom: 0%;
+      left: 50%;
+      transform: translate(-50%, 0%);
+      max-height: 33%;
+      overflow: hidden;
+    }
+
+    h3 {
+      margin: 0;
+    }
+
+    section {
+      text-align: left;
+      width: 25%;
+      display: inline-block;
+      margin: 3vh 3vw;
+      height: calc(33vh - 35px);
+      font-family: "Lato", sans-serif;
+      /* background: $textBackground;
+      border: 1px solid $controlsColor;
+      border-radius: 10px;
+      color: $text-color; */
+      vertical-align: top;
+
+
+      figure {
+
+        max-width: 100%;
+        margin: 0;
+        text-align: center;
+
+        img {
+          max-height: calc(33vh - 135px);
+          max-width: 25vh;
+        }
+
+        figcaption {
+          height: 100px;
+        }
+      }
+    }
+  }
+
+  button.enter {
+    display: block;
+    margin: 10px auto;
+    background-color: $controlsColor;
+    color: white;
+    width: 250px;
+    height: auto;
+    font-size: 1.5em;
+
   }
 }

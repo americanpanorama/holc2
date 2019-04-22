@@ -142,5 +142,5 @@ export default {
   cities: Cities,
   formsMetadata: FormsMetadata,
   dimensions,
-  landingPage: true,
+  landingPage: dimensions.size !== 'mobile',
 };
