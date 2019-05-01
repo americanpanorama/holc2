@@ -8,6 +8,7 @@ const getAdScan = state => state.adScan;
 const getAdSearchHOLCIds = state => state.adSearchHOLCIds;
 const getAreaDescriptions = state => state.areaDescriptions;
 const getCities = state => state.cities;
+const getFormMetadata = state => state.formsMetadata;
 const getMapZoom = state => state.map.zoom;
 const getSelectedArea = state => state.selectedArea;
 const getSelectedCategory = state => state.selectedCategory;
@@ -124,6 +125,39 @@ export const getRasters = createSelector(
 export const getSelectedCityData = createSelector(
   [getSelectedCity, getCities],
   (selectedCity, cities) => cities.find(c => c.ad_id === selectedCity),
+);
+
+export const getSelectedCityADSelections = createSelector(
+  [getSelectedCityData, getFormMetadata],
+  (cityData, formsMetadata) => {
+    const selections = cityData.areaDescSelections;
+    const formMetadata = formsMetadata[cityData.form_id];
+
+    if (selections) {
+      return selections.map((s) => {
+        let cat;
+        let subcat;
+        let catName;
+        if (s.cat) {
+          if (!isNaN(s.cat)) {
+            ({ cat } = s);
+          } else {
+            [cat, subcat] = s.cat.split('');
+          }
+          catName = (formMetadata[cat].header) ? formMetadata[cat].header : formMetadata[cat];
+          if (subcat && formMetadata[cat].subcats[subcat]) {
+            catName = `${catName}: ${formMetadata[cat].subcats[subcat]}`;
+          }
+        }
+        return {
+          ...s,
+          catName,
+        };
+      });
+    }
+
+    return [];
+  },
 );
 
 export const getLoadingCityData = createSelector(
@@ -344,8 +378,11 @@ export const getCityMarkers = createSelector(
     return rasters
       .filter(r => r.centerLng && r.bounds && !r.inset)
       .map(r => ({
-        position: [r.bounds[0][0] - 0.075 / (1 + zoom - 9), r.centerLng],
+        bounds: r.bounds,
+        centerLng: r.centerLng,
+        centerLat: r.centerLat,
         label: r.city,
+        area: r.area,
         id: r.id,
       }));
   },
@@ -384,34 +421,59 @@ export const getDownloadData = createSelector(
   (cities) => {
     const citiesByState = [];
     cities.forEach((city) => {
+      const { ad_id: adId, name, year, state, mapIds, hasPolygons } = city;
+      const fileName = `${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '');
+      // get the rasters
       const cityDownloadData = {
-        adId: city.ad_id,
-        city: city.name,
-        rasters: city.mapIds.map((mId) => {
-          const raster = Rasters.find(r => r.id === mId);
-          if (raster) {
-            const { file_name: fileName, name, mapUrl, rectifiedUrl } = Rasters.find(r => r.id === mId);
-            return {
+        adId,
+        city: name,
+        rasters: [],
+        geospatial: [],
+        polygons: (hasPolygons)
+          ? {
+            imgUrl: `static/citysvgs/${fileName}.svg`,
+            geojson: `static/downloads/geojson/${fileName}.geojson`,
+            shapefile: `static/downloads/shapefiles/${fileName}.zip`,
+          } : null,
+      };
+
+      mapIds.forEach((mId) => {
+        const raster = Rasters.find(r => r.id === mId);
+        if (raster) {
+          const {
+            file_name: fileName,
+            name: rasterName,
+            inset, mapUrl,
+            rectifiedUrl,
+          } = Rasters.find(r => r.id === mId);
+          if (mapUrl) {
+            cityDownloadData.rasters.push({
               fileName,
-              name,
+              name: rasterName,
               mapUrl,
-              rectifiedUrl,
-            };
+            });
           }
+          cityDownloadData.geospatial.push({
+            id: mId,
+            fileName,
+            name: rasterName,
+            rectifiedUrl,
+            inset,
+          });
+        } else {
           console.warn(`no raster for ${mId}`);
           return false;
-        }),
-      };
-      if (cityDownloadData) {
-        const i = citiesByState.findIndex(cbs => cbs.state === stateAbbrs[city.state]);
-        if (i !== -1) {
-          citiesByState[i].cities.push(cityDownloadData);
-        } else {
-          citiesByState.push({
-            state: stateAbbrs[city.state],
-            cities: [cityDownloadData],
-          });
         }
+      });
+
+      const i = citiesByState.findIndex(cbs => cbs.state === stateAbbrs[state]);
+      if (i !== -1) {
+        citiesByState[i].cities.push(cityDownloadData);
+      } else {
+        citiesByState.push({
+          state: stateAbbrs[city.state],
+          cities: [cityDownloadData],
+        });
       }
     });
 

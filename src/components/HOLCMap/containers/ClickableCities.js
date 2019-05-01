@@ -76,7 +76,7 @@ const mapStateToProps = (state) => {
         let direction = 'center';
 
         // above
-        if (['Niagara Falls', 'Philadelphia', 'Winston Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
+        if (['Newport News', 'Niagara Falls', 'Philadelphia', 'Winston Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
           radians = Math.PI * 1.5;
         }
 
@@ -112,7 +112,7 @@ const mapStateToProps = (state) => {
 
         if (zoom <= 7) {
           // above
-          if (['Manchester', 'Cleveland', 'Holyoke Chicopee', 'East Hartford', 'Newport News', 'Chicago', 'Milwaukee Co.', 'Tampa', 'Dallas', 'South Bend', 'SouthBend' ].includes(city.name)) {
+          if (['Manchester', 'Cleveland', 'Holyoke Chicopee', 'East Hartford', 'Chicago', 'Milwaukee Co.', 'Tampa', 'Dallas', 'South Bend', 'SouthBend' ].includes(city.name)) {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
@@ -155,13 +155,13 @@ const mapStateToProps = (state) => {
 
         if (zoom <= 6) {
           // above
-          if (['Utica', 'Oshkosh', 'Muncie', 'Terre Haute', 'Seattle', 'Sacramento', 'Poughkeepsie', 'Lynchburg', 'Decatur', 'Altoona', 'Houston', 'Muskegon', 'Des Moines', 'Waterloo', 'St. Joseph', 'St.Joseph'].includes(city.name)) {
+          if (['Portsmouth', 'Ogden', 'Utica', 'Oshkosh', 'Muncie', 'Terre Haute', 'Seattle', 'Sacramento', 'Poughkeepsie', 'Lynchburg', 'Decatur', 'Altoona', 'Houston', 'Muskegon', 'Des Moines', 'Waterloo', 'St. Joseph', 'St.Joseph'].includes(city.name)) {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
 
           // east
-          if (['Camden', 'Durham', 'Albany', 'Stockton'].includes(city.name)) {
+          if (['Charleston', 'Camden', 'Durham', 'Albany', 'Stockton'].includes(city.name)) {
             radians = Math.PI * 2;
             direction = 'right';
           }
@@ -172,8 +172,14 @@ const mapStateToProps = (state) => {
             direction = 'left';
           }
 
+          // north-northwest
+          if (['Philadelphia'].includes(city.name)) {
+            radians = Math.PI * 1.55;
+            direction = 'left';
+          }
+
           // northwest
-          if (['Manchester', 'Hartford', 'Winston Salem', 'Topeka'].includes(city.name)) {
+          if (['Essex County', 'Manchester', 'Hartford', 'Winston Salem', 'Topeka'].includes(city.name)) {
             radians = Math.PI * 1.75;
             direction = 'left';
           }
@@ -223,13 +229,13 @@ const mapStateToProps = (state) => {
           }
 
           // west
-          if (['Chicago'].includes(city.name)) {
+          if (['Birmingham', 'Chicago'].includes(city.name)) {
             radians = 0;
             direction = 'left';
           }
 
           // northwest
-          if (['Oakland', 'Nashville'].includes(city.name)) {
+          if (['Oakland', 'Nashville', 'Fort Worth'].includes(city.name)) {
             radians = Math.PI * 1.75;
             direction = 'left';
           }
@@ -261,13 +267,13 @@ const mapStateToProps = (state) => {
           }
 
           // southwest
-          if (['Birmingham'].includes(city.name)) {
+          if (['Waco'].includes(city.name)) {
             radians = Math.PI * 0.25;
             direction = 'left';
           }
 
 
-          if (['Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex County', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton/Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
+          if (['Harrisburg', 'Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex County', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton/Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
             city.showLabel = false;
           }
           if ((city.name === 'Columbus' && city.state === 'GA') || (city.name === 'Rochester' && city.state === 'MN')) {
@@ -283,13 +289,13 @@ const mapStateToProps = (state) => {
           }
 
           // above
-          if (['Denver', 'Mobile', 'Duluth'].includes(city.name)) {
+          if (['Denver', 'Duluth'].includes(city.name)) {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
 
           // east
-          if (['Savannah', 'Jacksonville', 'Fresno', 'Norfolk', 'Tampa'].includes(city.name)) {
+          if (['Savannah', 'Jacksonville', 'Fresno', 'Norfolk', 'Tampa', 'Mobile'].includes(city.name)) {
             radians = Math.PI * 2;
             direction = 'right';
           }
@@ -345,7 +351,7 @@ const mapStateToProps = (state) => {
           }
 
 
-          if (['Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St.Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
+          if (['Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St.Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
             city.showLabel = false;
           }
           if (false) {
@@ -399,9 +405,9 @@ const mapStateToProps = (state) => {
   const bostonPos = {
     8: [42.3, -70.95],
     7: [42.2, -70.75],
-    6: [42.2, -70.75],
+    6: [42.2, -70],
     5: [41, -69],
-    4: [41, -70],
+    4: [41.6, -69],
     3: [41, -70],
   };
   const bostonLabel = {
@@ -414,9 +420,9 @@ const mapStateToProps = (state) => {
   const nyPos = {
     8: [40.4, -73.95],
     7: [40.2, -73.65],
-    6: [39.6, -73.55],
+    6: [40, -73],
     5: [38, -72.5],
-    4: [37.3, -72.7],
+    4: [39.2, -71.5],
     3: [37.3, -72.7],
   };
 
@@ -433,7 +439,7 @@ const mapStateToProps = (state) => {
   ] : [];
 
   return {
-    cities: cities2.filter(c => c.offsetPoint && c.ad_id),
+    cities: cities2.filter(c => c.offsetPoint && c.offsetPoint[0] && c.centerLat && c.ad_id),
     otherLabels,
   };
 };

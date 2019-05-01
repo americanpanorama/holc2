@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { windowResized, selectCity, selectArea, selectCategory, userLocated, geolocating } from './store/Actions';
+import { windowResized, selectCity, selectArea, selectCategory, userLocated, geolocating, geolocationFailed } from './store/Actions';
 
 // components (views)
 import Masthead from './components/containers/Masthead';
@@ -22,6 +22,7 @@ export default class App extends React.Component {
       const [key, value] = pair.split('=');
       hashValues[key] = value;
     });
+    let zoom;
     if (hashValues.city || (hashValues.city && hashValues.area)) {
       const { cities } = Store.getState();
       if (cities) {
@@ -34,6 +35,7 @@ export default class App extends React.Component {
             lat: coords[1],
             lng: coords[2],
           };
+          ({ zoom } = loc);
         }
         // load the area--it will also load the city
         if (hashValues.area) {
@@ -52,9 +54,11 @@ export default class App extends React.Component {
     if (!hashValues.nogeo && navigator.geolocation) {
       Store.dispatch(geolocating());
       navigator.geolocation.getCurrentPosition((position) => {
-        Store.dispatch(userLocated([position.coords.latitude, position.coords.longitude], !hashValues.city, !hashValues.loc));
+        // only select from position if a city isn't specified, a location isn't specified
+        const selectFromPosition = !hashValues.city && !hashValues.loc;
+        Store.dispatch(userLocated([position.coords.latitude, position.coords.longitude], selectFromPosition, !hashValues.loc));
       }, (error) => {
-        console.warn(`Geolocation error occurred. Error code: ${error.code}`);
+        Store.dispatch(geolocationFailed(error));
       });
     }
   }

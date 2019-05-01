@@ -8,7 +8,6 @@ const mapStateToProps = state => ({
   tileSize: 512,
   zoomOffset: -1,
   detectRetina: true,
-  continuousWorld: true,
 });
 
 export default connect(mapStateToProps)(TileLayer);

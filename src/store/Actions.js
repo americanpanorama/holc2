@@ -81,6 +81,7 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
 
   const path = getCityFilePath(id, cities);
   const { bounds } = cities.find(c => c.ad_id === id);
+  console.log(cities.find(c => c.ad_id === id));
   const { lat, lng, zoom } = coords || calculateCenterAndZoom(bounds, dimensions);
 
   dispatch(batchActions([
@@ -237,6 +238,10 @@ export const mapMoveEnd = () => ({
 
 export const geolocating = () => ({
   type: Actions.GEOLOCATING,
+});
+
+export const geolocationFailed = () => ({
+  type: Actions.GEOLOCATION_ERROR,
 });
 
 export const updateMap = mapState => (dispatch, getState) => {

@@ -114,7 +114,7 @@ export default {
   selectedGrade: null,
   selectedArea: null,
   inspectedArea: null,
-  selectedText: null,
+  selectedText: 'downloads',
   adScan,
   map: {
     movingTo: null,
@@ -142,5 +142,5 @@ export default {
   cities: Cities,
   formsMetadata: FormsMetadata,
   dimensions,
-  landingPage: dimensions.size !== 'mobile',
+  landingPage: false && dimensions.size !== 'mobile',
 };

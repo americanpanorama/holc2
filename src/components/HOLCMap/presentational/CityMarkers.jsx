@@ -12,8 +12,8 @@ const CityMarkers = ({ markers, icon }) => (
         key={`cityLabel${m.id}`}
       >
         <Tooltip
-          className="cityLabel class1"
-          direction="center"
+          className={`cityLabel ${m.className}`}
+          direction={m.direction}
           opacity={1}
           permanent
         >

@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { Map } from 'react-leaflet';
 
 import BaseMap from '../containers/BaseMap';
+import USMask from '../containers/USMask';
 import ClickableCities from '../containers/ClickableCities';
+import Legend from '../containers/Legend';
 import CityMarkers from '../containers/CityMarkers';
 import HOLCRasters from '../containers/HOLCRasters';
 import AreaPolygons from '../containers/AreaPolygons';
@@ -67,9 +69,11 @@ export default class HOLCMap extends React.Component {
           zoomControl={false}
           onMoveEnd={this.onMapMoved}
           className={className}
-          padding={0.3}
+          padding={0.5}
+          maxBounds={[[15, -170], [60, -41]]}
         >
           <BaseMap />
+          <USMask />
           <ClickableCities />
           <CityMarkers />
           <HOLCRasters />
@@ -77,6 +81,8 @@ export default class HOLCMap extends React.Component {
           <AreaMarkers />
           <UserLocation />
         </Map>
+
+        <Legend />
 
         <div id="mapControls">
           <MapToggleControl />

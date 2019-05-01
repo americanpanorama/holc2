@@ -20,10 +20,11 @@ export default class Masthead extends React.Component {
   }
 
   render() {
-    const { media, selectText } = this.props;
+    const { media, landingPage, selectText } = this.props;
 
     return (
       <header id="masthead">
+        <div id="headerBackground" />
         <h1>
           <span className="header-main">
             Mapping Inequality
@@ -32,44 +33,46 @@ export default class Masthead extends React.Component {
             Redlining in New Deal America
           </span>
         </h1>
-        <nav>
-          {(media === 'phone') && (
-            <div
-              className="menuToggle"
-              onClick={this.onMenuToggle}
-            >
-              <Hamburger />
-            </div>
-          )}
-          {(this.state.menuOpen) && (
-            <ul>
-              <li
-                onClick={selectText}
-                id="intro"
+        {(!landingPage) && (
+          <nav>
+            {(media === 'phone') && (
+              <div
+                className="menuToggle"
+                onClick={this.onMenuToggle}
               >
-                Introduction
-              </li>
-              <li
-                onClick={selectText}
-                id="downloads"
-              >
-                Downloads & Data
-              </li>
-              <li
-                onClick={selectText}
-                id="about"
-              >
-                About
-              </li>
-              <li
-                onClick={selectText}
-                id="contactUs"
-              >
-              Contact Us
-              </li>
-            </ul>
-          )}
-        </nav>
+                <Hamburger />
+              </div>
+            )}
+            {(this.state.menuOpen) && (
+              <ul>
+                <li
+                  onClick={selectText}
+                  id="intro"
+                >
+                  Introduction
+                </li>
+                <li
+                  onClick={selectText}
+                  id="downloads"
+                >
+                  Downloads & Data
+                </li>
+                <li
+                  onClick={selectText}
+                  id="about"
+                >
+                  About
+                </li>
+                <li
+                  onClick={selectText}
+                  id="contactUs"
+                >
+                Contact Us
+                </li>
+              </ul>
+            )}
+          </nav>
+        )}
       </header>
     );
   }
@@ -77,6 +80,7 @@ export default class Masthead extends React.Component {
 
 Masthead.propTypes = {
   media: PropTypes.string.isRequired,
+  landingPage: PropTypes.bool.isRequired,
   selectText: PropTypes.func,
 };
 

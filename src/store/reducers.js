@@ -153,6 +153,13 @@ const map = (state = initialState.map, action) => {
     };
   }
 
+  if (action.type === A.GEOLOCATION_ERROR) {
+    return {
+      ...state,
+      geolocating: false,
+    };
+  }
+
   if (action.type === A.LOCATED_USER) {
     return {
       ...state,
