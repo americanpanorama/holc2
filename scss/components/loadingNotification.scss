@@ -6,8 +6,10 @@
   right: 0;
   left: 0;
   text-align: center;
-  animation: colorchange 1s infinite;
-  -webkit-animation: colorchange 1s infinite;
+  background-color: rgba($headerRed, 0.9);
+  color: white;
+  /* animation: colorchange 1s infinite;
+  -webkit-animation: colorchange 1s infinite; */
   z-index: 1100;
 }
 

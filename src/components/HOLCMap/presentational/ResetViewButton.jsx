@@ -6,6 +6,7 @@ const TranscriptionButton = ({ action }) => (
     onClick={action}
     className="resetView"
     type="button"
+    title="set to national view"
   >
     <img
       src="static/us-outline.svg"

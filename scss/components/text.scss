@@ -44,6 +44,12 @@
       font-size: 1.5em;
     }
 
+    #about {
+      strong {
+        color: $headerRed;
+      }
+    }
+
     .contactUs {
       input,
       textarea,

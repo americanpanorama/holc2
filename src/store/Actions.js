@@ -1,5 +1,6 @@
 import { batchActions } from 'redux-batched-actions';
 import * as L from 'leaflet';
+import leafletPip from '@mapbox/leaflet-pip';
 import { geoContains } from 'd3';
 import TheStore from '.';
 import Actions from './ActionTypes';
@@ -81,7 +82,6 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
 
   const path = getCityFilePath(id, cities);
   const { bounds } = cities.find(c => c.ad_id === id);
-  console.log(cities.find(c => c.ad_id === id));
   const { lat, lng, zoom } = coords || calculateCenterAndZoom(bounds, dimensions);
 
   dispatch(batchActions([
@@ -262,12 +262,24 @@ export const updateMap = mapState => (dispatch, getState) => {
     return null;
   }
 
-  const { cities } = getState();
+  const { cities, map } = getState();
   const latLngBounds = L.latLngBounds([...mapState.bounds]);
 
-  const visibleRasters = Rasters.filter(raster => (
-    raster.bounds && raster.bounds[0][0] && latLngBounds.intersects(raster.bounds)
-  ));
+  // see if there's an existing sort order for the rasters
+  const sortOrder = map.visibleRasters
+    .filter(m => m.overlaps)
+    .map(m => m.id);
+
+  const visibleRasters = Rasters
+    .filter(raster => (
+      raster.bounds && raster.bounds[0][0] && latLngBounds.intersects(raster.bounds)
+    ))
+    .sort((a, b) => {
+      if (sortOrder.includes(a.id) && sortOrder.includes(b.id)) {
+        return sortOrder.findIndex(id => id === a.id) - sortOrder.findIndex(id => id === b.id);
+      }
+      return 0;
+    });
 
   const visibleCityIds = cities
     .filter(c => c.bounds && latLngBounds.intersects(c.bounds))
@@ -282,7 +294,7 @@ export const updateMap = mapState => (dispatch, getState) => {
     return null;
   }
 
-  const { map, selectedCity, loadingCity } = getState();
+  const { selectedCity, loadingCity } = getState();
   const { visiblePolygons } = map;
 
   // execute to load rasters before the async task of loading new polygons or city
@@ -454,6 +466,10 @@ export const toggleMapsOnOff = () => ({
   type: Actions.TOGGLE_HOLC_MAPS,
 });
 
+export const toggleSortingMaps = () => ({
+  type: Actions.TOGGLE_SORTING_MAPS,
+});
+
 export const toggleCityStatsOnOff = () => ({
   type: Actions.TOGGLE_CITY_STATS,
 });
@@ -544,6 +560,38 @@ export const searchingADsFor = str => ({
   type: Actions.SEARCHING_ADS,
   payload: str,
 });
+
+export const bringMapToFront = eOrId => {
+  console.log(eOrId);
+  return {
+    type: Actions.BRING_MAP_TO_FRONT,
+    payload: getEventId(eOrId),
+  };
+};
+
+export const clickOnMap = e => (dispatch, getState) => {
+  //if sorting, find the lowest map that's being clicked on
+  const { sorting, visibleRasters } = getState().map;
+  if (sorting) {
+    const { lat, lng } = e.latlng;
+    visibleRasters
+      .filter(m => m.overlaps)
+      .every((m) => {
+        const gjLayer = L.geoJson(m.the_geojson);
+        const results = leafletPip.pointInLayer([lng, lat], gjLayer);
+        if (results.length > 0) {
+          dispatch({
+            type: Actions.BRING_MAP_TO_FRONT,
+            payload: m.id,
+          });
+          return false;
+        }
+        return true;
+      });
+  }
+
+  return null;
+};
 
 export const userLocated = (position, selectFromPosition, moveMap) => (dispatch, getState) => {
   dispatch({

@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 import FormsMetadata from '../../data/formsMetadata.json';
 import Rasters from '../../data/Rasters.json';
 import stateAbbrs from '../../data/state_abbr.json';
-import { constantsColors, constantsColorsVibrant, constantsPopLabels } from '../../data/constants';
+import { constantsColors, constantsColorsVibrant, constantsPopLabels, HEADER_RED_COLOR } from '../../data/constants';
 
 const getAdScan = state => state.adScan;
 const getAdSearchHOLCIds = state => state.adSearchHOLCIds;
@@ -10,6 +10,7 @@ const getAreaDescriptions = state => state.areaDescriptions;
 const getCities = state => state.cities;
 const getFormMetadata = state => state.formsMetadata;
 const getMapZoom = state => state.map.zoom;
+const isSortingMaps = state => state.map.sorting;
 const getSelectedArea = state => state.selectedArea;
 const getSelectedCategory = state => state.selectedCategory;
 const getSelectedCity = state => state.selectedCity;
@@ -34,7 +35,7 @@ export const getAreaMarkers = createSelector(
       .map((l) => {
         const color = (highlightedPolygons.length === 0 ||
           highlightedPolygons.some(hp => hp.adId === l.ad_id && hp.holcId === l.id))
-          ? 'black' : 'silver';
+          ? '#333' : 'silver';
         const key = (l.arbId) ? `areaPolygon-${l.ad_id}-${l.arbId}` :
           `areaPolygon-${l.ad_id}-${l.id}`;
         return {
@@ -59,7 +60,7 @@ export const getPolygons = createSelector(
       let fillOpacity = (showHOLCMaps) ? 0 : zFillOpacity;
       let strokeColor = '#888'; //constantsColors[`grade${p.grade}`];
       let strokeOpacity = (showHOLCMaps) ? 0 : 0.95;
-      let weight = (showHOLCMaps) ? 0 : 1.5;
+      let weight = (showHOLCMaps) ? 0 : 1;
       const idObj = {
         adId: p.ad_id,
         holcId: p.id,
@@ -71,7 +72,7 @@ export const getPolygons = createSelector(
         if (highlightedPolygons.some(hp => hp.adId === p.ad_id && hp.holcId === p.id)) {
           if (!showHOLCMaps) {
             weight = 3;
-            fillOpacity = Math.min(0.9, zFillOpacity * 1.5);
+            fillOpacity = Math.min(0.9, zFillOpacity * 2);
             strokeColor = 'black';
           } else {
             strokeColor = 'black';
@@ -82,8 +83,8 @@ export const getPolygons = createSelector(
           }
         } else if (!showHOLCMaps) {
           strokeColor = 'black';
-          fillOpacity = 0.04;
-          strokeOpacity = 0.5;
+          fillOpacity = Math.max(0.2, zFillOpacity * 0.5);
+          strokeOpacity = 0.33;
         }
       }
 
@@ -101,24 +102,22 @@ export const getPolygons = createSelector(
 );
 
 export const getRasters = createSelector(
-  [getShowHOLCMaps, getVisibleRasters, getHighlightedPolygons, getSelectedCity],
-  (showHOLCMaps, rasters, highlightedPolygons, selectedCity) => {
+  [getShowHOLCMaps, getVisibleRasters],
+  (showHOLCMaps, rasters) => {
     if (!showHOLCMaps) {
       return [];
     }
 
-    if (highlightedPolygons.length > 0) {
-      console.log(rasters.map(raster => ({
-        ...raster,
-        className: 'greyscale',
-      })));
-      return rasters.map(raster => ({
-        ...raster,
-        className: 'greyscale',
-      }));
-    }
+    const overlappingIds = rasters
+      .filter(raster => raster.overlaps)
+      .map(raster => raster.id);
 
-    return rasters;
+    return rasters.map(raster => ({
+      ...raster,
+      sortOrder: (overlappingIds.includes(raster.id))
+        ? overlappingIds.length - overlappingIds.findIndex(id => id === raster.id)
+        : null,
+    }));
   },
 );
 
@@ -389,9 +388,12 @@ export const getCityMarkers = createSelector(
 );
 
 export const getLoadingNotification = createSelector(
-  [getLoadingCityData, getLoadingPolygonsCitiesData, isGeolocating],
-  (cityData, loadingPolygonsCitiesData, geolocating) => {
+  [getLoadingCityData, getLoadingPolygonsCitiesData, isGeolocating, isSortingMaps],
+  (cityData, loadingPolygonsCitiesData, geolocating, isSortingMaps) => {
     const notifications = [];
+    if (isSortingMaps) {
+      notifications.push('Clicking on a highlighted map will bring it to the front. The click will effect the bottommost map. Repeat if necessary.');
+    }
     if (geolocating) {
       notifications.push('determining your location');
     }
@@ -416,6 +418,29 @@ export const getLoadingNotification = createSelector(
   },
 );
 
+export const getOverlappingMaps = createSelector(
+  [getVisibleRasters, getShowHOLCMaps, isSortingMaps],
+  (rasters, showHOLCMaps, isSortingMaps) => {
+    if (!showHOLCMaps || !isSortingMaps) {
+      return [];
+    }
+
+    const allOverlappingRasters = rasters.filter(m => m.overlaps);
+    const overlappingRasters = allOverlappingRasters.map((m, i) => {
+      const shade = 200 - 200 * i / allOverlappingRasters.length;
+      const weight = 1 + 4 * i / allOverlappingRasters.length;
+      const sortOrder = allOverlappingRasters.length - i;
+      return {
+        ...m,
+        fillColor: `rgb(${shade}, ${shade}, ${shade})`,
+        weight,
+        sortOrder,
+      };
+    });
+    return overlappingRasters;
+  },
+);
+
 export const getDownloadData = createSelector(
   [getCities],
   (cities) => {
@@ -424,59 +449,63 @@ export const getDownloadData = createSelector(
       const { ad_id: adId, name, year, state, mapIds, hasPolygons } = city;
       const fileName = `${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '');
       // get the rasters
-      const cityDownloadData = {
-        adId,
-        city: name,
-        rasters: [],
-        geospatial: [],
-        polygons: (hasPolygons)
-          ? {
-            imgUrl: `static/citysvgs/${fileName}.svg`,
-            geojson: `static/downloads/geojson/${fileName}.geojson`,
-            shapefile: `static/downloads/shapefiles/${fileName}.zip`,
-          } : null,
-      };
+      if (mapIds.length > 0) {
+        const cityDownloadData = {
+          adId,
+          city: name,
+          rasters: [],
+          geospatial: [],
+          polygons: (hasPolygons)
+            ? {
+              imgUrl: `static/citysvgs/${fileName}.svg`,
+              geojson: `static/downloads/geojson/${fileName}.geojson`,
+              shapefile: `static/downloads/shapefiles/${fileName}.zip`,
+            } : null,
+        };
 
-      mapIds.forEach((mId) => {
-        const raster = Rasters.find(r => r.id === mId);
-        if (raster) {
-          const {
-            file_name: fileName,
-            name: rasterName,
-            inset, mapUrl,
-            rectifiedUrl,
-          } = Rasters.find(r => r.id === mId);
-          if (mapUrl) {
-            cityDownloadData.rasters.push({
+        mapIds.forEach((mId) => {
+          const raster = Rasters.find(r => r.id === mId);
+          if (raster) {
+            const {
+              file_name: fileName,
+              name: rasterName,
+              inset, mapUrl,
+              rectifiedUrl,
+            } = Rasters.find(r => r.id === mId);
+            if (mapUrl) {
+              cityDownloadData.rasters.push({
+                fileName,
+                name: rasterName,
+                mapUrl,
+                id: mId,
+              });
+            }
+            cityDownloadData.geospatial.push({
+              id: mId,
               fileName,
               name: rasterName,
-              mapUrl,
+              rectifiedUrl,
+              inset,
             });
+          } else {
+            console.warn(`no raster for ${mId}`);
+            return false;
           }
-          cityDownloadData.geospatial.push({
-            id: mId,
-            fileName,
-            name: rasterName,
-            rectifiedUrl,
-            inset,
-          });
-        } else {
-          console.warn(`no raster for ${mId}`);
-          return false;
-        }
-      });
-
-      const i = citiesByState.findIndex(cbs => cbs.state === stateAbbrs[state]);
-      if (i !== -1) {
-        citiesByState[i].cities.push(cityDownloadData);
-      } else {
-        citiesByState.push({
-          state: stateAbbrs[city.state],
-          cities: [cityDownloadData],
         });
+
+        const i = citiesByState.findIndex(cbs => cbs.state === stateAbbrs[state]);
+        if (i !== -1) {
+          citiesByState[i].cities.push(cityDownloadData);
+        } else {
+          citiesByState.push({
+            state: stateAbbrs[city.state],
+            cities: [cityDownloadData],
+          });
+        }
       }
     });
 
+    // sort the cities in each state
     citiesByState.forEach((stateData, i3) => {
       citiesByState[i3].cities = citiesByState[i3].cities.sort((a, b) => {
         if (a.city < b.city) {

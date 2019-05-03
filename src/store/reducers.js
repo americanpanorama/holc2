@@ -70,8 +70,10 @@ const selectedArea = (state = null, action) => {
   if (action.type === A.SELECT_AREA) {
     return action.payload;
   }
+  console.log(action.type, action.type === A.SELECT_CITY_REQUEST);
   if (action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
     || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY) {
+    console.log(action.type);
     return null;
   }
 
@@ -238,6 +240,25 @@ const map = (state = initialState.map, action) => {
       loadingPolygonsFor,
     };
   }
+
+  if (action.type === A.BRING_MAP_TO_FRONT) {
+    return {
+      ...state,
+      sorting: false,
+      visibleRasters: [
+        ...state.visibleRasters.filter(m => m.id !== action.payload),
+        ...state.visibleRasters.filter(m => m.id === action.payload),
+      ],
+    };
+  }
+
+  if (action.type === A.TOGGLE_SORTING_MAPS) {
+    return {
+      ...state,
+      sorting: !state.sorting,
+    };
+  }
+
   return state;
 };
 

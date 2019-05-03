@@ -8,6 +8,15 @@
     margin: 40px 0 0 0;
     border-bottom: 1px solid $headerRed;
   }
+  h5.citation {
+    font-size: 1em;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+
+    a {
+      text-decoration: underline dotted;
+    }
+  }
   ul, li {
     list-style: none;
     margin: 0;
@@ -21,12 +30,26 @@
   .fullDownloads {
     text-align: center;
     font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    font-size: 1.5em;
     
 
     a {
       margin: 20px;
+      background-color: #ddd;
+      color: #4B4E6D;
+      border-color: #4B4E6D;
+      font-weight: bold;
+      width: 200px;
+      text-align: center;
+      padding: 5px 20px;
+      margin: 10px;
+      border: 1px solid #4B4E6D;
+      border-radius: 4px;
+
+      &:hover {
+        background-color: white;
+      }
+
+
     }
   }
   .cityDownloads {
@@ -34,6 +57,11 @@
   }
   .stateDownloads {
     margin-top: 20px;
+  }
+  .citation {
+    padding-left: 40px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
   }
   .license, .filter {
     text-align: center;

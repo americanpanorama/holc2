@@ -19,12 +19,13 @@ Button.propTypes = {
   className: PropTypes.string,
   disabled: PropTypes.bool,
   label: PropTypes.string.isRequired,
-  action: PropTypes.func.isRequired,
+  action: PropTypes.func,
   style: PropTypes.object,
 };
 
 Button.defaultProps = {
   className: '',
   disabled: false,
+  action: () => false,
   style: {},
 };

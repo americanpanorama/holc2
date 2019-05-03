@@ -13,7 +13,17 @@ const logger = createLogger({
 const hashManager = store => next => (action) => {
   const theNext = next(action);
   const nextState = store.getState();
-  const { map, selectedCity, showHOLCMaps, showADSelections, showADScan, adScan, selectedCategory, cities } = store.getState();
+  const {
+    map,
+    selectedCity,
+    showHOLCMaps,
+    showADSelections,
+    showADScan,
+    adScan,
+    selectedCategory,
+    selectedText,
+    cities,
+  } = store.getState();
   const { zoom, center } = map;
   const selectedCityData = (selectedCity) ? cities.find(c => c.ad_id === selectedCity) : null;
   const lat = Math.round(center[0] * 1000) / 1000;
@@ -25,6 +35,7 @@ const hashManager = store => next => (action) => {
     area: (!selectedCategory) ? nextState.selectedArea : null,
     category: selectedCategory,
     adview: (!showADSelections) ? 'full' : null,
+    text: selectedText || null,
   };
   if (showADScan) {
     const { zoom: adZoom, center: adCenter } = adScan;

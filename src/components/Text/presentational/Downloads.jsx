@@ -39,15 +39,20 @@ class Downloads extends React.Component {
 
   render() {
     const { cityDownloads } = this.state;
+    const objToday = new Date();
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const todayString = `${months[objToday.getMonth()]} ${objToday.getDate()}, ${objToday.getFullYear()}`;
     return (
       <div id="downloads">
         <h2>
-          Downloads
+          Downloads &amp; Data
         </h2>
+        <p>If you are citing <cite>Mapping Inequality</cite> or acknowledge the source of any of the following data, we recommend the following format using the <cite>Chicago Manual of Style</cite>.</p>
+        <div className='citation'>Robert K. Nelson, LaDale Winling, Richard Marciano, Nathan Connolly, et al., &ldquo;Mapping Inequality,&rdquo; <cite>American Panorama</cite>, ed. Robert K. Nelson and Edward L. Ayers, accessed {todayString}, https://dsl.richmond.edu/panorama/redlining/[YOUR VIEW].</div>
+        <p>The URL for <cite>Mapping Inequality</cite> updates to reflect the current map view, which city or neighborhood or area description is selected, any text that is open, etc. You can use those URLs to link to or cite a particular state of the map.</p>
         <p>
           All of the scans of the HOLC maps are in public domain, with the vast majority coming from the National Archives. All of <cite>Mapping Inequality's</cite> spatial, textual, and other data are licensed under a
         </p>
-
         <div className='license'>
           <a
             rel='license'
@@ -80,13 +85,13 @@ class Downloads extends React.Component {
 
 
         <p>
-          Data for individual cities is available below.
+          Data for individual cities is available below. The shapefile and GeoJSON spatial data includes transcriptions of the area descriptions of the city if they are available.
         </p>
 
         <div className="filter">
           <input
             type="text"
-            placeholder="filter by state or city name"
+            placeholder="filter by city or state name"
             onChange={this.handleChange}
           />
         </div>
@@ -107,16 +112,55 @@ class Downloads extends React.Component {
                   <h3>
                     {c.city}
                   </h3>
+                  {(c.city.includes('Antonio')) && (
+                    <h5 className="citation">
+                      <a
+                        href="http://digital.utsa.edu/cdm/singleitem/collection/p16018coll12/id/79"
+                        target="_blank"
+                      >
+                        Scan from HOLC San Antonio City Survey Report 2 Exhibit A: Grades of Security, HOLC Redlining Maps of San Antonio, UTSA Special Collections.
+                      </a>
+                    </h5>
+                  )}
+                  {(c.city === 'Harrisburg') && (
+                    <h5 className="citation">
+                      The data for Harrisburg, Pennsylvania, is based on HOLC records transcribed and digitized in March 2018 by Rachel Williams and Sarah Wilson as part of the 
+                      <a 
+                        href="https://digitalharrisburg.com/2018/05/14/harrisburg-and-redlining/"
+                        target="_blank"
+                      >
+                        {' Digital Harrisburg Inititiative '}
+                      </a>
+                      of Messiah College and Harrisburg University of Science and Technology. 
+                    </h5>
+                  )}
                   <div className='cityDownloads'>
                     <section>
                       <h4>
-                        {(c.rasters.length > 1) ? 'Scans' : 'Scan'}
+                        {(c.rasters.length === 1)
+                          ? (
+                            <a
+                              href={c.rasters[0].mapUrl}
+                              download
+                            >
+                              Scan
+                            </a>
+                          )
+                          : 'Scans'
+                        }
                       </h4>
                       <ul>
                         {c.rasters.map(r => (
-                          <LazyLoad height={276} offsetVertical={300}>
-                            <li key={`scanFor${r.id}`}>
-                              <a href={r.mapUrl}>
+                          <LazyLoad
+                            height={276}
+                            offsetVertical={300}
+                            key={`scanFor${r.id}`}
+                          >
+                            <li>
+                              <a
+                                href={r.mapUrl}
+                                download
+                              >
                                 <img src={r.mapUrl.replace('holc-scan', 'holc-scan-thumbnail')} />
                               </a>
                             </li>
@@ -126,13 +170,30 @@ class Downloads extends React.Component {
                     </section>
                     <section>
                       <h4>
-                        {(c.geospatial.length > 1) ? 'Georectified Images' : 'Georectified Image'}
+                        {(c.geospatial.length === 1)
+                          ? (
+                            <a
+                              href={c.geospatial[0].rectifiedUrl}
+                              download
+                            >
+                              Georectified Image
+                            </a>
+                          )
+                          : 'Georectified Images'
+                        }
                       </h4>
                       <ul>
                         {c.geospatial.map(r => (
-                          <LazyLoad height={276} offsetVertical={300}>
-                            <li key={`georectifiedFor${r.id}`}>
-                              <a href={r.rectifiedUrl}>
+                          <LazyLoad
+                            height={276}
+                            offsetVertical={300}
+                            key={`georectifiedFor${r.id}`}
+                          >
+                            <li>
+                              <a
+                                href={r.rectifiedUrl}
+                                download
+                              >
                                 <img src={r.rectifiedUrl.replace('rectified.zip', 'georectified-thumbnail.png')} />
                               </a>
                             </li>

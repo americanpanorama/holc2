@@ -121,7 +121,7 @@
     
     &.mapToggle {
       width: 200px;
-      right: 148px;
+      right: 184px;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
 
@@ -137,7 +137,7 @@
       }
     }
 
-    &.zoomIn, &.zoomOut, &.resetView {
+    &.zoomIn, &.zoomOut, &.bringMapToFront, &.resetView {
       padding: 0;
       width: 36px;
       font-weight: bold;
@@ -148,10 +148,16 @@
     &.zoomIn {
       border-bottom-left-radius: 10px;
       top: 0;
-      right: 72px;
+      right: 108px;
     }
 
     &.zoomOut {
+      border-left: 1px solid white;
+      top: 0;
+      right: 72px;
+    }
+
+    &.bringMapToFront {
       border-right: 1px solid white;
       border-left: 1px solid white;
       top: 0;

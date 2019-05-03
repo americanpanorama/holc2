@@ -8,12 +8,14 @@ import ClickableCities from '../containers/ClickableCities';
 import Legend from '../containers/Legend';
 import CityMarkers from '../containers/CityMarkers';
 import HOLCRasters from '../containers/HOLCRasters';
+import MapSortPolygons from '../containers/MapSortPolygons';
 import AreaPolygons from '../containers/AreaPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
 import UserLocation from '../containers/UserLocation';
 import MapToggleControl from '../containers/MapToggleControl';
 import ZoomInButton from '../containers/ZoomInButton';
 import ZoomOutButton from '../containers/ZoomOutButton';
+import BringMapToFrontButton from '../containers/BringMapToFrontButton';
 import ResetViewButton from '../containers/ResetViewButton';
 
 import TheStore from '../../../store';
@@ -58,7 +60,7 @@ export default class HOLCMap extends React.Component {
   render() {
     // const VectorGrid = withLeaflet(VectorGridDefault);
     // // console.log(VectorGrid);
-    const { zoom, center, className } = this.props;
+    const { zoom, center, className, clickOnMap } = this.props;
     return (
       <React.Fragment>
         <Map
@@ -71,6 +73,7 @@ export default class HOLCMap extends React.Component {
           className={className}
           padding={0.5}
           maxBounds={[[15, -170], [60, -41]]}
+          onClick={clickOnMap}
         >
           <BaseMap />
           <USMask />
@@ -79,6 +82,7 @@ export default class HOLCMap extends React.Component {
           <HOLCRasters />
           <AreaPolygons />
           <AreaMarkers />
+          <MapSortPolygons />
           <UserLocation />
         </Map>
 
@@ -89,6 +93,7 @@ export default class HOLCMap extends React.Component {
           <div id="zoomControls">
             <ZoomInButton />
             <ZoomOutButton />
+            <BringMapToFrontButton />
             <ResetViewButton />
           </div>
         </div>
@@ -102,6 +107,7 @@ HOLCMap.propTypes = {
   center: PropTypes.arrayOf(PropTypes.number).isRequired,
   bounds: PropTypes.arrayOf(PropTypes.array),
   className: PropTypes.string.isRequired,
+  clickOnMap: PropTypes.func.isRequired,
   style: PropTypes.shape({
     height: PropTypes.number,
   }).isRequired,

@@ -29,6 +29,7 @@ let selectedCategory = null;
 let showHOLCMaps = true;
 let showADSelections = true;
 let showADScan = false;
+let selectedText = null;
 let adScan;
 
 const { hash } = window.location;
@@ -53,6 +54,9 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
   }
   if (key === 'category') {
     selectedCategory = value;
+  }
+  if (key === 'text') {
+    selectedText = value;
   }
 });
 
@@ -114,7 +118,7 @@ export default {
   selectedGrade: null,
   selectedArea: null,
   inspectedArea: null,
-  selectedText: 'downloads',
+  selectedText,
   adScan,
   map: {
     movingTo: null,
@@ -128,6 +132,7 @@ export default {
     loadingPolygonsFor: [],
     userPosition: null,
     geolocating: false,
+    sorting: false,
   },
   showADScan,
   showADSelections,
