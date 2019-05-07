@@ -245,6 +245,8 @@ const map = (state = initialState.map, action) => {
     return {
       ...state,
       sorting: false,
+      sortingPossibilities: [],
+      sortingLatLng: [],
       visibleRasters: [
         ...state.visibleRasters.filter(m => m.id !== action.payload),
         ...state.visibleRasters.filter(m => m.id === action.payload),
@@ -256,6 +258,16 @@ const map = (state = initialState.map, action) => {
     return {
       ...state,
       sorting: !state.sorting,
+      sortingPossibilities: [],
+      sortingLatLng: [],
+    };
+  }
+
+  if (action.type === A.SORT_MAP_POSSIBILITIES) {
+    return {
+      ...state,
+      sortingPossibilities: action.payload.ids,
+      sortingLatLng: action.payload.latLng,
     };
   }
 

@@ -11,6 +11,7 @@ const getCities = state => state.cities;
 const getFormMetadata = state => state.formsMetadata;
 const getMapZoom = state => state.map.zoom;
 const isSortingMaps = state => state.map.sorting;
+const getSortingPossibilities = state => state.map.sortingPossibilities;
 const getSelectedArea = state => state.selectedArea;
 const getSelectedCategory = state => state.selectedCategory;
 const getSelectedCity = state => state.selectedCity;
@@ -101,14 +102,28 @@ export const getPolygons = createSelector(
   },
 );
 
+export const getSelectedCityData = createSelector(
+  [getSelectedCity, getCities],
+  (selectedCity, cities) => cities.find(c => c.ad_id === selectedCity),
+);
+
 export const getRasters = createSelector(
-  [getShowHOLCMaps, getVisibleRasters],
-  (showHOLCMaps, rasters) => {
+  [getShowHOLCMaps, getVisibleRasters, getSelectedCityData],
+  (showHOLCMaps, rasters, cityData) => {
     if (!showHOLCMaps) {
       return [];
     }
 
     const overlappingIds = rasters
+      .sort((a, b) => {
+        if (cityData && cityData.mapIds.includes(a.id)) {
+          return 1;
+        }
+        if (cityData && cityData.mapIds.includes(b.id)) {
+          return -1;
+        }
+        return 0;
+      })
       .filter(raster => raster.overlaps)
       .map(raster => raster.id);
 
@@ -117,13 +132,9 @@ export const getRasters = createSelector(
       sortOrder: (overlappingIds.includes(raster.id))
         ? overlappingIds.length - overlappingIds.findIndex(id => id === raster.id)
         : null,
+      overlappingIds,
     }));
   },
-);
-
-export const getSelectedCityData = createSelector(
-  [getSelectedCity, getCities],
-  (selectedCity, cities) => cities.find(c => c.ad_id === selectedCity),
 );
 
 export const getSelectedCityADSelections = createSelector(
@@ -424,7 +435,7 @@ export const getOverlappingMaps = createSelector(
     if (!showHOLCMaps || !isSortingMaps) {
       return [];
     }
-
+    const categoricalColors = ['rgb(158, 218, 229)', 'rgb(174, 199, 232)', 'rgb(255, 127, 14)', 'rgb(255, 187, 120)', 'rgb(44, 160, 44)', 'rgb(152, 223, 138)', 'rgb(31, 119, 180)', 'rgb(214, 39, 40)', 'rgb(255, 152, 150)', 'rgb(148, 103, 189)', 'rgb(197, 176, 213)', 'rgb(140, 86, 75)', 'rgb(196, 156, 148)', 'rgb(227, 119, 194)', 'rgb(247, 182, 210)', 'rgb(127, 127, 127)', 'rgb(199, 199, 199)', 'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)'];
     const allOverlappingRasters = rasters.filter(m => m.overlaps);
     const overlappingRasters = allOverlappingRasters.map((m, i) => {
       const shade = 200 - 200 * i / allOverlappingRasters.length;
@@ -432,11 +443,12 @@ export const getOverlappingMaps = createSelector(
       const sortOrder = allOverlappingRasters.length - i;
       return {
         ...m,
-        fillColor: `rgb(${shade}, ${shade}, ${shade})`,
+        fillColor: categoricalColors[i % 20],
         weight,
         sortOrder,
       };
     });
+    console.log(overlappingRasters);
     return overlappingRasters;
   },
 );

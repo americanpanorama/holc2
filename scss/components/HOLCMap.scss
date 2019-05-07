@@ -171,3 +171,31 @@
     }
   }
 }
+
+.sortingList {
+  pointer-events: auto;
+  font-size: 16px;
+  border-radius: 10px;
+  text-align: center;
+
+  h4 {
+    font-size: 20px;
+  }
+
+
+  .selectRaster {
+    list-style: none;
+    border-radius: 10px;
+    font-size: 16px;
+    pointer-events: auto;
+    cursor: pointer;
+    width: 192px;
+
+    img {
+      max-width: 192px;
+      max-height: 192px;
+
+    }
+  }
+}
+

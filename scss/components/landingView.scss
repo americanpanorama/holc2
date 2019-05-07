@@ -19,6 +19,20 @@
     color: white;
     position: relative;
 
+    @include for-phone-only {
+      background-image: url(./static/imageBG750x422.png);
+    }
+    @include for-tablet-portrait-up {
+      background-image: url(./static/imageBG1000x563.png);
+    }
+    @include for-tablet-landscape-up {
+      background-image: url(./static/imageBG1200x675.png);
+    }
+    @include for-desktop-up {
+      background-image: url(./static/imageBG1920x1080.png);
+    }
+
+
     .container {
       position: absolute;
       top: 33%;

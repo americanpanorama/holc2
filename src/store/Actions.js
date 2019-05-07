@@ -123,7 +123,28 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
     });
 };
 
+export const inspectArea = (eOrId) => {
+  const ids = getEventId(eOrId);
+  console.log(ids);
+  const [adId, holcId] = ids.split('-').map((v, i) => (
+    (i === 0) ? parseInt(v, 10) : v
+  ));
+  return {
+    type: Actions.HIGHLIGHT_AREAS,
+    payload: [{
+      adId,
+      holcId,
+    }],
+  };
+};
+
 export const selectArea = eOrId => (dispatch, getState) => {
+  // don't do anything if sorting maps
+  console.log(getState().map.sorting);
+  if (getState().map.sorting) {
+    return null;
+  }
+
   const ids = getEventId(eOrId);
   const [adId, holcId] = ids.split('-').map((v, i) => (
     (i === 0) ? parseInt(v, 10) : v
@@ -214,14 +235,24 @@ export const highlightArea = (eOrId) => {
   };
 };
 
-export const unhighlightArea = () => (dispatch, getState) => {
-  const { adSearchHOLCIds } = getState();
+export const unhighlightArea = eOrId => (dispatch, getState) => {
+  const { adSearchHOLCIds, selectedArea, selectedCity } = getState();
+  // chec to see if it's selected--if it isn't don't unhighlight it
+  let adId;
+  let holcId;
+  if (eOrId) {
+    const ids = getEventId(eOrId);
+    [adId, holcId] = ids.split('-').map((v, i) => (
+      (i === 0) ? parseInt(v, 10) : v
+    ));
+  }
+  const isSelected = !eOrId || (adId === selectedCity && holcId === selectedArea);
   if (adSearchHOLCIds && adSearchHOLCIds.length > 0) {
     dispatch({
       type: Actions.SEARCHING_ADS_RESULTS,
       payload: adSearchHOLCIds,
     });
-  } else {
+  } else if (!isSelected) {
     dispatch({
       type: Actions.UNHIGHLIGHT_AREA,
     });
@@ -561,33 +592,65 @@ export const searchingADsFor = str => ({
   payload: str,
 });
 
-export const bringMapToFront = eOrId => {
-  console.log(eOrId);
-  return {
-    type: Actions.BRING_MAP_TO_FRONT,
-    payload: getEventId(eOrId),
-  };
-};
+export const bringMapToFront = eOrId => ({
+  type: Actions.BRING_MAP_TO_FRONT,
+  payload: getEventId(eOrId, 'number'),
+});
 
 export const clickOnMap = e => (dispatch, getState) => {
   //if sorting, find the lowest map that's being clicked on
-  const { sorting, visibleRasters } = getState().map;
-  if (sorting) {
+  const { map, selectedCity, cities } = getState();
+  const { sorting, visibleRasters, sortingPossibilities } = map;
+  if (sorting && sortingPossibilities.length === 0) {
     const { lat, lng } = e.latlng;
-    visibleRasters
-      .filter(m => m.overlaps)
-      .every((m) => {
-        const gjLayer = L.geoJson(m.the_geojson);
-        const results = leafletPip.pointInLayer([lng, lat], gjLayer);
-        if (results.length > 0) {
-          dispatch({
-            type: Actions.BRING_MAP_TO_FRONT,
-            payload: m.id,
-          });
-          return false;
-        }
-        return true;
+    const clickedRasters = visibleRasters.filter(m => m.overlaps
+      && leafletPip.pointInLayer([lng, lat], L.geoJson(m.the_geojson)).length > 0);
+    if (clickedRasters.length === 1 || clickedRasters.length === 2) {
+      const mapId = clickedRasters[0].id;
+      dispatch({
+        type: Actions.BRING_MAP_TO_FRONT,
+        payload: mapId,
       });
+      // select the new city if it isn't already
+      const cityData = (selectedCity) ? cities.find(c => c.ad_id === selectedCity) : null;
+      if (!cityData || !cityData.mapIds.includes(mapId)) {
+        const matchingCities = cities.filter(c => c.mapIds.includes(mapId));
+        if (matchingCities.length === 1) {
+          const selectedCityId = matchingCities[0].ad_id;
+          const path = getCityFilePath(selectedCityId, cities);
+          dispatch({
+            type: Actions.SELECT_CITY_REQUEST,
+            payload: selectedCityId,
+          });
+
+          return fetch(`./static/ADs/${path}`)
+            .then(response => response.json())
+            .then((ads) => {
+              dispatch(batchActions([
+                {
+                  type: Actions.SELECT_CITY_SUCCESS,
+                  payload: selectedCityId,
+                },
+                {
+                  type: Actions.LOAD_ADS,
+                  payload: ads,
+                },
+              ]));
+            })
+            .catch((err) => {
+              console.warn('Fetch Error :-S', err);
+            });
+        }
+      }
+    } else if (clickedRasters.length >= 3) {
+      dispatch({
+        type: Actions.SORT_MAP_POSSIBILITIES,
+        payload: {
+          ids: clickedRasters.map(r => r.id),
+          latLng: [lat, lng],
+        },
+      });
+    }
   }
 
   return null;

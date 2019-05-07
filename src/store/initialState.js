@@ -133,6 +133,8 @@ export default {
     userPosition: null,
     geolocating: false,
     sorting: false,
+    sortingPossibilities: [],
+    sortingLatLng: [],
   },
   showADScan,
   showADSelections,
