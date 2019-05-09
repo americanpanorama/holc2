@@ -2,15 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LayerGroup, GeoJSON } from 'react-leaflet';
 
-const AreaPolygons = ({ polygons, selectArea, highlightArea, unhighlightArea, mask }) => (
+const AreaPolygons = ({ polygons, selectArea, highlightArea, unhighlightArea }) => (
   <LayerGroup>
-    {(mask) && (
-      <GeoJSON
-        data={mask}
-        className="mask"
-        key={`mask-${mask.properties.holc_id}`}
-      />
-    )}
     { polygons.map(p => (
       <GeoJSON
         data={p.area_geojson}
@@ -38,10 +31,8 @@ AreaPolygons.propTypes = {
   selectArea: PropTypes.func.isRequired,
   highlightArea: PropTypes.func.isRequired,
   unhighlightArea: PropTypes.func.isRequired,
-  mask: PropTypes.object,
 };
 
 AreaPolygons.defaultProps = {
   polygons: [],
-  mask: undefined,
 };

@@ -7,10 +7,11 @@ export default class Masthead extends React.Component {
     super(props);
 
     this.state = {
-      menuOpen: this.props.media !== 'phone',
+      menuOpen: this.props.media !== 'phone' && this.props.media !== 'tablet-portrait',
     };
 
     this.onMenuToggle = this.onMenuToggle.bind(this);
+    this.onSelectText = this.onSelectText.bind(this);
   }
 
   onMenuToggle() {
@@ -19,8 +20,17 @@ export default class Masthead extends React.Component {
     });
   }
 
+  onSelectText(e) {
+    const { media, selectText } = this .props;
+    selectText(e.target.id);
+    const menuOpen = (media !== 'phone' && media !== 'tablet-portrait');
+    this.setState({
+      menuOpen,
+    });
+  }
+
   render() {
-    const { media, landingPage, selectText } = this.props;
+    const { media, landingPage } = this.props;
 
     return (
       <header id="masthead">
@@ -35,7 +45,7 @@ export default class Masthead extends React.Component {
         </h1>
         {(!landingPage) && (
           <nav>
-            {(media === 'phone') && (
+            {(media === 'phone' || media === 'tablet-portrait') && (
               <div
                 className="menuToggle"
                 onClick={this.onMenuToggle}
@@ -46,25 +56,25 @@ export default class Masthead extends React.Component {
             {(this.state.menuOpen) && (
               <ul>
                 <li
-                  onClick={selectText}
+                  onClick={this.onSelectText}
                   id="intro"
                 >
                   Introduction
                 </li>
                 <li
-                  onClick={selectText}
+                  onClick={this.onSelectText}
                   id="downloads"
                 >
                   Downloads & Data
                 </li>
                 <li
-                  onClick={selectText}
+                  onClick={this.onSelectText}
                   id="about"
                 >
                   About
                 </li>
                 <li
-                  onClick={selectText}
+                  onClick={this.onSelectText}
                   id="contactUs"
                 >
                 Contact Us

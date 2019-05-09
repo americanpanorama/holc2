@@ -74,12 +74,14 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
 
   // get data from the city that you need for the path and to set the map zoom and center
   const { cities, dimensions, map, selectedCity, loadingCity } = getState();
+  const { loadingPolygonsFor } = map;
 
   // do nothing if it's alreeady loaded or is being loaded
   if (selectedCity === id || loadingCity === id) {
     return null;
   }
 
+  // move the map and request the city data
   const path = getCityFilePath(id, cities);
   const { bounds } = cities.find(c => c.ad_id === id);
   const { lat, lng, zoom } = coords || calculateCenterAndZoom(bounds, dimensions);
@@ -104,19 +106,35 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
     },
   ]));
 
-  return fetch(`./static/ADs/${path}`)
-    .then(response => response.json())
-    .then((ads) => {
-      dispatch(batchActions([
-        {
-          type: Actions.SELECT_CITY_SUCCESS,
-          payload: id,
-        },
+  const filesToLoad = (loadingPolygonsFor !== id)
+    ? [`./static/ADs/${path}`, `./static/polygons/${path}`]
+    : [`./static/ADs/${path}`];
+
+  return Promise.all(filesToLoad.map(ftl => fetch(ftl)))
+    .then(responses => Promise.all(responses.map(r => r.json())))
+    .then((responsesJSON) => {
+      const ads = responsesJSON[0];
+      const polygons = responsesJSON[1];
+
+      const actions = [
         {
           type: Actions.LOAD_ADS,
           payload: ads,
         },
-      ]));
+        {
+          type: Actions.SELECT_CITY_SUCCESS,
+          payload: id,
+        },
+      ];
+
+      if (polygons) {
+        actions.push({
+          type: Actions.LOADED_POLYGONS,
+          payload: polygons,
+        });
+      }
+
+      dispatch(batchActions(actions));
     })
     .catch((err) => {
       console.warn('Fetch Error :-S', err);
@@ -125,7 +143,6 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
 
 export const inspectArea = (eOrId) => {
   const ids = getEventId(eOrId);
-  console.log(ids);
   const [adId, holcId] = ids.split('-').map((v, i) => (
     (i === 0) ? parseInt(v, 10) : v
   ));
@@ -140,7 +157,6 @@ export const inspectArea = (eOrId) => {
 
 export const selectArea = eOrId => (dispatch, getState) => {
   // don't do anything if sorting maps
-  console.log(getState().map.sorting);
   if (getState().map.sorting) {
     return null;
   }
@@ -221,23 +237,33 @@ export const selectArea = eOrId => (dispatch, getState) => {
   return null;
 };
 
-export const highlightArea = (eOrId) => {
+export const highlightArea = eOrId => (dispatch, getState) => {
   const ids = getEventId(eOrId);
   const [adId, holcId] = ids.split('-').map((v, i) => (
     (i === 0) ? parseInt(v, 10) : v
   ));
-  return {
+  const highlightedPolygons = [{
+    adId,
+    holcId,
+  }];
+  // if there's a selected Area, it stays highlighted
+  const { selectedArea, selectedCity } = getState();
+  if (selectedArea && selectedCity) {
+    highlightedPolygons.push({
+      adId: selectedCity,
+      holcId: selectedArea,
+    });
+  }
+  dispatch({
     type: Actions.HIGHLIGHT_AREAS,
-    payload: [{
-      adId,
-      holcId,
-    }],
-  };
+    payload: highlightedPolygons,
+  });
 };
 
 export const unhighlightArea = eOrId => (dispatch, getState) => {
-  const { adSearchHOLCIds, selectedArea, selectedCity } = getState();
-  // chec to see if it's selected--if it isn't don't unhighlight it
+  const { adSearchHOLCIds, selectedArea, selectedCity, map } = getState();
+  const { highlightedPolygons } = map;
+  // check to see if it's selected--if it isn't don't unhighlight it
   let adId;
   let holcId;
   if (eOrId) {
@@ -245,17 +271,25 @@ export const unhighlightArea = eOrId => (dispatch, getState) => {
     [adId, holcId] = ids.split('-').map((v, i) => (
       (i === 0) ? parseInt(v, 10) : v
     ));
-  }
-  const isSelected = !eOrId || (adId === selectedCity && holcId === selectedArea);
-  if (adSearchHOLCIds && adSearchHOLCIds.length > 0) {
+    const updatedHighlightedPolygons = (adId === selectedCity && holcId === selectedArea)
+      ? highlightedPolygons
+      : highlightedPolygons.filter(hp => (hp.adId !== adId || hp.holcId !== holcId));
     dispatch({
-      type: Actions.SEARCHING_ADS_RESULTS,
-      payload: adSearchHOLCIds,
+      type: Actions.HIGHLIGHT_AREAS,
+      payload: updatedHighlightedPolygons,
     });
-  } else if (!isSelected) {
-    dispatch({
-      type: Actions.UNHIGHLIGHT_AREA,
-    });
+  } else {
+    const isSelected = !eOrId || (adId === selectedCity && holcId === selectedArea);
+    if (adSearchHOLCIds && adSearchHOLCIds.length > 0) {
+      dispatch({
+        type: Actions.SEARCHING_ADS_RESULTS,
+        payload: adSearchHOLCIds,
+      });
+    } else if (!isSelected) {
+      dispatch({
+        type: Actions.UNHIGHLIGHT_AREA,
+      });
+    }
   }
 };
 
@@ -402,7 +436,8 @@ export const updateMap = mapState => (dispatch, getState) => {
   const actions = [];
 
   // deselect city if it's no longer visible
-  if (selectedCity && !updatedVisiblePolygons.includes(selectedCity)) {
+  const citiesWithPolygons = [...new Set(updatedVisiblePolygons.map(p => p.ad_id))];
+  if (selectedCity && !citiesWithPolygons.includes(selectedCity)) {
     actions.push({
       type: Actions.UNSELECT_CITY,
     });

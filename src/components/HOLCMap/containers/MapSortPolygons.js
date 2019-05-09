@@ -8,7 +8,6 @@ const mapStateToProps = (state) => {
   const overlappingMaps = getOverlappingMaps(state);
   const selectableMaps = (sortingPossibilities.length > 0)
     ? overlappingMaps.filter(r => sortingPossibilities.includes(r.id)) : overlappingMaps;
-  console.log(selectableMaps);
   return {
     overlappingMaps: selectableMaps,
     sortingLatLng,

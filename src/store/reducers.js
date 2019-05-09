@@ -70,10 +70,8 @@ const selectedArea = (state = null, action) => {
   if (action.type === A.SELECT_AREA) {
     return action.payload;
   }
-  console.log(action.type, action.type === A.SELECT_CITY_REQUEST);
   if (action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
     || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY) {
-    console.log(action.type);
     return null;
   }
 
@@ -213,22 +211,10 @@ const map = (state = initialState.map, action) => {
   }
 
   if (action.type === A.SELECT_CITY_SUCCESS) {
-    // add them if they're not already in the polygons array
-    const extantCityIds = [...new Set(state.visiblePolygons.map(p => p.ad_id))];
-    if (action.payload && action.payload.id && !extantCityIds.includes(action.payload.id)) {
-      const cityPolygons = Object.keys(action.payload.polygons)
-        .map(id => action.payload.polygons[id])
-        .map(p => ({ ...p, ad_id: action.payload.id }));
-      const loadingPolygonsFor = state.loadingPolygonsFor.filter(id => id !== action.payload.id);
-      return {
-        ...state,
-        visiblePolygons: [
-          ...state.visiblePolygons,
-          ...cityPolygons,
-        ],
-        loadingPolygonsFor,
-      };
-    }
+    return {
+      ...state,
+      highlightedPolygons: [],
+    };
   }
 
   if (action.type === A.LOADED_POLYGONS) {

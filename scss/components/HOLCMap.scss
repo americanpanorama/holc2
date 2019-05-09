@@ -104,7 +104,7 @@
     right: 20px;
     height: 36px;
 
-    @include for-phone-only {
+    @include for-tablet-portrait-down {
       right: 10px;
     }
   }

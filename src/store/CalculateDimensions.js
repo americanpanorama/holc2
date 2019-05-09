@@ -16,14 +16,14 @@ const calculateDimensions = () => {
   dimensions.windowWidth = window.innerWidth;
 
   if (dimensions.windowWidth <= 480) {
-    dimensions.size = 'mobile';
-  } else if (dimensions.windowWidth <= 800) {
-    dimensions.size = 'tablet';
+    dimensions.media = 'phone';
+  } else if (dimensions.windowWidth < 900) {
+    dimensions.media = 'tablet-portrait';
   } else {
-    dimensions.size = 'desktop';
+    dimensions.media = 'desktop';
   }
 
-  if (dimensions.size === 'desktop' || dimensions.size === 'tablet') {
+  if (dimensions.media === 'desktop') {
     dimensions.headerWidth = dimensions.windowWidth * 0.65;
     dimensions.headerHeight = 100;
   } else {
@@ -36,7 +36,7 @@ const calculateDimensions = () => {
     height: dimensions.headerHeight,
   };
 
-  if (dimensions.size === 'desktop' || dimensions.size === 'tablet') {
+  if (dimensions.media === 'desktop') {
     dimensions.mapHeight = dimensions.windowHeight - dimensions.headerHeight;
   } else {
     dimensions.mapHeight = dimensions.windowHeight - dimensions.headerHeight;
@@ -46,7 +46,7 @@ const calculateDimensions = () => {
     height: dimensions.mapHeight,
   };
 
-  if (dimensions.size !== 'mobile') {
+  if (dimensions.media !== 'mobile') {
     dimensions.dataViewerHeight = dimensions.windowHeight - dimensions.headerHeight - 40;
     dimensions.dataViewerWidth = 500;
   } else {
@@ -111,21 +111,21 @@ const calculateDimensions = () => {
   };
 
   dimensions.tilesHeight = dimensions.windowHeight - dimensions.headerHeight - 2*dimensions.containerPadding;
-  dimensions.dataViewerWidth = (dimensions.size !== 'mobile')? Math.min(700, dimensions.windowWidth / 3) : dimensions.windowWidth;
+  dimensions.dataViewerWidth = (dimensions.media !== 'phone')? Math.min(700, dimensions.windowWidth / 3) : dimensions.windowWidth;
   dimensions.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : dimensions.windowWidth * 0.644 - 2*dimensions.containerPadding;
   dimensions.dataViewerTitleHeight = (document.getElementsByClassName('dataViewerTitle').length > 0) ? document.getElementsByClassName('dataViewerTitle')[0].offsetHeight: 30;
 
-  if (dimensions.windowWidth <= 599) {
-    dimensions.media = 'phone';
-  } else if (dimensions.windowWidth >= 1800) {
-    dimensions.media = 'bigDesktop';
-  } else if (dimensions.windowWidth >= 1200) {
-    dimensions.media = 'desktop';
-  } else if (dimensions.windowWidth >= 900) {
-    dimensions.media = 'tabletLandscape';
-  } else {
-    dimensions.media = 'tablet';
-  }
+  // if (dimensions.windowWidth <= 599) {
+  //   dimensions.media = 'phone';
+  // } else if (dimensions.windowWidth >= 1800) {
+  //   dimensions.media = 'bigDesktop';
+  // } else if (dimensions.windowWidth >= 1200) {
+  //   dimensions.media = 'desktop';
+  // } else if (dimensions.windowWidth >= 900) {
+  //   dimensions.media = 'tabletLandscape';
+  // } else {
+  //   dimensions.media = 'tablet';
+  // }
 
   return dimensions;
 };

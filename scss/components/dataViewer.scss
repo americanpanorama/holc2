@@ -24,7 +24,7 @@
     background-color: rgb(250,250,248);
   }
 
-  @include for-phone-only {
+  @include for-tablet-portrait-down {
     top: calc(50% - 22.5px + 45px);
     left: 0;
     border: 0;
@@ -33,8 +33,8 @@
     margin: 0;
     height: calc(50% - 22.5px);
 
-
     width: 100%;
+    max-width: 900px;
   
     max-height: 75%;
     min-width: auto;

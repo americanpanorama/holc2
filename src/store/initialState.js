@@ -102,6 +102,8 @@ if (!adScan) {
 
 const center = [lat, lng];
 
+console.log(dimensions.media);
+
 // const basemap = (zoom < 9)
 //   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
 //   //: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
@@ -149,5 +151,5 @@ export default {
   cities: Cities,
   formsMetadata: FormsMetadata,
   dimensions,
-  landingPage: false && dimensions.size !== 'mobile',
+  landingPage: dimensions.media !== 'phone' && dimensions.media !== 'tablet-portrait',
 };

@@ -8,7 +8,6 @@ const mapStateToProps = (state) => {
 
   const polygons = getPolygons(state);
 
-  let mask;
   if (selectedArea) {
     // invert the selected polygon
     //Create a new set of latlngs, adding our world-sized ring first
@@ -28,19 +27,11 @@ const mapStateToProps = (state) => {
           }
         });
       });
-      mask = {
-        type: 'MultiPolygon',
-        coordinates: (holes.length > 0) ? [newLatLngs.concat(holes)] : [newLatLngs],
-        properties: {
-          holc_id: selectedArea,
-        },
-      };
     }
   }
 
   return {
     polygons,
-    mask,
   };
 };
 

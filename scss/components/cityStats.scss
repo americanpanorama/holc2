@@ -6,7 +6,7 @@
 	section {
 		margin: 35px auto;
 
-		@include for-phone-only {
+		@include for-tablet-portrait-down {
 			margin: 10px auto;
 		}
 
@@ -24,18 +24,18 @@
 					@extend %lato-normal;
 				}
 			}
-			@include for-phone-only {
+			@include for-tablet-portrait-down {
 				order: 2;
 			}
 		}
 		&.demographics {
-			@include for-phone-only {
+			@include for-tablet-portrait-down {
 				order: 3;
 			}
 		}
 
 		&.adSelections {
-			@include for-phone-only {
+			@include for-tablet-portrait-down {
 				order: 1;
 			}
 		}

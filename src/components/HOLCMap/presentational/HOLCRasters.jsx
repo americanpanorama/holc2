@@ -4,7 +4,6 @@ import { TileLayer } from 'react-leaflet';
 
 const HOLCRasters = ({ maps }) => (
   <React.Fragment>
-    { console.log(maps) }
     { maps.map(m => (
       <TileLayer
         className="holcRaster"
