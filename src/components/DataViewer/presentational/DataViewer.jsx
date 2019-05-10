@@ -6,7 +6,7 @@ import CityStats from '../../City/presentational/Stats';
 import AreaDescription from '../../AreaDescription/containers/AreaDescription';
 import Category from '../../AreaDescription/containers/Category';
 
-const DataViewer = ({ show, style, toggleCityStats, cityName }) => {
+const DataViewer = ({ show, style, toggleCityStats, buttonLabel }) => {
   if (show && show !== 'showButton') {
     return (
       <div
@@ -38,7 +38,7 @@ const DataViewer = ({ show, style, toggleCityStats, cityName }) => {
         onClick={toggleCityStats}
         type="button"
       >
-        {`Show info for ${cityName}`}
+        {buttonLabel}
       </button>
     );
   }
@@ -54,10 +54,10 @@ DataViewer.propTypes = {
     width: PropTypes.number,
   }).isRequired,
   toggleCityStats: PropTypes.func.isRequired,
-  cityName: PropTypes.string,
+  buttonLabel: PropTypes.string,
 };
 
 DataViewer.defaultProps = {
   show: null,
-  cityName: null,
+  buttonLabel: null,
 };

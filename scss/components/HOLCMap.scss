@@ -105,7 +105,7 @@
     height: 36px;
 
     @include for-tablet-portrait-down {
-      right: 10px;
+      right: 2px;
     }
   }
 
@@ -126,7 +126,7 @@
       border-bottom-right-radius: 10px;
 
       @include for-phone-only {
-        right: 133px;
+        right: 148px;
         width: 36px;
         display: block;
         text-indent: -9999em;

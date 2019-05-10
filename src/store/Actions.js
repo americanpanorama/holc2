@@ -26,7 +26,7 @@ const getEventId = (eOrId, type = 'string') => {
 
 // calculates the offset center and zoom offset to account for the data viewer
 const calculateCenterAndZoom = (bounds, dimensions) => {
-  const { windowWidth: mapWidth, mapHeight, dataViewerWidth, size } = dimensions;
+  const { windowWidth: mapWidth, mapHeight, dataViewerWidth, media } = dimensions;
   L.Map.include({
     getSize: () => new L.Point(mapWidth, mapHeight),
   });
@@ -34,10 +34,9 @@ const calculateCenterAndZoom = (bounds, dimensions) => {
     center: [0, 0],
     zoom: 0,
   });
-  const horizontalOffsetRatio = (size !== 'mobile')
-    ? ((dataViewerWidth + 40) / mapWidth) / ((mapWidth - (dataViewerWidth + 40)) / mapWidth) :
-    0;
-  const verticalOffsetRatio = (size !== 'mobile') ? 0  : 2;
+  const horizontalOffsetRatio = (media !== 'phone' && media !== 'tablet-portrait')
+    ? ((dataViewerWidth + 40) / mapWidth) / ((mapWidth - (dataViewerWidth + 40)) / mapWidth) : 0;
+  const verticalOffsetRatio = (media !== 'phone' && media !== 'tablet-portrait') ? 0 : 2;
   const offsetLng = bounds[0][1] - (bounds[1][1] - bounds[0][1]) * horizontalOffsetRatio;
   const offsetLat = bounds[0][0] - (bounds[1][0] - bounds[0][0]) * verticalOffsetRatio;
   const offsetBounds = new L.FeatureGroup([
@@ -748,6 +747,10 @@ export const userLocated = (position, selectFromPosition, moveMap) => (dispatch,
             {
               type: Actions.SELECT_CITY_SUCCESS,
               payload: id,
+            },
+            {
+              type: Actions.LOADED_POLYGONS,
+              payload: polygons,
             },
             {
               type: Actions.LOAD_ADS,

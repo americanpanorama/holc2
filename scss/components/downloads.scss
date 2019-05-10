@@ -54,6 +54,10 @@
   }
   .cityDownloads {
     display: flex;
+
+    @include for-phone-only {
+      flex-wrap: wrap;
+    }
   }
   .stateDownloads {
     margin-top: 20px;
@@ -87,12 +91,13 @@
       height: 276px;
       width: 276px;
 
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+      align-items: center;
 
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
+
 
       &:hover {
         background-color: $controlsColorLightGrey;

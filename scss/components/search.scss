@@ -7,9 +7,10 @@
 	z-index: 1099;
 	pointer-events: none;
 	background-color: transparent;
+	height: 36px;
 
 	input {
-		height: 40px;
+		height: 4px;
 		width: 100%;
 		pointer-events: auto;
 		background-color: $controlsColorLightGrey;
@@ -21,7 +22,7 @@
 		border-radius: 0;
 		border-bottom-left-radius: 10px;
 		border-bottom-right-radius: 10px;
-		height: 35px;
+		height: 36px;
 
 		
 		&:focus {
@@ -59,25 +60,25 @@
 		}
 
 	@include for-phone-only {
-		left: 10px;
-		right: 184px;
+		left: 2px;
+		right: 186px;
 
 		input {
 			font-size: 16px;
 		}
 
 		input:focus & {
-			right: 10px;
-			width: calc(100vw - 20px);
+			right: 2px;
+			width: calc(100vw - 4px);
 		}
 
 		input:focus {
 			font-size: 16px;
-			width: calc(100vw - 20px);
+			width: calc(100vw - 4px);
 		}
 
 		.searchResults {
-			width: calc(100vw - 22px);
+			width: calc(100vw - 6px);
 		}
 
 	}

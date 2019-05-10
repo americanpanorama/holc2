@@ -25,6 +25,10 @@
 
     z-index: 1100;
 
+    @include for-tablet-portrait-down {
+      right: 2px;
+    }
+
   }
 
   #textContent {
@@ -33,6 +37,10 @@
     max-width: 900px;
     line-height: 1.9;
     margin: 20px auto;
+
+    @include for-tablet-portrait-down {
+      max-width: 100%;
+    }
 
     h2, h3 {
       font-family: 'Lato', sans-serif;

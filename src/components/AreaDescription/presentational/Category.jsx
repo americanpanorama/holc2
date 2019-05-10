@@ -18,6 +18,7 @@ const Category = ({ title, values, unselectCategory, showDataViewerFull, toggleD
 
         <span
           onClick={toggleDataViewerFull}
+          className="fullViewToggle"
           role="button"
           tabIndex={0}
           title={(showDataViewerFull) ? 'undo full screen' : 'expand to full screen'}

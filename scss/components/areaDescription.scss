@@ -368,6 +368,12 @@ button.cityStats {
       border: 1px solid $gradeD;
     }
   }
+
+  .fullViewToggle {
+    @include for-tablet-portrait-down {
+      display: none;
+    }
+  }
 }
 
 #dataViewerFull {
