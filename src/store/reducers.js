@@ -10,7 +10,8 @@ const selectedCategory = (state = null, action) => {
   if (action.type === A.SELECT_CATEGORY) {
     return action.payload;
   }
-  if (action.type === A.UNSELECT_CATEGORY || action.type === A.SELECT_AREA) {
+  if (action.type === A.UNSELECT_CATEGORY || action.type === A.SELECT_AREA
+    || action.type === A.SELECT_CITY_REQUEST) {
     return null;
   }
   return state;

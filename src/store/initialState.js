@@ -151,5 +151,5 @@ export default {
   cities: Cities,
   formsMetadata: FormsMetadata,
   dimensions,
-  landingPage: dimensions.media !== 'phone' && dimensions.media !== 'tablet-portrait',
+  landingPage: false && dimensions.media !== 'phone' && dimensions.media !== 'tablet-portrait',
 };

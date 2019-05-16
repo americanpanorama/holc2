@@ -90,10 +90,10 @@ export default class HOLCMap extends React.Component {
 
         <div id="mapControls">
           <MapToggleControl />
+          <BringMapToFrontButton />
           <div id="zoomControls">
             <ZoomInButton />
             <ZoomOutButton />
-            <BringMapToFrontButton />
             <ResetViewButton />
           </div>
         </div>

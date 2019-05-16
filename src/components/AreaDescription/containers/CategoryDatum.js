@@ -6,7 +6,7 @@ import PercentPredominating from '../presentational/PercentPredominating';
 import IncreasingDecreasingStatic from '../presentational/IncreasingDecreasingStatic';
 import Cat1a from '../Form1939/presentational/Cat1a';
 import Cat1c from '../Form1939/presentational/Cat1c';
-import { selectArea } from '../../../store/Actions';
+import { selectArea, highlightArea, unhighlightArea } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
@@ -48,6 +48,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   selectArea,
+  highlightArea,
+  unhighlightArea,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CategoryDatum);

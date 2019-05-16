@@ -3,7 +3,7 @@
 	overflow-y: hidden;
 	position: fixed;
 	top: $header-height;
-	right: 404px;
+	right: 36px * 3 + 20px * 2;
 	z-index: 1099;
 	pointer-events: none;
 	background-color: transparent;
@@ -11,7 +11,7 @@
 
 	input {
 		height: 4px;
-		width: 100%;
+		width: 190px;
 		pointer-events: auto;
 		background-color: $controlsColorLightGrey;
 		color: black;

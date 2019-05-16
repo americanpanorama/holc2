@@ -120,10 +120,11 @@
     z-index: 1100;
     
     &.mapToggle {
-      width: 200px;
-      right: 184px;
+      width: 130px;
+      right: 36px * 3 + 190px + 20px * 3;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
+      padding: 0;
 
       @include for-phone-only {
         right: 148px;
@@ -137,7 +138,15 @@
       }
     }
 
-    &.zoomIn, &.zoomOut, &.bringMapToFront, &.resetView {
+    &.bringMapToFront {
+      width: 130px;
+      right: 36px * 3 + 190px + 130px + 20px * 4;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      padding: 0;
+    }
+
+    &.zoomIn, &.zoomOut, &.resetView {
       padding: 0;
       width: 36px;
       font-weight: bold;
@@ -148,18 +157,12 @@
     &.zoomIn {
       border-bottom-left-radius: 10px;
       top: 0;
-      right: 108px;
+      right: 72px;
     }
 
     &.zoomOut {
       border-left: 1px solid white;
-      top: 0;
-      right: 72px;
-    }
-
-    &.bringMapToFront {
       border-right: 1px solid white;
-      border-left: 1px solid white;
       top: 0;
       right: 36px;
     }

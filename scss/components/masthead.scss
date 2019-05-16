@@ -20,7 +20,7 @@ header#masthead {
     left: 0;
     right: 0;
     height: 67vh;
-    background: url(./static/imageBG1920x1080.png) no-repeat center center fixed;
+    background: url(./static/imageBG1920x1080.jpg) no-repeat center center fixed;
     background-size: cover;
     z-index: -1;
 
@@ -29,16 +29,16 @@ header#masthead {
     }
 
     @include for-phone-only {
-      background-image: url(./static/imageBG750x422.png);
+      background-image: url(./static/imageBG750x422.jpg);
     }
     @include for-tablet-portrait-up {
-      background-image: url(./static/imageBG1000x563.png);
+      background-image: url(./static/imageBG1000x563.jpg);
     }
     @include for-tablet-landscape-up {
-      background-image: url(./static/imageBG1200x675.png);
+      background-image: url(./static/imageBG1200x675.jpg);
     }
     @include for-desktop-up {
-      background-image: url(./static/imageBG1920x1080.png);
+      background-image: url(./static/imageBG1920x1080.jpg);
     }
   }
 
@@ -48,9 +48,10 @@ header#masthead {
     padding: 0 0 0 15px;
     display: inline-block;
     z-index: 2001;
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
 
     .header-main {
-      text-transform: uppercase;
       font-size: 0.9em;
       letter-spacing: 0.04em;
 
@@ -77,6 +78,7 @@ header#masthead {
     @extend %lato-normal;
     float: right;
     text-align: right;
+    line-height: $header-height;
 
     .menuToggle {
       width: 40px;
@@ -93,7 +95,7 @@ header#masthead {
 
     ul {
       padding: 0;
-      margin: 0;
+      margin: 0 5px 0 0;
       @include for-phone-only {
         float: none;
         position: fixed;
@@ -108,8 +110,7 @@ header#masthead {
     li {
       cursor: pointer;
       display: inline-block;
-      padding: 0 10px;
-      letter-spacing: .02em;
+      padding: 0 15px;
       color: white;
       margin-top: 0;
 

@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import PreviousAreaButton from '../containers/PreviousAreaButton';
 import NextAreaButton from '../containers/NextAreaButton';
 import CloseButton from '../../Buttons/presentational/Close';
+import ZoomToButton from '../../Buttons/presentational/ZoomTo';
 
-const HeaderArea = ({ holcId, name, unselectArea }) => (
+const HeaderArea = ({ holcId, adId, name, unselectArea, zoomToArea }) => (
   <header>
     <PreviousAreaButton />
     <NextAreaButton />
@@ -13,9 +14,20 @@ const HeaderArea = ({ holcId, name, unselectArea }) => (
       {(name) ? ` ${name}` : ''}
 
       <span
-        onClick={unselectArea}
+        onClick={zoomToArea}
         role="button"
         tabIndex={0}
+        id={`${adId}-${holcId}`}
+        style={{
+          marginLeft: 5,
+        }}
+      >
+        <ZoomToButton />
+      </span>
+      <span
+        onClick={unselectArea}
+        role="button"
+        tabIndex={1}
         style={{
           marginLeft: 5,
         }}
@@ -30,8 +42,10 @@ export default HeaderArea;
 
 HeaderArea.propTypes = {
   holcId: PropTypes.string.isRequired,
+  adId: PropTypes.number.isRequired,
   name: PropTypes.string,
   unselectArea: PropTypes.func.isRequired,
+  zoomToArea: PropTypes.func.isRequired,
 };
 
 HeaderArea.defaultProps = {

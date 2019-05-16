@@ -9,28 +9,28 @@
   padding: 0;
 
   line-height: 1.4;
+  background: url(./static/imageBG1920x1080.jpg) $headerRed no-repeat center center fixed;
+  background-size: cover;
+  @include for-phone-only {
+    background-image: url(./static/imageBG750x422.jpg);
+  }
+  @include for-tablet-portrait-up {
+    background-image: url(./static/imageBG1000x563.jpg);
+  }
+  @include for-tablet-landscape-up {
+    background-image: url(./static/imageBG1200x675.jpg);
+  }
+  @include for-desktop-up {
+    background-image: url(./static/imageBG1920x1080.jpg);
+  }
 
   header {
     height: 67%;
     margin: 0;
     padding: 0;
-    background: url(./static/imageBG1920x1080.png) $headerRed no-repeat center center fixed;
-    background-size: cover;
     color: white;
     position: relative;
 
-    @include for-phone-only {
-      background-image: url(./static/imageBG750x422.png);
-    }
-    @include for-tablet-portrait-up {
-      background-image: url(./static/imageBG1000x563.png);
-    }
-    @include for-tablet-landscape-up {
-      background-image: url(./static/imageBG1200x675.png);
-    }
-    @include for-desktop-up {
-      background-image: url(./static/imageBG1920x1080.png);
-    }
 
 
     .container {
@@ -85,9 +85,9 @@
 
   .howTos {
     pointer-events: none;
-    background: rgba($textBackground, 1);
     height: 33%;
     text-align: center;
+    color: #aaa;
 
     .container {
       position: absolute;

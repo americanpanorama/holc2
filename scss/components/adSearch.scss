@@ -5,12 +5,18 @@
 
 }
 
+.adSearchResults {
+  width: 100%;
+}
+
 .adSearchInput {
 	width: 100%;
 }
 
 .adSearchResult,
 .adSelection {
+  width: 100%;
+
   &.gradeA:hover {
     background-color: lighten($gradeA, 30%);
   }

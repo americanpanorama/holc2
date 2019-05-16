@@ -76,7 +76,7 @@ const mapStateToProps = (state) => {
         let direction = 'center';
 
         // above
-        if (['Newport News', 'Niagara Falls', 'Philadelphia', 'Winston Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
+        if (['Woonsocket', 'Newport News', 'Niagara Falls', 'Philadelphia', 'Winston Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
           radians = Math.PI * 1.5;
         }
 
@@ -87,7 +87,7 @@ const mapStateToProps = (state) => {
         }
 
         // east
-        if (['Troy', 'East Hartford', 'East St. Louis', 'Council Bluffs', 'St. Paul', 'StPaul'].includes(city.name)) {
+        if (['Troy', 'East Hartford', 'East St. Louis', 'Council Bluffs', 'St. Paul', 'StPaul', 'Pawtucket & Central Falls'].includes(city.name)) {
           radians = Math.PI * 2;
           direction = 'right';
         }
@@ -127,7 +127,7 @@ const mapStateToProps = (state) => {
           }
 
           // northwest
-          if (['Philadelphia'].includes(city.name)) {
+          if (['Philadelphia', 'Woonsocket'].includes(city.name)) {
             radians = Math.PI * 1.75;
             direction = 'left';
           }
@@ -148,7 +148,7 @@ const mapStateToProps = (state) => {
             direction = 'left';
           }
 
-          if (['Stamford, Darien, and New Canaan', 'Lower Westchester Co.', 'Hudson County'].includes(city.name)) {
+          if (['Stamford, Darien, and New Canaan', 'Lower Westchester Co.', 'Hudson County', 'Pawtucket & Central Falls'].includes(city.name)) {
             city.showLabel = false;
           }
         }
@@ -167,7 +167,9 @@ const mapStateToProps = (state) => {
           }
 
           // west
-          if (['Saginaw', 'San Francisco'].includes(city.name)) {
+          if ([
+
+            'Essex County', 'Saginaw', 'San Francisco', 'York'].includes(city.name)) {
             radians = 0;
             direction = 'left';
           }
@@ -179,8 +181,13 @@ const mapStateToProps = (state) => {
           }
 
           // northwest
-          if (['Essex County', 'Manchester', 'Hartford', 'Winston Salem', 'Topeka'].includes(city.name)) {
+          if (['Manchester', 'Hartford', 'Winston Salem', 'Topeka'].includes(city.name)) {
             radians = Math.PI * 1.75;
+            direction = 'left';
+          }
+
+          if (['Essex County'].includes(city.name)) {
+            radians = Math.PI * 1.9;
             direction = 'left';
           }
 
@@ -201,7 +208,7 @@ const mapStateToProps = (state) => {
             direction = 'left';
           }
 
-          if (['Hamilton', 'Lake County Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
+          if (['Lancaster', 'Harrisburg', 'Woonsocket', 'Bethlehem', 'WilkesBarre', 'Wilkes Barre', 'Hamilton', 'Lake County Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
             city.showLabel = false;
           }
           if (city.name === 'Springfield' && city.state === 'OH') {
@@ -351,7 +358,7 @@ const mapStateToProps = (state) => {
           }
 
 
-          if (['Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St.Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
+          if (['York', 'Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St.Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
             city.showLabel = false;
           }
           if (false) {

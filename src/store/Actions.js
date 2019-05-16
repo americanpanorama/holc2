@@ -54,6 +54,31 @@ const calculateCenterAndZoom = (bounds, dimensions) => {
   };
 };
 
+const centerAndZoomIncluding = (boundsA, boundsB, dimensions) => {
+  if (boundsB && boundsB[0] && boundsB[0][0]) {
+    const areaIsVisible = L.latLngBounds(boundsA).contains(boundsB);
+    if (!areaIsVisible) {
+      const newLatLngBounds = L.latLngBounds(boundsA).extend(boundsB);
+      const newBounds = [
+        [newLatLngBounds.getNorth(), newLatLngBounds.getWest()],
+        [newLatLngBounds.getSouth(), newLatLngBounds.getEast()],
+      ];
+      return calculateCenterAndZoom(newBounds, dimensions);
+    }
+  }
+
+  return null;
+};
+
+const getAreaPolygon = (adId, holcId, visiblePolygons) => (
+  visiblePolygons.find(vp => vp.id === holcId && vp.ad_id === adId)
+);
+
+const getAreaPolygonBB = (adId, holcId, visiblePolygons) => {
+  const areaPolygon = getAreaPolygon(adId, holcId, visiblePolygons);
+  return (areaPolygon && areaPolygon.polygonBoundingBox) ? areaPolygon.polygonBoundingBox : null;
+};
+
 // ACTIONS
 
 export const selectCategory = (eOrId) => {
@@ -165,9 +190,31 @@ export const selectArea = eOrId => (dispatch, getState) => {
     (i === 0) ? parseInt(v, 10) : v
   ));
 
-  const { selectedCity, selectedCategory, selectedArea, cities, showADScan } = getState();
-  const cityData = getSelectedCityData(getState());
   const actions = [];
+  const { selectedCity, selectedCategory, selectedArea, cities, showADScan, map, dimensions } = getState();
+  const { bounds, visiblePolygons } = map;
+  const cityData = getSelectedCityData(getState());
+
+  // get the bounding box for the polygon
+
+  const newCenterAndZoom = centerAndZoomIncluding(bounds,
+    getAreaPolygonBB(adId, holcId, visiblePolygons), dimensions);
+  if (newCenterAndZoom) {
+    const { lat, lng, zoom } = newCenterAndZoom;
+    actions.push({
+      type: Actions.MOVE_MAP,
+      payload: {
+        ...map,
+        zoom,
+        center: [lat, lng],
+        movingTo: {
+          zoom,
+          center: [lat, lng],
+        },
+      },
+    });
+  }
+
   // load the city if necessary then the neighborhood
   if (selectedCity !== adId) {
     return fetch(`./static/ADs/${getCityFilePath(adId, cities)}`)
@@ -236,6 +283,53 @@ export const selectArea = eOrId => (dispatch, getState) => {
   return null;
 };
 
+export const zoomToArea = eOrId => (dispatch, getState) => {
+  const ids = getEventId(eOrId);
+  const [adId, holcId] = ids.split('-').map((v, i) => (
+    (i === 0) ? parseInt(v, 10) : v
+  ));
+  const { map, dimensions } = getState();
+  const { visiblePolygons } = map;
+
+  // get the bounding box for the polygon
+  const areaPolygon = visiblePolygons.find(vp => vp.id === holcId && vp.ad_id === adId);
+  if (areaPolygon && areaPolygon.polygonBoundingBox) {
+    const { lat, lng, zoom } = calculateCenterAndZoom(areaPolygon.polygonBoundingBox, dimensions);
+    dispatch({
+      type: Actions.MOVE_MAP,
+      payload: {
+        ...map,
+        zoom,
+        center: [lat, lng],
+        movingTo: {
+          zoom,
+          center: [lat, lng],
+        },
+      },
+    });
+  }
+};
+
+export const zoomToCity = eOrId => (dispatch, getState) => {
+  const adId = getEventId(eOrId, 'number');
+  const { cities, map, dimensions } = getState();
+  const cityData = cities.find(c => c.ad_id === adId);
+
+  const { lat, lng, zoom } = calculateCenterAndZoom(cityData.bounds, dimensions);
+  dispatch({
+    type: Actions.MOVE_MAP,
+    payload: {
+      ...map,
+      zoom,
+      center: [lat, lng],
+      movingTo: {
+        zoom,
+        center: [lat, lng],
+      },
+    },
+  });
+};
+
 export const highlightArea = eOrId => (dispatch, getState) => {
   const ids = getEventId(eOrId);
   const [adId, holcId] = ids.split('-').map((v, i) => (
@@ -246,17 +340,41 @@ export const highlightArea = eOrId => (dispatch, getState) => {
     holcId,
   }];
   // if there's a selected Area, it stays highlighted
-  const { selectedArea, selectedCity } = getState();
+  const { selectedArea, selectedCity, map, dimensions } = getState();
   if (selectedArea && selectedCity) {
     highlightedPolygons.push({
       adId: selectedCity,
       holcId: selectedArea,
     });
   }
-  dispatch({
+
+  const actions = [];
+  // calcuate if map movement is necessary
+  const { bounds, visiblePolygons } = map;
+  const newCenterAndZoom = centerAndZoomIncluding(bounds,
+    getAreaPolygonBB(adId, holcId, visiblePolygons), dimensions);
+  if (newCenterAndZoom) {
+    const { lat, lng, zoom } = newCenterAndZoom;
+    actions.push({
+      type: Actions.MOVE_MAP,
+      payload: {
+        ...map,
+        zoom,
+        center: [lat, lng],
+        movingTo: {
+          zoom,
+          center: [lat, lng],
+        },
+      },
+    });
+  }
+
+  actions.push({
     type: Actions.HIGHLIGHT_AREAS,
     payload: highlightedPolygons,
   });
+
+  dispatch(batchActions(actions));
 };
 
 export const unhighlightArea = eOrId => (dispatch, getState) => {

@@ -3,8 +3,8 @@ import Button from '../../AreaDescription/presentational/Button';
 import { toggleMapsOnOff } from '../../../store/Actions';
 
 const mapStateToProps = state => ({
-  className: (!state.showHOLCMaps) ? 'mapToggle inactive' : 'mapToggle',
-  label: (state.showHOLCMaps) ? 'Hide HOLC Maps' : 'Show HOLC Maps',
+  className: (state.map.zoom <= 8) ? 'mapToggle dontDisplay' : 'mapToggle',
+  label: (state.showHOLCMaps) ? 'Hide Scans' : 'Show Scans',
   style: state.dimensions.mapToggleStyle,
 });
 

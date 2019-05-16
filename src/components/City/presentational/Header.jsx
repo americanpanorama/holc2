@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MinimizeButton from '../../Buttons/presentational/Minimize';
+import ZoomToButton from '../../Buttons/presentational/ZoomTo';
 
 const Header = (props) => {
   const {
@@ -12,6 +13,7 @@ const Header = (props) => {
     state,
     showMinimizeButton,
     toggleCityStats,
+    zoomToCity,
   } = props;
 
   if (!name) {
@@ -37,17 +39,31 @@ const Header = (props) => {
       </span>
 
       { (showMinimizeButton) && (
-        <span
-          onClick={toggleCityStats}
-          role="button"
-          tabIndex={0}
-          style={{
-            float: 'right',
-            marginLeft: 20,
-          }}
-        >
-          <MinimizeButton />
-        </span>
+        <React.Fragment>
+          <span
+            onClick={toggleCityStats}
+            role="button"
+            tabIndex={0}
+            style={{
+              float: 'right',
+              marginLeft: 10,
+            }}
+          >
+            <MinimizeButton />
+          </span>
+          <span
+            onClick={zoomToCity}
+            id={adId}
+            role="button"
+            tabIndex={0}
+            style={{
+              float: 'right',
+              marginLeft: 10,
+            }}
+          >
+            <ZoomToButton />
+          </span>
+        </React.Fragment>
       )}
     </h2>
   );
@@ -62,6 +78,7 @@ Header.propTypes = {
   state: PropTypes.string,
   showMinimizeButton: PropTypes.bool,
   toggleCityStats: PropTypes.func.isRequired,
+  zoomToCity: PropTypes.func.isRequired,
 };
 
 Header.defaultProps = {

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Header from '../presentational/Header';
-import { selectCity, toggleCityStatsOnOff } from '../../../store/Actions';
+import { selectCity, zoomToCity, toggleCityStatsOnOff } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const MapStateToProps = (state) => {
@@ -23,6 +23,7 @@ const MapStateToProps = (state) => {
 const MapDispatchToProps = {
   onCitySelected: selectCity,
   onStateSelected: () => { return },
+  zoomToCity,
   toggleCityStats: toggleCityStatsOnOff,
 };
 

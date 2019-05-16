@@ -10,7 +10,7 @@ const ADSelections = ({ selections, adId, isSearchingADs, selectArea, highlightA
 
     <ADSearch />
 
-    {(selections && !isSearchingADs) && (
+    {(selections && selections.length > 0 && !isSearchingADs) && (
       <div>
         <h4>
           Selections from the Area Descriptions

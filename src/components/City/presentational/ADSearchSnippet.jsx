@@ -32,7 +32,7 @@ export default class ADSearchSnippet extends React.Component {
     };
 
     return (
-      <div>
+      <div className="adSearchResults">
         <h4>
           Search Results
         </h4>
