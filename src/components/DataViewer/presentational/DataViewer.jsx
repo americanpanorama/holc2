@@ -12,6 +12,7 @@ const DataViewer = ({ show, style, toggleCityStats, buttonLabel }) => {
       <div
         id="dataViewer"
         style={style}
+        key={`dataViewer-${show}`}
       >
         <Header />
 

@@ -39,21 +39,41 @@
       &.gradeA {
         circle {
           fill: $gradeA;
+
+          &:hover {
+            stroke-width: 1;
+            stroke: black;
+          }
         }
       }
       &.gradeB {
         circle {
           fill: $gradeB;
+
+          &:hover {
+            stroke-width: 1;
+            stroke: black;
+          }
         }
       }
       &.gradeC {
         circle {
           fill: $gradeC;
+
+          &:hover {
+            stroke-width: 1;
+            stroke: black;
+          }
         }
       }
       &.gradeD {
         circle {
           fill: $gradeD;
+
+          &:hover {
+            stroke-width: 1;
+            stroke: black;
+          }
         }
       }
     }

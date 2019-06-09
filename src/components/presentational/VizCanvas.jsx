@@ -1,12 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const VizCanvas = ({ VizComponent, show }) => (
+const VizCanvas = ({ VizComponent }) => (
   <article id="vizCanvas">
-    {(show)
-      ? <VizComponent />
-      : null
-    }
+    <VizComponent />
   </article>
 );
 
@@ -14,5 +11,4 @@ export default VizCanvas;
 
 VizCanvas.propTypes = {
   VizComponent: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
 };

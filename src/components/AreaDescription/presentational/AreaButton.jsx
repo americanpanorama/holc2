@@ -14,11 +14,12 @@ const AreaButton = ({ id, holcId, grade, direction, selectArea }) => {
       onClick={selectArea}
       id={id}
       className={`adButton ${direction} grade${grade}`}
+      role="button"
     >
       <circle
         cx={0}
         cy={0}
-        r={20}
+        r={18}
       />
      {/*
       <path
@@ -28,7 +29,7 @@ const AreaButton = ({ id, holcId, grade, direction, selectArea }) => {
         x={0}
         y={5}
       >
-        {(direction === 'previous') ? `<${holcId}` : `${holcId}>`}
+        {(direction === 'previous') ? `${holcId}` : `${holcId}`}
       </text>
     </svg>
   )

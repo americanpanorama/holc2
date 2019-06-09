@@ -32,22 +32,12 @@ export default class HOLCMap extends React.Component {
 
   componentDidMount() {
     // treat this as the map moved to load cities
-    const theMap = this.map.current.leafletElement;
-    theMap.invalidateSize(true);
     this.onMapMoved();
-  }
-
-  componentDidUpdate() {
-    const theMap = this.map.current.leafletElement;
-    theMap.invalidateSize(true);
   }
 
   onMapMoved() {
     const { zoom: oldZoom, center: oldCenter, bounds: oldBounds } = this.props;
     const theMap = this.map.current.leafletElement;
-    console.log(theMap.getSize());
-    setTimeout(function(){ theMap.invalidateSize()}, 400);
-    console.log(theMap);
     const zoom = theMap.getZoom();
     const center = [theMap.getCenter().lat, theMap.getCenter().lng];
     const latLngBounds = theMap.getBounds();
@@ -70,7 +60,6 @@ export default class HOLCMap extends React.Component {
 
   render() {
     const { zoom, center, className, clickOnMap } = this.props;
-    console.log(zoom, center);
     return (
       <React.Fragment>
         <Map
