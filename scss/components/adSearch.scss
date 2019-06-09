@@ -46,7 +46,7 @@
 	h4 {
     margin: 0 0 10px 0;
 		text-align: center;
-		color: white;
+		color: $text-color;
 		font-weight: normal;
 		font-size: 1.2em;
 		margin-bottom: 10px;
@@ -63,7 +63,7 @@
 	}
 
 	&.gradeC h4 {
-		background-color: $gradeCDark;
+		background-color: $gradeC;
 	}
 
 	&.gradeD h4 {

@@ -4,10 +4,10 @@ import { toggleADSelections } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
-  const { hasADs } = getSelectedCityData(state);
+  const { hasADs, form_id: formId } = getSelectedCityData(state);
   return {
-    className: !hasADs ? 'inactive' : '',
-    disabled: !hasADs,
+    className: (!hasADs || formId === 1) ? 'inactive' : '',
+    disabled: !hasADs || formId === 1,
     label: (state.showADSelections) ? 'Show Full' : 'Show Selections',
   };
 };

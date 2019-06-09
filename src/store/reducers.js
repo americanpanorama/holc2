@@ -2,6 +2,10 @@ import { combineReducers } from 'redux';
 import A from './ActionTypes';
 import initialState from './initialState';
 
+const initialized = (state = false, action) => (
+  (action.type === A.INITIALIZED) ? true : state
+);
+
 const areaDescriptions = (state = initialState.areaDescriptions, action) => (
   (action.type === A.LOAD_ADS) ? action.payload : state
 );
@@ -72,7 +76,8 @@ const selectedArea = (state = null, action) => {
     return action.payload;
   }
   if (action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
-    || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY) {
+    || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY
+    || action.type === A.SELECT_CATEGORY) {
     return null;
   }
 
@@ -183,7 +188,8 @@ const map = (state = initialState.map, action) => {
     };
   }
 
-  if (action.type === A.UNHIGHLIGHT_AREA || action.type === A.SELECT_CITY_REQUEST) {
+  if (action.type === A.UNHIGHLIGHT_AREA || action.type === A.UNSELECT_AREA
+    || action.type === A.SELECT_CITY_REQUEST) {
     return {
       ...state,
       highlightedPolygons: [],
@@ -255,6 +261,13 @@ const map = (state = initialState.map, action) => {
       ...state,
       sortingPossibilities: action.payload.ids,
       sortingLatLng: action.payload.latLng,
+    };
+  }
+
+  if (action.type === A.SELECT_CATEGORY) {
+    return {
+      ...state,
+      highlightedPolygons: [],
     };
   }
 
@@ -354,6 +367,7 @@ const dimensions = (state = {}, action) => (
 );
 
 const combinedReducer = combineReducers({
+  initialized,
   areaDescriptions,
   selectedCategory,
   selectedCity,

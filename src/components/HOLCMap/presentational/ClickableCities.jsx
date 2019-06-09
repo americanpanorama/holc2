@@ -29,7 +29,10 @@ const ClickableCities = ({ cities, otherLabels, onCitySelected }) => (
               opacity={1}
               permanent
             >
-              <span>
+              <span
+                onClick={onCitySelected}
+                id={c.ad_id}
+              >
                 {c.name}
               </span>
             </Tooltip>

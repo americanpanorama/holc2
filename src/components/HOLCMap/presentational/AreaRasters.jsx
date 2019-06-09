@@ -6,14 +6,14 @@ const HOLCRasters = ({ maps }) => (
   <React.Fragment>
     { maps.map(m => (
       <TileLayer
-        className="holcRaster"
+        className="areaRaster"
         url={m.url}
         minZoom={m.minZoom}
         maxNativeZoom={m.maxZoom - 1}
         maxZoom={24}
         bounds={m.bounds}
-        zIndex={m.zIndex}
-        key={`holcRaster-${m.id}`}
+        key={`areaRaster-${m.id}`}
+        zIndex={1000}
         detectRetina
       />
     ))}

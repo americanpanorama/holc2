@@ -12,7 +12,7 @@ const mapStateToProps = (state) => {
       let concat = '';
       if (typeof obj === 'string') {
         concat = obj;
-      } else if (typeof obj === 'object') {
+      } else if (obj && typeof obj === 'object') {
         Object.keys(obj).forEach((aKey) => {
           concat = `${concat} ${searchDown(obj[aKey])}`;
         });

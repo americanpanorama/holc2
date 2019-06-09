@@ -3,12 +3,17 @@
 .adSearchResult,
 .adSelections,
 .adSelection {
+  svg {
+    @extend %lato-normal;
+  }
+
   header {
     height: 40px;
     margin-bottom: 10px;
     text-align: center;
 
     .adButton {
+      cursor: pointer;
       &.previous {
         float: left;
         margin-left: 10px;
@@ -214,6 +219,16 @@
 .adSelections {
   h3, h4 {
     text-align: center;
+
+    &.headerWithTip {
+      margin-bottom: 2px;
+    }
+
+    &.tip {
+      margin-top: 2px;
+      color: #666;
+      font-style: italic;
+    }
   }
 
   #dataViewerFull & {
@@ -261,6 +276,7 @@
 
     .value {
       margin-left: 50px;
+      cursor: pointer;
     }
   }
 
@@ -381,6 +397,46 @@ button.cityStats {
   #adCategory {
       li {
         border-radius: 5px;
+        position: relative;
+
+        .neighborhoodMap {
+          width: 300px;
+          height: 300px;
+          position: absolute;
+          top: 0;
+          z-index: 1000;
+          border: 2px solid black;
+          border-radius: 5px;
+          pointer-events: none;
+
+          .A &, .B & {
+            left: 300px;
+          }
+
+          .C &, .D & {
+            right: 300px;
+          }
+
+          .holcRaster img {
+            -webkit-filter: grayscale(100%); /* Webkit */
+            filter: gray; /* IE6-9 */
+            filter: grayscale(100%) brightness(125%); /* blur(1px);  W3C */
+          }
+
+          .neighborhoodLabel {
+            border: none;
+            box-shadow: none;
+            font-size: 1.5em;
+            line-height: 1.1;
+            color: #404040;
+            font-family: "PT Sans";
+            background-color: transparent;
+            text-shadow: -4px 0 3px #f5f5f3, 0 4px 3px #f5f5f3, 4px 0 3px #f5f5f3, 0 -4px 3px #f5f5f3;
+            margin: 0;
+            padding: 0 3px;
+          }
+        }
       }
     }
 }
+

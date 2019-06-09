@@ -7,7 +7,7 @@ import IncreasingDecreasingStatic from '../presentational/IncreasingDecreasingSt
 import Cat1a from '../Form1939/presentational/Cat1a';
 import Cat1c from '../Form1939/presentational/Cat1c';
 import { selectArea, highlightArea, unhighlightArea } from '../../../store/Actions';
-import { getSelectedCityData } from '../../../store/selectors';
+import { getSelectedCityData, getInspectedPolygon } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
   const components = {
@@ -27,7 +27,7 @@ const mapStateToProps = (state) => {
     },
   };
 
-  const { selectedCategory, areaDescriptions } = state;
+  const { selectedCategory, areaDescriptions, showDataViewerFull } = state;
   const cityData = getSelectedCityData(state);
   let CategoryComponent = CategoryDatumSimple;
   let adId;
@@ -40,9 +40,16 @@ const mapStateToProps = (state) => {
       ? components[`Form${formId}`][`Cat${cat}${subcat}`] : CategoryDatumSimple;
   }
 
+  const inspectedPolygon = getInspectedPolygon(state);
+  const showMapFor = (showDataViewerFull && inspectedPolygon) ? {
+    holcId: inspectedPolygon.holcId,
+    adId: inspectedPolygon.adId,
+  } : undefined;
+
   return {
     adId,
     CategoryComponent,
+    showMapFor,
   };
 };
 

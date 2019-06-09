@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Tooltip, Marker } from 'react-leaflet';
 import * as L from 'leaflet';
 
-const CityMarkers = ({ markers, icon }) => (
+const CityMarkers = ({ markers, icon, selectCity }) => (
   <React.Fragment>
     { markers.map(m => (
       <Marker
@@ -17,7 +17,10 @@ const CityMarkers = ({ markers, icon }) => (
           opacity={1}
           permanent
         >
-          <span>
+          <span
+            onClick={selectCity}
+            id={m.id}
+          >
             {m.label}
           </span>
         </Tooltip>
@@ -32,6 +35,7 @@ export default CityMarkers;
 CityMarkers.propTypes = {
   markers: PropTypes.arrayOf(PropTypes.object),
   icon: PropTypes.object,
+  selectCity: PropTypes.func.isRequired,
 };
 
 CityMarkers.defaultProps = {

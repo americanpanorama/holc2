@@ -8,6 +8,7 @@ import ClickableCities from '../containers/ClickableCities';
 import Legend from '../containers/Legend';
 import CityMarkers from '../containers/CityMarkers';
 import HOLCRasters from '../containers/HOLCRasters';
+import AreaRasters from '../containers/AreaRasters';
 import MapSortPolygons from '../containers/MapSortPolygons';
 import AreaPolygons from '../containers/AreaPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
@@ -31,12 +32,22 @@ export default class HOLCMap extends React.Component {
 
   componentDidMount() {
     // treat this as the map moved to load cities
+    const theMap = this.map.current.leafletElement;
+    theMap.invalidateSize(true);
     this.onMapMoved();
+  }
+
+  componentDidUpdate() {
+    const theMap = this.map.current.leafletElement;
+    theMap.invalidateSize(true);
   }
 
   onMapMoved() {
     const { zoom: oldZoom, center: oldCenter, bounds: oldBounds } = this.props;
     const theMap = this.map.current.leafletElement;
+    console.log(theMap.getSize());
+    setTimeout(function(){ theMap.invalidateSize()}, 400);
+    console.log(theMap);
     const zoom = theMap.getZoom();
     const center = [theMap.getCenter().lat, theMap.getCenter().lng];
     const latLngBounds = theMap.getBounds();
@@ -58,9 +69,8 @@ export default class HOLCMap extends React.Component {
   }
 
   render() {
-    // const VectorGrid = withLeaflet(VectorGridDefault);
-    // // console.log(VectorGrid);
     const { zoom, center, className, clickOnMap } = this.props;
+    console.log(zoom, center);
     return (
       <React.Fragment>
         <Map
@@ -68,6 +78,7 @@ export default class HOLCMap extends React.Component {
           center={center}
           id="the_map"
           ref={this.map}
+          key="the_map"
           zoomControl={false}
           onMoveEnd={this.onMapMoved}
           className={className}
@@ -80,6 +91,7 @@ export default class HOLCMap extends React.Component {
           <ClickableCities />
           <CityMarkers />
           <HOLCRasters />
+          <AreaRasters />
           <AreaPolygons />
           <AreaMarkers />
           <MapSortPolygons />

@@ -27,9 +27,9 @@ const getEventId = (eOrId, type = 'string') => {
 // calculates the offset center and zoom offset to account for the data viewer
 const calculateCenterAndZoom = (bounds, dimensions) => {
   const { windowWidth: mapWidth, mapHeight, dataViewerWidth, media } = dimensions;
-  L.Map.include({
-    getSize: () => new L.Point(mapWidth, mapHeight),
-  });
+  // L.Map.include({
+  //   getSize: () => new L.Point(mapWidth, mapHeight),
+  // });
   const map = L.map(document.createElement('div'), {
     center: [0, 0],
     zoom: 0,
@@ -46,7 +46,7 @@ const calculateCenterAndZoom = (bounds, dimensions) => {
 
   const polygonBounds = offsetBounds.getBounds();
   const { lat, lng } = polygonBounds.getCenter();
-  const zoom = map.getBoundsZoom(polygonBounds);
+  const zoom = map.getBoundsZoom(polygonBounds, false, [mapWidth * -1, mapHeight * -1]);
   return {
     lat,
     lng,
@@ -70,6 +70,23 @@ const centerAndZoomIncluding = (boundsA, boundsB, dimensions) => {
   return null;
 };
 
+const centerAndZoomIntersects = (boundsA, boundsB, dimensions) => {
+  if (boundsB && boundsB[0] && boundsB[0][0]) {
+    const areaIsVisible = L.latLngBounds(boundsA).contains(boundsB)
+      || L.latLngBounds(boundsA).overlaps(boundsB);
+    if (!areaIsVisible) {
+      const newLatLngBounds = L.latLngBounds(boundsA).extend(boundsB);
+      const newBounds = [
+        [newLatLngBounds.getNorth(), newLatLngBounds.getWest()],
+        [newLatLngBounds.getSouth(), newLatLngBounds.getEast()],
+      ];
+      return calculateCenterAndZoom(newBounds, dimensions);
+    }
+  }
+
+  return null;
+};
+
 const getAreaPolygon = (adId, holcId, visiblePolygons) => (
   visiblePolygons.find(vp => vp.id === holcId && vp.ad_id === adId)
 );
@@ -80,6 +97,190 @@ const getAreaPolygonBB = (adId, holcId, visiblePolygons) => {
 };
 
 // ACTIONS
+
+export const loadInitialData = () => (dispatch, getState) => {
+  const { hash } = window.location;
+  const hashValues = {};
+  hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
+    const [key, value] = pair.split('=');
+    hashValues[key] = value;
+  });
+  const actions = [];
+
+  if (!hashValues.nogeo && navigator.geolocation) {
+    dispatch({
+      type: Actions.GEOLOCATING,
+    });
+    navigator.geolocation.getCurrentPosition((position) => {
+      // only select from position if a city isn't specified, a location isn't specified
+      const geolocationActions = [];
+      geolocationActions.push({
+        type: Actions.LOCATED_USER,
+        payload: [position.coords.latitude, position.coords.longitude],
+      });
+
+      // locate the closest city
+      if (!hashValues.city && !hashValues.loc && !hashValues.area) {
+        const PythagorasEquirectangular = (lat1, lon1, lat2, lon2) => {
+          const Deg2Rad = deg => deg * Math.PI / 180;
+          const lat1R = Deg2Rad(lat1);
+          const lat2R = Deg2Rad(lat2);
+          const lon1R = Deg2Rad(lon1);
+          const lon2R = Deg2Rad(lon2);
+          const R = 6371; // km
+          const x = (lon2R - lon1R) * Math.cos((lat1R + lat2R) / 2);
+          const y = (lat2R - lat1R);
+          const d = Math.sqrt(x * x + y * y) * R;
+          return d;
+        };
+
+        // calculate closest city
+        const { cities } = getState();
+        const cityDists = cities
+          .filter(c => c.centerLat && c.centerLng)
+          .map(c => ({
+            ad_id: c.ad_id,
+            dist: PythagorasEquirectangular(c.centerLat, c.centerLng, position.coords.latitude, position.coords.longitude),
+          }))
+          .sort((a, b) => a.dist - b.dist);
+        if (cityDists[0].dist <= 20 && cityDists[0] !== hashValues.city) {
+          const id = cityDists[0].ad_id;
+          // get data from the city that you need for the path and to set the map zoom and center
+          const path = getCityFilePath(id, cities);
+
+          dispatch({
+            type: Actions.SELECT_CITY_REQUEST,
+            payload: id,
+          });
+
+          return Promise.all([
+            fetch(`./static/polygons/${path}`),
+            fetch(`./static/ADs/${path}`),
+          ])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then((responsesJSON) => {
+              const polygons = responsesJSON[0];
+              const ads = responsesJSON[1];
+              const { dimensions, map } = getState();
+              const { bounds } = cities.find(c => c.ad_id === id);
+              const { lat, lng, zoom } = calculateCenterAndZoom(bounds, dimensions);
+
+              geolocationActions.push(
+                {
+                  type: Actions.SELECT_CITY_SUCCESS,
+                  payload: id,
+                },
+                {
+                  type: Actions.LOADED_POLYGONS,
+                  payload: polygons,
+                },
+                {
+                  type: Actions.LOAD_ADS,
+                  payload: ads,
+                },
+              );
+
+              if (!hashValues.loc) {
+                geolocationActions.push({
+                  type: Actions.MOVE_MAP,
+                  payload: {
+                    zoom,
+                    center: [lat, lng],
+                    aboveThreshold: true,
+                    visiblePolygons: polygons,
+                    movingTo: {
+                      zoom,
+                      center: [lat, lng],
+                    },
+                  },
+                });
+              }
+
+              // test to see if you can select the polygon
+              polygons.every((p) => {
+                if (geoContains(p.area_geojson, [position[1], position[0]])) {
+                  geolocationActions.push({
+                    type: Actions.SELECT_AREA,
+                    payload: p.id,
+                  });
+                  return false;
+                }
+                return true;
+              });
+
+              dispatch(batchActions(geolocationActions));
+            });
+        }
+      } else {
+        dispatch(geolocationActions[0]);
+      }
+    }, (error) => {
+      dispatch({
+        type: Actions.GEOLOCATION_ERROR,
+        payload: error,
+      });
+    });
+  }
+  if (hashValues.city) {
+    const { cities } = getState();
+    const adId = cities.find(c => c.slug === hashValues.city).ad_id;
+    const path = getCityFilePath(adId, cities);
+
+    return Promise.all([
+      fetch(`./static/polygons/${path}`),
+      fetch(`./static/ADs/${path}`),
+    ])
+      .then(responses => Promise.all(responses.map(r => r.json())))
+      .then((responsesJSON) => {
+        const polygons = responsesJSON[0];
+        const ads = responsesJSON[1];
+
+        actions.push({
+          type: Actions.SELECT_CITY_SUCCESS,
+          payload: adId,
+        });
+        actions.push({
+          type: Actions.LOAD_ADS,
+          payload: ads,
+        });
+        actions.push({
+          type: Actions.LOADED_POLYGONS,
+          payload: polygons,
+        });
+
+        if (hashValues.area) {
+          actions.push({
+            type: Actions.SELECT_AREA,
+            payload: hashValues.area,
+          });
+          actions.push({
+            type: Actions.HIGHLIGHT_AREAS,
+            payload: [{
+              adId,
+              holcId: hashValues.area,
+            }],
+          });
+        }
+
+        if (hashValues.category) {
+          actions.push({
+            type: Actions.SELECT_CATEGORY,
+            payload: hashValues.category,
+          });
+        }
+
+        actions.push({
+          type: Actions.INITIALIZED,
+        });
+
+        dispatch(batchActions(actions));
+      });
+  } else {
+    dispatch({
+      type: Actions.INITIALIZED,
+    });
+  }
+};
 
 export const selectCategory = (eOrId) => {
   const id = getEventId(eOrId);
@@ -133,6 +334,8 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
   const filesToLoad = (loadingPolygonsFor !== id)
     ? [`./static/ADs/${path}`, `./static/polygons/${path}`]
     : [`./static/ADs/${path}`];
+
+  console.log(filesToLoad);
 
   return Promise.all(filesToLoad.map(ftl => fetch(ftl)))
     .then(responses => Promise.all(responses.map(r => r.json())))
@@ -206,6 +409,10 @@ export const selectArea = eOrId => (dispatch, getState) => {
       payload: {
         ...map,
         zoom,
+        highlightedPolygons: [{
+          adId,
+          holcId,
+        }],
         center: [lat, lng],
         movingTo: {
           zoom,
@@ -341,7 +548,7 @@ export const highlightArea = eOrId => (dispatch, getState) => {
   }];
   // if there's a selected Area, it stays highlighted
   const { selectedArea, selectedCity, map, dimensions } = getState();
-  if (selectedArea && selectedCity) {
+  if (selectedArea && selectedArea !== holcId && selectedCity) {
     highlightedPolygons.push({
       adId: selectedCity,
       holcId: selectedArea,
@@ -351,7 +558,7 @@ export const highlightArea = eOrId => (dispatch, getState) => {
   const actions = [];
   // calcuate if map movement is necessary
   const { bounds, visiblePolygons } = map;
-  const newCenterAndZoom = centerAndZoomIncluding(bounds,
+  const newCenterAndZoom = centerAndZoomIntersects(bounds,
     getAreaPolygonBB(adId, holcId, visiblePolygons), dimensions);
   if (newCenterAndZoom) {
     const { lat, lng, zoom } = newCenterAndZoom;
@@ -383,7 +590,7 @@ export const unhighlightArea = eOrId => (dispatch, getState) => {
   // check to see if it's selected--if it isn't don't unhighlight it
   let adId;
   let holcId;
-  if (eOrId) {
+  if (eOrId && selectedArea) {
     const ids = getEventId(eOrId);
     [adId, holcId] = ids.split('-').map((v, i) => (
       (i === 0) ? parseInt(v, 10) : v
@@ -395,7 +602,8 @@ export const unhighlightArea = eOrId => (dispatch, getState) => {
       type: Actions.HIGHLIGHT_AREAS,
       payload: updatedHighlightedPolygons,
     });
-  } else {
+  }
+  else {
     const isSelected = !eOrId || (adId === selectedCity && holcId === selectedArea);
     if (adSearchHOLCIds && adSearchHOLCIds.length > 0) {
       dispatch({
@@ -431,6 +639,7 @@ export const updateMap = mapState => (dispatch, getState) => {
 
   // This is simple if above threshold for showing maps.
   // Reset the view and remove the visible rasters and map.
+  console.log('updateMap');
   if (!aboveThreshold) {
     dispatch({
       type: Actions.MOVE_MAP,
@@ -681,9 +890,9 @@ export const resetMapView = () => (dispatch, getState) => {
   const { windowWidth: mapWidth, mapHeight } = getState().dimensions;
 
   // calculate the map zoom and center
-  L.Map.include({
-    getSize: () => new L.Point(mapWidth, mapHeight),
-  });
+  // L.Map.include({
+  //   getSize: () => new L.Point(mapWidth, mapHeight),
+  // });
   const map = new L.Map(document.createElement('div'), {
     center: [0, 0],
     zoom: 0,
@@ -694,7 +903,7 @@ export const resetMapView = () => (dispatch, getState) => {
     new L.Marker(bounds[0]),
     new L.Marker(bounds[1]),
   ]);
-  const zoom = map.getBoundsZoom(featureGroup.getBounds());
+  const zoom = map.getBoundsZoom(featureGroup.getBounds(), false, [-1 * mapWidth, -1 * mapHeight]);
   dispatch(batchActions([
     {
       type: Actions.UNSELECT_CITY,

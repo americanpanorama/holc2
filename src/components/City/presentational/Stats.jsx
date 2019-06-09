@@ -7,8 +7,8 @@ import ADSelections from '../containers/ADSelections';
 
 const Stats = () => (
   <div className="cityStats">
-    <Population />
     <CityViz />
+    <Population />
     <ADSelections />
   </div>
 );

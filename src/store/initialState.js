@@ -63,10 +63,10 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
 // initialize the position for the adscan if it isn't specified in the url
 if (!adScan) {
   const { windowWidth: mapWidth, dataViewerWidth, mapHeight, size } = dimensions;
-  L.Map.include({
-    getSize: () => new L.Point(mapWidth, mapHeight),
-  });
-  const map = new L.Map(document.createElement('div'), {
+  // L.Map.include({
+  //   getSize: () => new L.Point(mapWidth, mapHeight),
+  // });
+  const utilityMap = new L.Map(document.createElement('div'), {
     center: [0, 0],
     zoom: 0,
   });
@@ -91,7 +91,9 @@ if (!adScan) {
     adCenter = [adY, adX];
 
     // offset the bounds to take account of the dataViewer
-    adZoom = map.getBoundsZoom(sheetBounds);
+    console.log(adCenter, utilityMap.getSize(), utilityMap.getSize().subtract([-1 * mapWidth, -1 * mapHeight]));
+    adZoom = utilityMap.getBoundsZoom(sheetBounds, false, [-1 * mapWidth, -1 * mapHeight]);
+    console.log(adZoom);
   }
 
   adScan = {
@@ -101,8 +103,6 @@ if (!adScan) {
 }
 
 const center = [lat, lng];
-
-console.log(dimensions.media);
 
 // const basemap = (zoom < 9)
 //   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
@@ -152,4 +152,5 @@ export default {
   formsMetadata: FormsMetadata,
   dimensions,
   landingPage: false && dimensions.media !== 'phone' && dimensions.media !== 'tablet-portrait',
+  initialized: false,
 };

@@ -1,19 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import NeighborhoodMap from '../containers/NeighborhoodMap';
 
-const CategoryDatum = ({ holcId, value, adId, selectArea, highlightArea, unhighlightArea, CategoryComponent }) => (
-  <li
-    onClick={selectArea}
-    onMouseEnter={highlightArea}
-    onMouseLeave={unhighlightArea}
-    id={`${adId}-${holcId}`}
-  >
-    <CategoryComponent
-      holcId={holcId}
-      value={value}
-    />
-  </li>
-);
+const CategoryDatum = (props) => {
+  const {
+    holcId,
+    value,
+    adId,
+    selectArea,
+    highlightArea,
+    unhighlightArea,
+    showMapFor,
+    CategoryComponent,
+  } = props;
+
+  return (
+    <li
+      onClick={selectArea}
+      onMouseEnter={highlightArea}
+      onMouseLeave={unhighlightArea}
+      id={`${adId}-${holcId}`}
+    >
+      <CategoryComponent
+        holcId={holcId}
+        value={value}
+      />
+      {(showMapFor && holcId === showMapFor.holcId && adId === showMapFor.adId) && (
+        <NeighborhoodMap
+          holcId={holcId}
+          adId={adId}
+        />
+      )}
+    </li>
+  );
+};
 
 export default CategoryDatum;
 
@@ -25,8 +45,13 @@ CategoryDatum.propTypes = {
   highlightArea: PropTypes.func.isRequired,
   unhighlightArea: PropTypes.func.isRequired,
   CategoryComponent: PropTypes.func.isRequired,
+  showMapFor: PropTypes.shape({
+    holcId: PropTypes.string,
+    adId: PropTypes.number,
+  }),
 };
 
 CategoryDatum.defaultProps = {
   value: null,
+  showMapFor: undefined,
 };

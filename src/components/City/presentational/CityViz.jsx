@@ -14,15 +14,10 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
     C: 'Definitely Declining',
     D: 'Hazardous',
   };
-  const gradeColors = {
-    A: '#418e41',
-    B: '#4a4ae4',
-    C: '#ffdf00',
-    D: '#eb3f3f',
-  };
+
   const areaWidths = {};
   grades.forEach((grade) => {
-    areaWidths[grade] = (width * 0.34 - 10) * gradeStats.find(d => d.grade === grade).percent;
+    areaWidths[grade] = (width * 0.45 - 10) * gradeStats.find(d => d.grade === grade).percent;
     return null;
   });
 
@@ -31,6 +26,10 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
       <h3>
         Areas by Grade
       </h3>
+      <h4>
+        Hover over grades for explanation &
+        <br />to highlight those areas on the map
+      </h4>
       <svg
         width={width}
         height={270}
@@ -39,7 +38,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
         }}
       >
         <text
-          x={width * 0.34 - 10}
+          x={width * 0.45 - 10}
           y={16}
           textAnchor="end"
           fontWeight={400}
@@ -49,7 +48,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
         </text>
 
         <text
-          x={width * 0.34 + 10}
+          x={width * 0.45 + 10}
           y={16}
           textAnchor="start"
           fontWeight={400}
@@ -65,15 +64,15 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
               transform={`translate(0, ${i * 25})`}
             >
               <rect
-                x={(width * 0.34 - 10) - areaWidths[grade]}
+                x={(width * 0.45 - 10) - areaWidths[grade]}
                 y={2}
                 width={areaWidths[grade]}
                 height={14}
-                fill={gradeColors[grade]}
+                fill={constantsColors[`grade${grade}`]}
                 fillOpacity={(!selectedGrade || selectedGrade === grade) ? 1 : 0.1}
               />
               <text
-                x={width * 0.34 + 10}
+                x={width * 0.45 + 10}
                 y={15}
                 textAnchor="start"
                 fill="black"
@@ -83,7 +82,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
                 {`${grade} "${labels[grade]}"`}
               </text>
               <text
-                x={(width * 0.34 - 10) - areaWidths[grade] - 5}
+                x={(width * 0.45 - 10) - areaWidths[grade] - 5}
                 y={14}
                 textAnchor="end"
                 fill={(!selectedGrade || selectedGrade === grade) ? '#222' : 'silver'}

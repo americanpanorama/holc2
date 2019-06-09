@@ -8,7 +8,7 @@ header#masthead {
   text-align: left;
   color: white;
   overflow: hidden;
-  z-index: 2001;
+  z-index: 1999;
 
   @include for-tablet-portrait-down {
     overflow: visible;
@@ -48,7 +48,8 @@ header#masthead {
     padding: 0 0 0 15px;
     display: inline-block;
     z-index: 2001;
-    font-family: 'Crimson Text', serif;
+    font-family: minion-pro-display,serif;
+    font-weight: 400;
     font-style: italic;
 
     .header-main {

@@ -4,9 +4,9 @@
 
   &.greyscale {
     .holcRaster img {
-      -webkit-filter: grayscale(0.9); /* Webkit */
+      -webkit-filter: grayscale(100%); /* Webkit */
       filter: gray; /* IE6-9 */
-      filter: grayscale(0.9); /* W3C */
+      filter: grayscale(100%) brightness(125%); /* blur(1px);  W3C */
     }
   }
 
@@ -43,10 +43,6 @@
     mix-blend-mode: darken;
   }
 
-  .neighborhoodLabelBG {
-    stroke-width: 0;
-    background-color: transparent;
-  }
 
   .cityLabelMarker img {
     visibility: hidden;
@@ -89,10 +85,20 @@
     &:before {
       border: 0;
     }
+
+    &:hover {
+      color: red;
+    }
   }
+
+
 
   .neighborhoodLabel {
     text-align: center;
+  }
+
+  .cityLabel {
+    pointer-events: auto;
   }
 }
 
@@ -201,4 +207,10 @@
     }
   }
 }
+
+.neighborhoodLabelBG {
+  stroke-width: 0;
+  background-color: transparent;
+}
+
 

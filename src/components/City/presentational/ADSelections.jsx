@@ -4,9 +4,14 @@ import ADSearch from '../containers/ADSearch';
 
 const ADSelections = ({ selections, adId, isSearchingADs, selectArea, highlightArea, unhighlightArea }) => (
   <section className="adSelections">
-    <h3>
+    <h3 className="headerWithTip">
       Area Descriptions
     </h3>
+    <h4 className="tip">
+      Hover over to highlight on map,
+      <br />
+      click to select
+    </h4>
 
     <ADSearch />
 

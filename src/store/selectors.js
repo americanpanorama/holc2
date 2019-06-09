@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import * as L from 'leaflet';
 import FormsMetadata from '../../data/formsMetadata.json';
 import Rasters from '../../data/Rasters.json';
 import stateAbbrs from '../../data/state_abbr.json';
@@ -23,6 +24,28 @@ const getLoadingPolygonsFor = state => state.map.loadingPolygonsFor;
 const getVisibleRasters = state => state.map.visibleRasters;
 const isGeolocating = state => state.map.geolocating;
 const getLoadingCity = state => state.loadingCity;
+const getShowDataViewerFull = state => state.showDataViewerFull;
+const getDimensions = state => state.dimensions;
+
+export const getInspectedPolygon = createSelector(
+  [getSelectedArea, getSelectedCity, getHighlightedPolygons],
+  (selectedArea, selectedCity, highlightedPolygons) => {
+    // if there's just one polygon, it's the one to show
+    // if there are multiple ones,
+    // remove the selected polygon to test whether there is just one that's being hovered over
+    let inspectedPolygon;
+    if (highlightedPolygons.length === 1) {
+      inspectedPolygon = highlightedPolygons[0];
+    } else {
+      const highlightedSansSelected = highlightedPolygons
+        .filter(hp => hp.holcId !== selectedArea || hp.adId !== selectedCity);
+      if (highlightedSansSelected.length === 1) {
+        inspectedPolygon = highlightedSansSelected[0];
+      }
+    }
+    return inspectedPolygon;
+  },
+);
 
 export const getAreaMarkers = createSelector(
   [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getSelectedCity],
@@ -62,10 +85,7 @@ export const getPolygons = createSelector(
       let strokeColor = '#888'; //constantsColors[`grade${p.grade}`];
       let strokeOpacity = (showHOLCMaps) ? 0 : 0.95;
       let weight = (showHOLCMaps) ? 0 : 1;
-      const idObj = {
-        adId: p.ad_id,
-        holcId: p.id,
-      };
+
       const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}` :
         `areaPolygon-${p.ad_id}-${p.id}`;
 
@@ -76,16 +96,13 @@ export const getPolygons = createSelector(
             fillOpacity = Math.min(0.9, zFillOpacity * 2);
             strokeColor = 'black';
           } else {
-            strokeColor = 'black';
-            fillOpacity = 0.5;
-            strokeOpacity = 1;
-            weight = 3;
+            fillOpacity = 0.1;
             fillColor = constantsColorsVibrant[`grade${p.grade}`];
           }
         } else if (!showHOLCMaps) {
-          strokeColor = 'black';
           fillOpacity = Math.max(0.2, zFillOpacity * 0.5);
-          strokeOpacity = 0.33;
+          strokeOpacity = 0.5;
+          weight = 0.5;
         }
       }
 
@@ -129,11 +146,37 @@ export const getRasters = createSelector(
 
     return rasters.map(raster => ({
       ...raster,
-      sortOrder: (overlappingIds.includes(raster.id))
-        ? overlappingIds.length - overlappingIds.findIndex(id => id === raster.id)
-        : null,
+      zIndex: (overlappingIds.includes(raster.id))
+        ? overlappingIds.findIndex(id => id === raster.id) : null,
       overlappingIds,
     }));
+  },
+);
+
+export const getAreaRasters = createSelector(
+  [getShowHOLCMaps, getVisiblePolygons, getHighlightedPolygons],
+
+  (showHOLCMaps, visiblePolygons, highlightedPolygons) => {
+    if (!showHOLCMaps) {
+      return [];
+    }
+
+    return highlightedPolygons
+      .filter(hp => visiblePolygons.findIndex(p => p.ad_id === hp.adId
+        && p.id === hp.holcId) !== -1)
+      .map((hp) => {
+        const {
+          neighborhoodId,
+          polygonBoundingBox,
+        } = visiblePolygons.find(p => p.ad_id === hp.adId && p.id === hp.holcId);
+        return ({
+          id: neighborhoodId,
+          minZoom: 7,
+          maxZoom: 15,
+          url: `//s3.amazonaws.com/holc/polygon_tiles/${neighborhoodId}/{z}/{x}/{y}.png`,
+          bounds: polygonBoundingBox,
+        });
+      });
   },
 );
 
@@ -268,7 +311,7 @@ export const getSelectedCategoryData = createSelector(
         .forEach((holcId) => {
           const { holc_grade: holcGrade, areaDesc } = areaDescriptions[holcId];
 
-          if (areaDesc && ['A', 'B', 'C', 'D'].includes(holcGrade)) {
+          if (areaDesc && areaDesc[cat] && ['A', 'B', 'C', 'D'].includes(holcGrade)) {
             if (!subcat) {
               values[holcGrade].push({
                 holcId,
@@ -539,5 +582,24 @@ export const getDownloadData = createSelector(
       }
       return 0;
     });
+  },
+);
+
+export const getInspectedMiniMapParams = createSelector(
+  [getShowDataViewerFull, getVisiblePolygons, getInspectedPolygon],
+  (showDataViewerFull, visiblePolygons, inspectedPolygon) => {
+    if (showDataViewerFull && inspectedPolygon) {
+      const { adId, holcId } = inspectedPolygon;
+      // get the bounding box for the polygon
+      const areaPolygon = visiblePolygons.find(vp => vp.id === holcId && vp.ad_id === adId);
+      if (areaPolygon && areaPolygon.polygonBoundingBox) {
+        return {
+          bounds: areaPolygon.polygonBoundingBox,
+          highlightedHolcId: holcId,
+          highlightedAdId: adId,
+        };
+      }
+    }
+    return {};
   },
 );
