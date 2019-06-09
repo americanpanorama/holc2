@@ -340,6 +340,10 @@ const showHOLCMaps = (state = true, action) => (
   (action.type === A.TOGGLE_HOLC_MAPS) ? !state : state
 );
 
+const showNationalLegend = (state = true, action) => (
+  (action.type === A.TOGGLE_NATIONAL_LEGEND) ? !state : state
+);
+
 const selectedText = (state = false, action) => (
   (action.type === A.SELECT_TEXT) ? action.payload : state
 );
@@ -386,6 +390,7 @@ const combinedReducer = combineReducers({
   showContactUs,
   showDataViewerFull,
   showHOLCMaps,
+  showNationalLegend,
   selectedText,
   adSearchHOLCIds,
   cities,

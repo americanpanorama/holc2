@@ -263,7 +263,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
                 x={10}
                 dy="1.2em"
               >
-               and B areas.
+               and B areas."
               </tspan>
             </text>
           </g>

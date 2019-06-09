@@ -143,6 +143,7 @@ export default {
   showContactUs: false,
   showCityStats: true,
   showHOLCMaps,
+  showNationalLegend: true,
   showDataViewerFull: false,
   searchingADsFor: null,
   adSearchHOLCIds: [],

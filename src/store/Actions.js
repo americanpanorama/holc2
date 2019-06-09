@@ -886,6 +886,10 @@ export const toggleLandingPage = () => ({
   type: Actions.TOGGLE_LANDING_PAGE,
 });
 
+export const toggleNationalLegend = () => ({
+  type: Actions.TOGGLE_NATIONAL_LEGEND,
+});
+
 export const resetMapView = () => (dispatch, getState) => {
   const { windowWidth: mapWidth, mapHeight } = getState().dimensions;
 

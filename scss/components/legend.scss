@@ -27,11 +27,11 @@
 
     li {
       list-style: none;
+      line-height: 1.5;
 
       span{ 
         border-radius: 12px;
-        padding: 0 3px;
-        color: white;
+        padding: 3px 7px;
         margin: 5px 0 5px 10px;
 
         &.gradeA {
@@ -49,4 +49,19 @@
       }
     }
   }
+}
+
+#showNationalLegend {
+  position: fixed;
+  bottom: 0;
+  left: 20px;
+  z-index: 2000;
+  background-color: $controlsColor;
+  color: white;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border: none;
+  height: 36px;
 }

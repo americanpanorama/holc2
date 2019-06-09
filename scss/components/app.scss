@@ -99,6 +99,7 @@ circle {
 
 [role="button"] {
 	cursor: pointer;
+	pointer-events: auto;
 	outline:0;
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
