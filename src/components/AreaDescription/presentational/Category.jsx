@@ -8,7 +8,7 @@ import UnFullScreenButton from '../../Buttons/presentational/UnFullScreen';
 import PreviousCategoryButton from '../containers/PreviousCategoryButton';
 import NextCategoryButton from '../containers/NextCategoryButton';
 
-const Category = ({ title, values, unselectCategory, showDataViewerFull, toggleDataViewerFull }) => (
+const Category = ({ title, instructions, values, unselectCategory, showDataViewerFull, toggleDataViewerFull }) => (
   <div id="adCategory">
     <header>
       <PreviousCategoryButton />
@@ -40,6 +40,14 @@ const Category = ({ title, values, unselectCategory, showDataViewerFull, toggleD
         </span>
 
       </h3>
+      {(instructions) && (
+        <p className="instructions">
+          Instructions to HOLC Agents:
+          <em>
+            {` ${instructions}`}
+          </em>
+        </p>
+      )}
     </header>
 
     <div className="grade A">
@@ -108,6 +116,7 @@ export default Category;
 
 Category.propTypes = {
   title: PropTypes.string,
+  instructions: PropTypes.string,
   values: PropTypes.shape({
     A: PropTypes.arrayOf(PropTypes.object),
     B: PropTypes.arrayOf(PropTypes.object),
@@ -121,4 +130,5 @@ Category.propTypes = {
 
 Category.defaultProps = {
   title: null,
+  instructions: null,
 };

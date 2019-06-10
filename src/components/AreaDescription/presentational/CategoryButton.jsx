@@ -13,23 +13,18 @@ const AreaButton = ({ category, label, direction, selectCategory }) => {
       viewBox="-20 -20 40 40"
       onClick={selectCategory}
       id={category}
-      className={`adButton ${direction}`}
+      className={`adButton category ${direction}`}
     >
       <circle
         cx={0}
         cy={0}
-        r={20}
-        fill='silver'
+        r={17}
       />
-     {/*
-      <path
-        d={`M${5},${-10} L${-5},${0} L${5},${10}`}
-      /> */}
       <text
         x={0}
         y={5}
       >
-        {(direction === 'previous') ? `<${label}` : `${label}>`}
+        {(direction === 'previous') ? `${label}` : `${label}`}
       </text>
     </svg>
   )

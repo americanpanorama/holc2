@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
-import * as L from 'leaflet';
 import FormsMetadata from '../../data/formsMetadata.json';
+import FormsInstructions from '../../data/formsInstructions.json';
 import Rasters from '../../data/Rasters.json';
 import stateAbbrs from '../../data/state_abbr.json';
 import { constantsColors, constantsColorsVibrant, constantsPopLabels, HEADER_RED_COLOR } from '../../data/constants';
@@ -299,6 +299,7 @@ export const getSelectedCategoryData = createSelector(
   (selectedCategory, cityData, areaDescriptions) => {
     const values = { A: [], B: [], C: [], D: [] };
     let title;
+    let instructions;
     let prevCat;
     let nextCat;
 
@@ -318,12 +319,18 @@ export const getSelectedCategoryData = createSelector(
                 value: areaDesc[cat],
               });
               title = `${cat} ${FormsMetadata[formId][cat]}`;
+              instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat])
+                ? FormsInstructions[formId][cat] : null;
             } else {
               values[holcGrade].push({
                 holcId,
                 value: areaDesc[cat][subcat],
               });
               title = `${cat}${subcat} ${FormsMetadata[formId][cat].header} ${FormsMetadata[formId][cat].subcats[subcat]}`;
+              instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat]
+                && FormsInstructions[formId][cat].subcats &&
+                FormsInstructions[formId][cat].subcats[subcat])
+                ? FormsInstructions[formId][cat].subcats[subcat] : null;
             }
           }
         });
@@ -368,6 +375,7 @@ export const getSelectedCategoryData = createSelector(
     return {
       values,
       title,
+      instructions,
       prevCat,
       nextCat,
     };

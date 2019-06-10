@@ -29,6 +29,7 @@ let selectedCategory = null;
 let showHOLCMaps = true;
 let showADSelections = true;
 let showADScan = false;
+let showDataViewerFull = false;
 let selectedText = null;
 let adScan;
 
@@ -40,6 +41,9 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
   }
   if (key === 'adview' && value === 'full') {
     showADSelections = false;
+  }
+  if (key === 'adviewer' && value === 'full') {
+    showDataViewerFull = true;
   }
   if (key === 'maps' && value === '0') {
     showHOLCMaps = false;
@@ -144,7 +148,7 @@ export default {
   showCityStats: true,
   showHOLCMaps,
   showNationalLegend: true,
-  showDataViewerFull: false,
+  showDataViewerFull,
   searchingADsFor: null,
   adSearchHOLCIds: [],
   //searchingADsAreas: [],

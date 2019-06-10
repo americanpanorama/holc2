@@ -36,6 +36,24 @@
          stroke-width: 3;
       }
 
+      &.category {
+        circle {
+          fill: $controlsColorLightGrey;
+          stroke: $navyButtonColor;
+          stroke-width: 1;
+
+          &:hover {
+            fill: $navyButtonColor;
+          }
+        }
+
+        &:hover {
+          text {
+            stroke: $controlsColorLightGrey;
+          }
+        }
+      }
+
       &.gradeA {
         circle {
           fill: $gradeA;
@@ -253,7 +271,7 @@
 
   #dataViewerFull & {
     max-width: 1600px;
-    margin: 0 auto;
+    margin: 0 auto 300px auto;
     .grade {
       display: inline-block;
       vertical-align:top;
@@ -369,6 +387,15 @@ button.cityStats {
 }
 
 #adCategory {
+
+  header {
+    height: auto;
+
+    .instructions {
+      line-height: 1.4;
+    }
+  }
+
   ul {
     margin: 10px 0;
 
