@@ -12,6 +12,7 @@ class Downloads extends React.Component {
     };
 
     this.handleChange = this.handleChange.bind(this);
+    this.onSelectCity = this.onSelectCity.bind(this);
   }
 
   handleChange(e) {
@@ -35,6 +36,12 @@ class Downloads extends React.Component {
         cityDownloads,
       });
     }
+  }
+
+  onSelectCity(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.selectCity(e);
   }
 
   render() {
@@ -110,7 +117,13 @@ class Downloads extends React.Component {
                   key={`downloadsFor${c.adId}`}
                 >
                   <h3>
-                    {c.city}
+                    <a
+                      href={`http://dsl.richmond.edu/panorama/redlining/#city=${c.slug}`}
+                      onClick={this.onSelectCity}
+                      id={c.adId}
+                    >
+                      {c.city}
+                    </a>
                   </h3>
                   {(c.city.includes('Antonio')) && (
                     <h5 className="citation">
@@ -251,4 +264,5 @@ Downloads.propTypes = {
     state: PropTypes.string,
     cities: PropTypes.array,
   })).isRequired,
+  selectCity: PropTypes.func.isRequired,
 };

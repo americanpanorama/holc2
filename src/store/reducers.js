@@ -344,9 +344,15 @@ const showNationalLegend = (state = true, action) => (
   (action.type === A.TOGGLE_NATIONAL_LEGEND) ? !state : state
 );
 
-const selectedText = (state = false, action) => (
-  (action.type === A.SELECT_TEXT) ? action.payload : state
-);
+const selectedText = (state = false, action) => {
+  if (action.type === A.SELECT_TEXT) {
+    return action.payload;
+  }
+  if (action.type === A.SELECT_CITY_REQUEST) {
+    return null;
+  }
+  return state;
+};
 
 const landingPage = (state = true, action) => (
   (action.type === A.TOGGLE_LANDING_PAGE) ? !state : state

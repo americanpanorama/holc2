@@ -27,7 +27,12 @@ const AreaMarkers = ({ labels, fontSize }) => (
                 color: p.color,
               }}
             >
-              {p.id}
+              <a
+                href={`http://dsl.richmond.edu/panorama/redlining/#city=${p.slug}&area=${p.id}`}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              >
+                {p.id}
+              </a>
             </span>
           </Tooltip>
         </CircleMarker>

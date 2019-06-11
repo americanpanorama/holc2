@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 
 import HeaderArea from '../containers/HeaderArea';
 import TranscriptionButton from '../containers/TranscriptionButton';
+import ViewAllADsButton from '../containers/ViewAllADsButton';
 import ImageButton from '../containers/ImageButton';
 
-const AreaDescription = ({ adData, FormComponent, selectCategory }) => (
+const AreaDescription = ({ adData, FormComponent, formId, selectCategory }) => (
   <div id="areaDescription">
     <HeaderArea />
     <div className="controls">
-      <TranscriptionButton />
+      {(formId === 1) ? <ViewAllADsButton /> : <TranscriptionButton />}
       <ImageButton />
     </div>
     { (adData) ? (
@@ -32,6 +33,7 @@ AreaDescription.propTypes = {
   adData: PropTypes.object,
   FormComponent: PropTypes.func,
   selectCategory: PropTypes.func.isRequired,
+  formId: PropTypes.number.isRequired,
 };
 
 AreaDescription.defaultProps = {

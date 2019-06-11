@@ -335,8 +335,6 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
     ? [`./static/ADs/${path}`, `./static/polygons/${path}`]
     : [`./static/ADs/${path}`];
 
-  console.log(filesToLoad);
-
   return Promise.all(filesToLoad.map(ftl => fetch(ftl)))
     .then(responses => Promise.all(responses.map(r => r.json())))
     .then((responsesJSON) => {
@@ -639,7 +637,6 @@ export const updateMap = mapState => (dispatch, getState) => {
 
   // This is simple if above threshold for showing maps.
   // Reset the view and remove the visible rasters and map.
-  console.log('updateMap');
   if (!aboveThreshold) {
     dispatch({
       type: Actions.MOVE_MAP,

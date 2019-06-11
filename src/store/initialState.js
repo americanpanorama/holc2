@@ -95,9 +95,7 @@ if (!adScan) {
     adCenter = [adY, adX];
 
     // offset the bounds to take account of the dataViewer
-    console.log(adCenter, utilityMap.getSize(), utilityMap.getSize().subtract([-1 * mapWidth, -1 * mapHeight]));
     adZoom = utilityMap.getBoundsZoom(sheetBounds, false, [-1 * mapWidth, -1 * mapHeight]);
-    console.log(adZoom);
   }
 
   adScan = {

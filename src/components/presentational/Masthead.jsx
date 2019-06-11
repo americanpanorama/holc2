@@ -22,6 +22,8 @@ export default class Masthead extends React.Component {
 
   onSelectText(e) {
     const { media, selectText } = this .props;
+    e.preventDefault();
+    e.stopPropagation();
     selectText(e.target.id);
     const menuOpen = (media !== 'phone' && media !== 'tablet-portrait');
     this.setState({
@@ -31,6 +33,7 @@ export default class Masthead extends React.Component {
 
   render() {
     const { media, landingPage } = this.props;
+    const { menuOpen } = this.state;
 
     return (
       <header id="masthead">
@@ -53,25 +56,34 @@ export default class Masthead extends React.Component {
                 <Hamburger />
               </div>
             )}
-            {(this.state.menuOpen) && (
+            {(menuOpen) && (
               <ul>
-                <li
-                  onClick={this.onSelectText}
-                  id="intro"
-                >
-                  Introduction
+                <li>
+                  <a
+                    href="http://dsl.richmond.edu/panorama/redlining/#text=intro"
+                    onClick={this.onSelectText}
+                    id="intro"
+                  >
+                    Introduction
+                  </a>
                 </li>
-                <li
-                  onClick={this.onSelectText}
-                  id="downloads"
-                >
-                  Downloads & Data
+                <li>
+                  <a
+                    href="http://dsl.richmond.edu/panorama/redlining/#text=downloads"
+                    onClick={this.onSelectText}
+                    id="downloads"
+                  >
+                    Downloads & Data
+                  </a>
                 </li>
-                <li
-                  onClick={this.onSelectText}
-                  id="about"
-                >
-                  About
+                <li>
+                  <a
+                    href="http://dsl.richmond.edu/panorama/redlining/#text=about"
+                    onClick={this.onSelectText}
+                    id="about"
+                  >
+                    About
+                  </a>
                 </li>
                 <li
                   onClick={this.onSelectText}

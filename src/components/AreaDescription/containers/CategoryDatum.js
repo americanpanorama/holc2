@@ -16,6 +16,16 @@ const mapStateToProps = (state) => {
       Cat5d: PercentPredominating,
       Cat5g: IncreasingDecreasingStatic,
     },
+    Form19370601: {
+      Cat5c: PercentPredominating,
+      Cat5d: PercentPredominating,
+      Cat5g: IncreasingDecreasingStatic,
+    },
+    Form19370826: {
+      Cat5c: PercentPredominating,
+      Cat5d: PercentPredominating,
+      Cat5g: IncreasingDecreasingStatic,
+    },
     Form19371001: {
       Cat2c: PercentPredominating,
       Cat2d: PercentPredominating,

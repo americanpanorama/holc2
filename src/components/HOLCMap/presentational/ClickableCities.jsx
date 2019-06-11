@@ -29,11 +29,14 @@ const ClickableCities = ({ cities, otherLabels, onCitySelected }) => (
               opacity={1}
               permanent
             >
-              <span
-                onClick={onCitySelected}
-                id={c.ad_id}
-              >
-                {c.name}
+              <span>
+                <a
+                  href={`http://dsl.richmond.edu/panorama/redlining/#city=${c.slug}`}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCitySelected(e); }}
+                  id={c.ad_id}
+                >
+                  {c.name}
+                </a>
               </span>
             </Tooltip>
           )}

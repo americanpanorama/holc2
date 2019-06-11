@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const FormQualitative = ({ adData }) => (
+const FormQualitative = ({ adData, selectCategory }) => (
   <div className="qualitative">
     {adData[1]}
   </div>
@@ -13,4 +13,5 @@ FormQualitative.propTypes = {
   adData: PropTypes.shape({
     1: PropTypes.string,
   }).isRequired,
+  selectCategory: PropTypes.func.isRequired,
 };

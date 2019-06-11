@@ -24,13 +24,13 @@ const Header = (props) => {
     <h2>
       <a
         href={`http://dsl.richmond.edu/panorama/redlining/#city=${slug}`}
-        onClick={() => { onCitySelected(); return false; }}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
         id={adId}
       >
         {`${name}, `}
       </a>
       <span
-        onClick={onStateSelected}
+        //onClick={onStateSelected}
         id={state}
         role="link"
         tabIndex={0}

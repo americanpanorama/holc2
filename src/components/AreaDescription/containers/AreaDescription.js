@@ -46,6 +46,7 @@ const MapStateToProps = (state) => {
   return {
     adData,
     FormComponent,
+    formId: cityData.form_id,
   };
 };
 

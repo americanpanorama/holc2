@@ -48,8 +48,8 @@ export const getInspectedPolygon = createSelector(
 );
 
 export const getAreaMarkers = createSelector(
-  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getSelectedCity],
-  (polygons, highlightedPolygons, showHOLCMaps, zoom, selectedCity) => {
+  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getSelectedCity, getCities],
+  (polygons, highlightedPolygons, showHOLCMaps, zoom, selectedCity, cities) => {
     if (zoom < 10 || showHOLCMaps) {
       return [];
     }
@@ -57,14 +57,17 @@ export const getAreaMarkers = createSelector(
     return polygons
       .filter(p => p.ad_id === selectedCity && p.id && p.labelCoords)
       .map((l) => {
-        const color = (highlightedPolygons.length === 0 ||
-          highlightedPolygons.some(hp => hp.adId === l.ad_id && hp.holcId === l.id))
+        const color = (highlightedPolygons.length === 0
+          || highlightedPolygons.some(hp => hp.adId === l.ad_id && hp.holcId === l.id))
           ? '#333' : 'silver';
-        const key = (l.arbId) ? `areaPolygon-${l.ad_id}-${l.arbId}` :
-          `areaPolygon-${l.ad_id}-${l.id}`;
+        const key = (l.arbId) ? `areaPolygon-${l.ad_id}-${l.arbId}`
+          : `areaPolygon-${l.ad_id}-${l.id}`;
+        const city = cities.find(c => c.ad_id === l.ad_id);
+        const { slug } = city;
         return {
           point: l.labelCoords,
           ad_id: l.ad_id,
+          slug,
           key,
           id: l.id,
           color,
@@ -183,6 +186,9 @@ export const getAreaRasters = createSelector(
 export const getSelectedCityADSelections = createSelector(
   [getSelectedCityData, getFormMetadata],
   (cityData, formsMetadata) => {
+    if (!cityData.hasADs) {
+      return false;
+    }
     const selections = cityData.areaDescSelections;
     const formMetadata = formsMetadata[cityData.form_id];
 
@@ -318,7 +324,7 @@ export const getSelectedCategoryData = createSelector(
                 holcId,
                 value: areaDesc[cat],
               });
-              title = `${cat} ${FormsMetadata[formId][cat]}`;
+              title = (formId !== 1) ? `${cat} ${FormsMetadata[formId][cat]}` : 'Area Descriptions';
               instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat])
                 ? FormsInstructions[formId][cat] : null;
             } else {
