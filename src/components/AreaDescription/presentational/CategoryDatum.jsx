@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import HoverIntet from 'react-hoverintent'
 import NeighborhoodMap from '../containers/NeighborhoodMap';
 
 const CategoryDatum = (props) => {
@@ -15,23 +16,29 @@ const CategoryDatum = (props) => {
   } = props;
 
   return (
-    <li
-      onClick={selectArea}
-      onMouseEnter={highlightArea}
-      onMouseLeave={unhighlightArea}
-      id={`${adId}-${holcId}`}
+    <HoverIntet
+      onMouseOver={highlightArea}
+      onMouseOut={unhighlightArea}
+      
     >
-      <CategoryComponent
-        holcId={holcId}
-        value={value}
-      />
-      {(showMapFor && holcId === showMapFor.holcId && adId === showMapFor.adId) && (
-        <NeighborhoodMap
+      <li
+        onClick={selectArea}
+        // onMouseEnter={highlightArea}
+        // onMouseLeave={unhighlightArea}
+        id={`${adId}-${holcId}`}
+      >
+        <CategoryComponent
           holcId={holcId}
-          adId={adId}
+          value={value}
         />
-      )}
-    </li>
+        {(showMapFor && holcId === showMapFor.holcId && adId === showMapFor.adId) && (
+          <NeighborhoodMap
+            holcId={holcId}
+            adId={adId}
+          />
+        )}
+      </li>
+    </HoverIntet>
   );
 };
 

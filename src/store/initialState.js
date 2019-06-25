@@ -1,7 +1,6 @@
 import * as L from 'leaflet';
 
 import Cities from '../../data/Cities.json';
-import areaDescSelections from '../../data/areaDescSelections.json';
 import FormsMetadata from '../../data/formsMetadata.json';
 import calculateDimensions from './CalculateDimensions';
 
@@ -13,23 +12,18 @@ const shuffleArray = (array) => {
   return array;
 };
 
-Object.keys(Cities).forEach((id) => {
-  const { slug } = Cities[id];
-  Cities[id].areaDescSelections = (areaDescSelections[slug])
-    ? shuffleArray(areaDescSelections[slug]) : null;
-});
-
-
 const dimensions = calculateDimensions();
+const { windowWidth: mapWidth, dataViewerWidth, mapHeight, media } = dimensions;
 
 let zoom = 5;
 let lat = 39.10;
 let lng = -94.58;
 let selectedCategory = null;
 let showHOLCMaps = true;
+let showFullHOLCMaps = true;
 let showADSelections = true;
 let showADScan = false;
-let showDataViewerFull = false;
+let showDataViewerFull = media !== 'phone';
 let selectedText = null;
 let adScan;
 
@@ -42,8 +36,8 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
   if (key === 'adview' && value === 'full') {
     showADSelections = false;
   }
-  if (key === 'adviewer' && value === 'full') {
-    showDataViewerFull = true;
+  if (key === 'adviewer' && value === 'sidebar') {
+    showDataViewerFull = false;
   }
   if (key === 'maps' && value === '0') {
     showHOLCMaps = false;
@@ -66,19 +60,15 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
 
 // initialize the position for the adscan if it isn't specified in the url
 if (!adScan) {
-  const { windowWidth: mapWidth, dataViewerWidth, mapHeight, size } = dimensions;
-  // L.Map.include({
-  //   getSize: () => new L.Point(mapWidth, mapHeight),
-  // });
   const utilityMap = new L.Map(document.createElement('div'), {
     center: [0, 0],
     zoom: 0,
   });
 
-  // defaults for mobile
+  // defaults for phone
   let adZoom = 2;
   let adCenter = [65.22, -123.57];
-  if (size !== 'mobile') {
+  if (media !== 'phone') {
     const bounds = [[-10, -180], [90, -60]];
     const horizontalOffsetRatio = ((dataViewerWidth + 40) / mapWidth) / ((mapWidth - (dataViewerWidth + 40)) / mapWidth);
     const verticalOffsetRatio = 0;
@@ -115,6 +105,7 @@ const basemap = 'https://api.mapbox.com/styles/v1/ur-dsl/cjtyox5ms3ycd1flvhg7kih
 
 export default {
   areaDescriptions: null,
+  adSelections: [],
   basemap,
   selectedCity: null,
   loadingCity: null,
@@ -131,6 +122,9 @@ export default {
     bounds: [],
     aboveThreshold: false,
     visibleRasters: [],
+    visibleRasterPolygons: [],
+    selectableRasterBoundaries: [],
+    visibleBoundaries: [],
     visiblePolygons: [],
     highlightedPolygons: [],
     loadingPolygonsFor: [],
@@ -145,6 +139,7 @@ export default {
   showContactUs: false,
   showCityStats: true,
   showHOLCMaps,
+  showFullHOLCMaps,
   showNationalLegend: true,
   showDataViewerFull,
   searchingADsFor: null,

@@ -20,7 +20,7 @@ const SimpleCategory = ({ num, data, name, selectCategory }) => (
     <span className="catData">
       { (data) ? (
         <span>
-          {data.split('\n').map((item, key) => (
+          {data.split('(\\n)').map((item, key) => (
             <p key={key}>
               {item}
             </p>

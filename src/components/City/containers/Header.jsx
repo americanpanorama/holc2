@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
 import Header from '../presentational/Header';
-import { selectCity, zoomToCity, toggleCityStatsOnOff } from '../../../store/Actions';
+import { selectCity, unselectCity, zoomToCity, toggleCityStatsOnOff } from '../../../store/Actions';
 import { getSelectedCityData } from '../../../store/selectors';
 
 const MapStateToProps = (state) => {
-  const { showDataViewerFull } = state;
+  const { showDataViewerFull, selectedCategory, map, visibleCities } = state;
   const selectedCityData = getSelectedCityData(state);
   if (selectedCityData) {
     const { slug, ad_id: adId, name, state: theState } = selectedCityData;
@@ -13,7 +13,8 @@ const MapStateToProps = (state) => {
       adId: parseInt(adId, 10),
       name,
       state: theState,
-      showMinimizeButton: !showDataViewerFull,
+      showMinimizeButton: !selectedCategory || !showDataViewerFull,
+      showCloseButton: visibleCities.length > 1,
     };
   } else {
     return {};
@@ -22,6 +23,7 @@ const MapStateToProps = (state) => {
 
 const MapDispatchToProps = {
   onCitySelected: selectCity,
+  unselectCity,
   onStateSelected: () => { return },
   zoomToCity,
   toggleCityStats: toggleCityStatsOnOff,

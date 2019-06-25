@@ -8,7 +8,13 @@ const CategoryDatum = ({ holcId, value }) => (
       {holcId}
     </div>
     <div className="value">
-      {(value !== null) ? value : <EmptyField />}
+      {(value !== null)
+        ? value.split('(\\n)').map((item, key) => (
+          <p key={key}>
+            {item}
+          </p>
+        ))
+        : <EmptyField />}
     </div>
   </React.Fragment>
 );

@@ -3,11 +3,12 @@ import FormsMetadata from '../../data/formsMetadata.json';
 import FormsInstructions from '../../data/formsInstructions.json';
 import Rasters from '../../data/Rasters.json';
 import stateAbbrs from '../../data/state_abbr.json';
-import { constantsColors, constantsColorsVibrant, constantsPopLabels, HEADER_RED_COLOR } from '../../data/constants';
+import { constantsColors, constantsColorsVibrant, constantsPopLabels, HEADER_RED_COLOR, BUCKET_URL } from '../../data/constants';
 
 const getAdScan = state => state.adScan;
 const getAdSearchHOLCIds = state => state.adSearchHOLCIds;
 const getAreaDescriptions = state => state.areaDescriptions;
+const getAdSelections = state => state.adSelections;
 const getCities = state => state.cities;
 const getFormMetadata = state => state.formsMetadata;
 const getMapZoom = state => state.map.zoom;
@@ -18,7 +19,10 @@ const getSelectedCategory = state => state.selectedCategory;
 const getSelectedCity = state => state.selectedCity;
 const getSelectedGrade = state => state.selectedGrade;
 const getShowHOLCMaps = state => state.showHOLCMaps;
+const getShowFullHOLCMaps = state => state.showFullHOLCMaps;
 const getVisiblePolygons = state => state.map.visiblePolygons;
+const getVisibleBoundaries = state => state.map.visibleBoundaries;
+const getVisibleRasterPolygons = state => state.map.visibleRasterPolygons;
 const getHighlightedPolygons = state => state.map.highlightedPolygons;
 const getLoadingPolygonsFor = state => state.map.loadingPolygonsFor;
 const getVisibleRasters = state => state.map.visibleRasters;
@@ -55,11 +59,11 @@ export const getAreaMarkers = createSelector(
     }
 
     return polygons
-      .filter(p => p.ad_id === selectedCity && p.id && p.labelCoords)
+      .filter(p => p.id && p.labelCoords && (!selectedCity || selectedCity === p.ad_id))
       .map((l) => {
         const color = (highlightedPolygons.length === 0
           || highlightedPolygons.some(hp => hp.adId === l.ad_id && hp.holcId === l.id))
-          ? '#333' : 'silver';
+          ? '#333' : 'green';
         const key = (l.arbId) ? `areaPolygon-${l.ad_id}-${l.arbId}`
           : `areaPolygon-${l.ad_id}-${l.id}`;
         const city = cities.find(c => c.ad_id === l.ad_id);
@@ -71,6 +75,7 @@ export const getAreaMarkers = createSelector(
           key,
           id: l.id,
           color,
+          fontSize: 21 - ((16 - zoom) * 3),
         };
       });
   },
@@ -99,7 +104,7 @@ export const getPolygons = createSelector(
             fillOpacity = Math.min(0.9, zFillOpacity * 2);
             strokeColor = 'black';
           } else {
-            fillOpacity = 0.1;
+            fillOpacity = 0;
             fillColor = constantsColorsVibrant[`grade${p.grade}`];
           }
         } else if (!showHOLCMaps) {
@@ -128,8 +133,8 @@ export const getSelectedCityData = createSelector(
 );
 
 export const getRasters = createSelector(
-  [getShowHOLCMaps, getVisibleRasters, getSelectedCityData],
-  (showHOLCMaps, rasters, cityData) => {
+  [getShowHOLCMaps, getShowFullHOLCMaps, getVisibleRasters, getSelectedCityData],
+  (showHOLCMaps, showFullHOLCMaps, rasters, cityData) => {
     if (!showHOLCMaps) {
       return [];
     }
@@ -149,6 +154,7 @@ export const getRasters = createSelector(
 
     return rasters.map(raster => ({
       ...raster,
+      url: (showFullHOLCMaps) ? raster.url : raster.url.replace('/tiles/', '/tiles_mosaic/'),
       zIndex: (overlappingIds.includes(raster.id))
         ? overlappingIds.findIndex(id => id === raster.id) : null,
       overlappingIds,
@@ -183,13 +189,34 @@ export const getAreaRasters = createSelector(
   },
 );
 
+export const getCityAreaRasters = createSelector(
+  [getShowHOLCMaps, getVisiblePolygons],
+
+  (showHOLCMaps, visiblePolygons) => {
+    // if (!showHOLCMaps) {
+    //   return [];
+    // }
+
+    return visiblePolygons
+      .map((p) => {
+        const { neighborhoodId, polygonBoundingBox } = p;
+        return ({
+          id: neighborhoodId,
+          minZoom: 7,
+          maxZoom: 15,
+          url: `//s3.amazonaws.com/holc/polygon_tiles/${neighborhoodId}/{z}/{x}/{y}.png`,
+          bounds: polygonBoundingBox,
+        });
+      });
+  },
+);
+
 export const getSelectedCityADSelections = createSelector(
-  [getSelectedCityData, getFormMetadata],
-  (cityData, formsMetadata) => {
+  [getAdSelections, getSelectedCityData, getFormMetadata],
+  (selections, cityData, formsMetadata) => {
     if (!cityData.hasADs) {
       return false;
     }
-    const selections = cityData.areaDescSelections;
     const formMetadata = formsMetadata[cityData.form_id];
 
     if (selections) {
@@ -487,25 +514,24 @@ export const getLoadingNotification = createSelector(
 );
 
 export const getOverlappingMaps = createSelector(
-  [getVisibleRasters, getShowHOLCMaps, isSortingMaps],
-  (rasters, showHOLCMaps, isSortingMaps) => {
+  [getVisibleRasters, getVisibleRasterPolygons, getShowHOLCMaps, isSortingMaps],
+  (rasters, visibleRasterPolygons, showHOLCMaps, isSortingMaps) => {
     if (!showHOLCMaps || !isSortingMaps) {
       return [];
     }
     const categoricalColors = ['rgb(158, 218, 229)', 'rgb(174, 199, 232)', 'rgb(255, 127, 14)', 'rgb(255, 187, 120)', 'rgb(44, 160, 44)', 'rgb(152, 223, 138)', 'rgb(31, 119, 180)', 'rgb(214, 39, 40)', 'rgb(255, 152, 150)', 'rgb(148, 103, 189)', 'rgb(197, 176, 213)', 'rgb(140, 86, 75)', 'rgb(196, 156, 148)', 'rgb(227, 119, 194)', 'rgb(247, 182, 210)', 'rgb(127, 127, 127)', 'rgb(199, 199, 199)', 'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)'];
     const allOverlappingRasters = rasters.filter(m => m.overlaps);
     const overlappingRasters = allOverlappingRasters.map((m, i) => {
-      const shade = 200 - 200 * i / allOverlappingRasters.length;
       const weight = 1 + 4 * i / allOverlappingRasters.length;
       const sortOrder = allOverlappingRasters.length - i;
       return {
         ...m,
+        the_geojson: visibleRasterPolygons.find(vrp => vrp.map_id === m.id).the_geojson,
         fillColor: categoricalColors[i % 20],
         weight,
         sortOrder,
       };
     });
-    console.log(overlappingRasters);
     return overlappingRasters;
   },
 );
@@ -538,14 +564,14 @@ export const getDownloadData = createSelector(
             const {
               file_name: fileName,
               name: rasterName,
-              inset, mapUrl,
-              rectifiedUrl,
+              year: rasterYear,
+              inset,
             } = Rasters.find(r => r.id === mId);
-            if (mapUrl) {
+            if (fileName && state && year) {
               cityDownloadData.rasters.push({
                 fileName,
                 name: rasterName,
-                mapUrl,
+                mapUrl: `${BUCKET_URL}/tiles/${state}/${fileName}/${rasterYear}/holc-scan.jpg`,
                 id: mId,
               });
             }
@@ -553,8 +579,8 @@ export const getDownloadData = createSelector(
               id: mId,
               fileName,
               name: rasterName,
-              rectifiedUrl,
-              inset,
+              rectifiedUrl: `${BUCKET_URL}/tiles/${state}/${fileName}/${rasterYear}/rectified.zip`,
+              inset: !!inset,
             });
           } else {
             console.warn(`no raster for ${mId}`);
@@ -615,5 +641,24 @@ export const getInspectedMiniMapParams = createSelector(
       }
     }
     return {};
+  },
+);
+
+export const getCityBoundaries = createSelector(
+  [getCities, getVisibleBoundaries, getSelectedCity, getShowHOLCMaps],
+  (cities, visibleBoundaries, selectedCity, showHOLCMaps) => {
+    if (showHOLCMaps) {
+      return [];
+    }
+
+    return visibleBoundaries
+      .map(b => ({
+        boundaryGeojson: b.the_geojson,
+        weight: (!selectedCity || b.ad_id === selectedCity) ? 1 : 0.5,
+        color: (!selectedCity || b.ad_id === selectedCity) ? 'black' : 'grey',
+        fillColor: 'white',
+        fillOpacity: (!selectedCity || b.ad_id === selectedCity) ? 0 : 0.5,
+        key: `boundaryFor-${b.ad_id}`,
+      }));
   },
 );

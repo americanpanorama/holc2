@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import MinimizeButton from '../../Buttons/presentational/Minimize';
+import CloseButton from '../../Buttons/presentational/Close';
 import ZoomToButton from '../../Buttons/presentational/ZoomTo';
 
 const Header = (props) => {
@@ -12,8 +13,10 @@ const Header = (props) => {
     onStateSelected,
     state,
     showMinimizeButton,
+    showCloseButton,
     toggleCityStats,
     zoomToCity,
+    unselectCity,
   } = props;
 
   if (!name) {
@@ -39,32 +42,47 @@ const Header = (props) => {
       </span>
 
       { (showMinimizeButton) && (
-        <React.Fragment>
-          <span
-            onClick={toggleCityStats}
-            role="button"
-            tabIndex={0}
-            style={{
-              float: 'right',
-              marginLeft: 10,
-            }}
-          >
-            <MinimizeButton />
-          </span>
-          <span
-            onClick={zoomToCity}
-            id={adId}
-            role="button"
-            tabIndex={0}
-            style={{
-              float: 'right',
-              marginLeft: 10,
-            }}
-          >
-            <ZoomToButton />
-          </span>
-        </React.Fragment>
+        <span
+          onClick={toggleCityStats}
+          role="button"
+          tabIndex={0}
+          style={{
+            float: 'right',
+            marginLeft: 10,
+          }}
+        >
+          <MinimizeButton />
+        </span>
       )}
+
+      { (showCloseButton) && (
+        <span
+          onClick={unselectCity}
+          role="button"
+          tabIndex={0}
+          style={{
+            float: 'right',
+            marginLeft: 10,
+          }}
+        >
+          <CloseButton />
+        </span>
+      )}
+
+      { (showMinimizeButton) && (
+        <span
+          onClick={zoomToCity}
+          id={adId}
+          role="button"
+          tabIndex={0}
+          style={{
+            float: 'right',
+            marginLeft: 10,
+          }}
+        >
+          <ZoomToButton />
+        </span>
+    )}
     </h2>
   );
 };
@@ -76,9 +94,11 @@ Header.propTypes = {
   name: PropTypes.string,
   onStateSelected: PropTypes.func.isRequired,
   state: PropTypes.string,
+  showCloseButton: PropTypes.bool,
   showMinimizeButton: PropTypes.bool,
   toggleCityStats: PropTypes.func.isRequired,
   zoomToCity: PropTypes.func.isRequired,
+  unselectCity: PropTypes.func.isRequired,
 };
 
 Header.defaultProps = {
@@ -87,6 +107,7 @@ Header.defaultProps = {
   name: undefined,
   state: undefined,
   showMinimizeButton: undefined,
+  showCloseButton: false,
 };
 
 export default Header;

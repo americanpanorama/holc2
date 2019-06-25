@@ -76,12 +76,12 @@ const mapStateToProps = (state) => {
         let direction = 'center';
 
         // above
-        if (['Woonsocket', 'Newport News', 'Niagara Falls', 'Philadelphia', 'Winston Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
+        if (['Woonsocket', 'Newport News', 'Niagara Falls', 'Philadelphia', 'Winston-Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
           radians = Math.PI * 1.5;
         }
 
         // west
-        if (['Essex County', 'Hartford', 'St.Louis', 'St. Louis', 'Omaha', 'Minneapolis'].includes(city.name)) {
+        if (['Essex Co.', 'Hartford', 'St.Louis', 'St. Louis', 'Omaha', 'Minneapolis'].includes(city.name)) {
           radians = 0;
           direction = 'left';
         }
@@ -106,7 +106,7 @@ const mapStateToProps = (state) => {
 
         city.showLabel = (!['Brooklyn', 'Queens', 'Bronx', 'Staten Island', 'Manhattan', 'Boston', 'Quincy', 'Newton', 'Medford', 'Needham', 'Dedham', 'Milton', 'Lexington', 'Malden', 'Watertown', 'Chelsea', 'Everett', 'Cambridge', 'Waltham', 'Arlington', 'Winchester', 'Brookline', 'Braintree', 'Belmont', 'Winthrop', 'Somerville', 'Melrose', 'Saugus', 'Revere'].includes(city.name));
 
-        if (zoom === 8 && ['Lower Westchester Co.', 'Hudson County'].includes(city.name)) {
+        if (zoom === 8 && ['Lower Westchester Co.', 'Hudson Co.'].includes(city.name)) {
           city.showLabel = false;
         }
 
@@ -137,7 +137,7 @@ const mapStateToProps = (state) => {
             direction = 'right';
           }
           // southeast 
-          if (['New Britain', 'New Haven', 'Lake County Gary'].includes(city.name)) {
+          if (['New Britain', 'New Haven', 'Lake Co. Gary'].includes(city.name)) {
             radians = Math.PI * 0.25;
             direction = 'right';
           }
@@ -148,14 +148,14 @@ const mapStateToProps = (state) => {
             direction = 'left';
           }
 
-          if (['Stamford, Darien, and New Canaan', 'Lower Westchester Co.', 'Hudson County', 'Pawtucket & Central Falls'].includes(city.name)) {
+          if (['Stamford, Darien, and New Canaan', 'Lower Westchester Co.', 'Hudson Co.', 'Pawtucket & Central Falls'].includes(city.name)) {
             city.showLabel = false;
           }
         }
 
         if (zoom <= 6) {
           // above
-          if (['Portsmouth', 'Ogden', 'Utica', 'Oshkosh', 'Muncie', 'Terre Haute', 'Seattle', 'Sacramento', 'Poughkeepsie', 'Lynchburg', 'Decatur', 'Altoona', 'Houston', 'Muskegon', 'Des Moines', 'Waterloo', 'St. Joseph', 'St.Joseph'].includes(city.name)) {
+          if (['Portsmouth', 'Ogden', 'Utica', 'Oshkosh', 'Muncie', 'Terre Haute', 'Seattle', 'Sacramento', 'Poughkeepsie', 'Lynchburg', 'Decatur', 'Altoona', 'Houston', 'Muskegon', 'Des Moines', 'Waterloo', 'St. Joseph', 'St. Joseph'].includes(city.name)) {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
@@ -169,7 +169,7 @@ const mapStateToProps = (state) => {
           // west
           if ([
 
-            'Essex County', 'Saginaw', 'San Francisco', 'York'].includes(city.name)) {
+            'Essex Co.', 'Saginaw', 'San Francisco', 'York'].includes(city.name)) {
             radians = 0;
             direction = 'left';
           }
@@ -181,12 +181,12 @@ const mapStateToProps = (state) => {
           }
 
           // northwest
-          if (['Manchester', 'Hartford', 'Winston Salem', 'Topeka'].includes(city.name)) {
+          if (['Manchester', 'Hartford', 'Winston-Salem', 'Topeka'].includes(city.name)) {
             radians = Math.PI * 1.75;
             direction = 'left';
           }
 
-          if (['Essex County'].includes(city.name)) {
+          if (['Essex Co.'].includes(city.name)) {
             radians = Math.PI * 1.9;
             direction = 'left';
           }
@@ -208,7 +208,7 @@ const mapStateToProps = (state) => {
             direction = 'left';
           }
 
-          if (['Lancaster', 'Harrisburg', 'Woonsocket', 'Bethlehem', 'WilkesBarre', 'Wilkes Barre', 'Hamilton', 'Lake County Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
+          if (['Lancaster', 'Harrisburg', 'Woonsocket', 'Bethlehem', 'WilkesBarre', 'Wilkes-Barre', 'Hamilton', 'Lake Co. Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
             city.showLabel = false;
           }
           if (city.name === 'Springfield' && city.state === 'OH') {
@@ -280,7 +280,7 @@ const mapStateToProps = (state) => {
           }
 
 
-          if (['Harrisburg', 'Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex County', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton/Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
+          if (['Harrisburg', 'Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston-Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex Co.', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton/Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
             city.showLabel = false;
           }
           if ((city.name === 'Columbus' && city.state === 'GA') || (city.name === 'Rochester' && city.state === 'MN')) {
@@ -346,7 +346,7 @@ const mapStateToProps = (state) => {
           }
 
           // southwest
-          if (['St.Petersburg', 'Wichita'].includes(city.name)) {
+          if (['St. Petersburg', 'Wichita'].includes(city.name)) {
             radians = Math.PI * 0.25;
             direction = 'left';
           }
@@ -358,16 +358,12 @@ const mapStateToProps = (state) => {
           }
 
 
-          if (['York', 'Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St.Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
+          if (['York', 'Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St. Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
             city.showLabel = false;
           }
           if (false) {
             city.showLabel = false;
           }
-        }
-
-        if (zoom <= 3) {
-          city.showLabel = false;
         }
 
         const labelOffset = [Math.cos(radians) * (rDist / 2), Math.sin(radians) * (rDist / 2 + 10)];
@@ -448,6 +444,7 @@ const mapStateToProps = (state) => {
   return {
     cities: cities2.filter(c => c.offsetPoint && c.offsetPoint[0] && c.centerLat && c.ad_id),
     otherLabels,
+    zoom,
   };
 };
 

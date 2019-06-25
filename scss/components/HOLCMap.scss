@@ -3,11 +3,24 @@
   width: 100%;
 
   &.greyscale {
-    .holcRaster img {
-      -webkit-filter: grayscale(100%); /* Webkit */
-      filter: gray; /* IE6-9 */
-      filter: grayscale(100%) brightness(125%); /* blur(1px);  W3C */
+   .holcRaster img {
+    -webkit-filter: grayscale(100%); 
+    filter: gray;
+    filter: grayscale(100%) brightness(125%); 
+   }
+    @for $z from 9 through 24 {
+      &.zoom-#{$z} {
+        .holcRaster img {
+          -webkit-filter: grayscale(100%); 
+          filter: gray;
+          filter: grayscale(min(95%, 80% + ($z - 9) * 5)) brightness(120%); 
+        }
+      }
     }
+  }
+
+  .areaRaster img {
+    filter: saturate(140%);
   }
 
   .mask {
@@ -43,6 +56,17 @@
     mix-blend-mode: darken;
   }
 
+  .mapPolygon {
+    fill: transparent;
+    stroke: $headerRed;
+    stroke-width: 0.5;
+
+    &:hover {
+      stroke-width: 1.5;
+    }
+
+  }
+
 
   .cityLabelMarker img {
     visibility: hidden;
@@ -61,21 +85,36 @@
     margin: 0;
     padding: 0 3px;
 
+    &.zoom3 {
+      font-size: 0.75em;
+    }
+
     &.class2 {
       color: #444;
       font-size: 1.3em;
       text-shadow: -3px 0 2px #f5f5f3, 0 3px 2px #f5f5f3, 3px 0 2px #f5f5f3, 0 -3px 2px #f5f5f3;
+
+      &.zoom3 {
+        font-size: 0.65em;
+      }
     }
 
     &.class3 {
       color: #666;
       font-size: 1.1em;
       text-shadow: -2px 0 1px #f5f5f3, 0 2px 1px #f5f5f3, 2px 0 1px #f5f5f3, 0 -2px 1px #f5f5f3;
+      
+      &.zoom3 {
+        font-size: 0.55em;
+      }
     }
     &.class4 {
       color: #888;
       font-size: 0.9em;
       text-shadow: -1px 0 0.5px #f5f5f3, 0 1px 0.5px #f5f5f3, 1px 0 0.5px #f5f5f3, 0 -1px 0.5px #f5f5f3;
+      &.zoom3 {
+        font-size: 0.45em;
+      }
     }
 
     &.deemphasized {
@@ -115,6 +154,23 @@
     }
   }
 
+  .mapSelectionControl {
+    position: absolute;
+    top: 0;
+    right: 36px * 3 + 160px + 20px * 3;
+    z-index: 1100;
+
+    .mapOptions {
+      padding-top: 50px;
+      background-color: $controlsColorLightGrey;
+      color: $controlsColor;
+
+      li {
+        list-style: none;
+      }
+    }
+  }
+
   button {
     background-color: $controlsColor;
     position: absolute;
@@ -126,14 +182,15 @@
     z-index: 1100;
     
     &.mapToggle {
+      height: auto;
       width: 130px;
-      right: 36px * 3 + 190px + 20px * 3;
+      right: 36px * 3 + 160px + 20px * 3;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
       padding: 0;
 
       @include for-phone-only {
-        right: 148px;
+        right: 36px * 3 + 47px + 2px + 10px * 2;
         width: 36px;
         display: block;
         text-indent: -9999em;
@@ -146,7 +203,7 @@
 
     &.bringMapToFront {
       width: 130px;
-      right: 36px * 3 + 190px + 130px + 20px * 4;
+      right: 36px * 3 + 160px + 130px + 20px * 4;
       border-bottom-left-radius: 10px;
       border-bottom-right-radius: 10px;
       padding: 0;
@@ -211,6 +268,10 @@
 .neighborhoodLabelBG {
   stroke-width: 0;
   background-color: transparent;
+}
+
+.cityBoundary {
+  pointer-events: none !important;
 }
 
 

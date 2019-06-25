@@ -3,13 +3,20 @@ import HOLCMap from '../presentational/HOLCMap';
 import { clickOnMap } from '../../../store/Actions';
 
 const mapStateToProps = (state) => {
-  const { showHOLCMaps, map, dimensions } = state;
+  const { showHOLCMaps, map, dimensions, selectedGrade } = state;
   const { zoom, center, bounds, aboveThreshold, highlightedPolygons } = map;
-  const className = (showHOLCMaps && highlightedPolygons.length > 0) ? 'greyscale' : '';
+  let className = '';
+  if (showHOLCMaps && highlightedPolygons.length > 0) {
+    className = `greyscale zoom-${zoom}`;
+  }
+  if (selectedGrade) {
+    className = 'greyscale';
+  }
   return {
     zoom,
     center,
     bounds,
+    showHOLCMaps,
     aboveThreshold,
     style: dimensions.mapStyle,
     className,

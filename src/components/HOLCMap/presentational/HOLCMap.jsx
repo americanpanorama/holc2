@@ -9,11 +9,15 @@ import Legend from '../containers/Legend';
 import CityMarkers from '../containers/CityMarkers';
 import HOLCRasters from '../containers/HOLCRasters';
 import AreaRasters from '../containers/AreaRasters';
+import CityAreaRasters from '../containers/CityAreaRasters';
 import MapSortPolygons from '../containers/MapSortPolygons';
 import AreaPolygons from '../containers/AreaPolygons';
+import CityBoundaries from '../containers/CityBoundaries';
+import MapPolygons from '../containers/MapPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
 import UserLocation from '../containers/UserLocation';
 import MapToggleControl from '../containers/MapToggleControl';
+import MapSelectionControl from '../containers/MapSelectionControl';
 import ZoomInButton from '../containers/ZoomInButton';
 import ZoomOutButton from '../containers/ZoomOutButton';
 import BringMapToFrontButton from '../containers/BringMapToFrontButton';
@@ -59,7 +63,7 @@ export default class HOLCMap extends React.Component {
   }
 
   render() {
-    const { zoom, center, className, clickOnMap } = this.props;
+    const { zoom, center, aboveThreshold, showHOLCMaps, className, clickOnMap } = this.props;
     return (
       <React.Fragment>
         <Map
@@ -76,21 +80,45 @@ export default class HOLCMap extends React.Component {
           onClick={clickOnMap}
         >
           <BaseMap />
-          <USMask />
-          <ClickableCities />
+          {(!aboveThreshold) && (
+            <React.Fragment>
+              <USMask />
+              <ClickableCities />
+            </React.Fragment>
+          )}
           <CityMarkers />
-          <HOLCRasters />
-          <AreaRasters />
-          <AreaPolygons />
-          <AreaMarkers />
-          <MapSortPolygons />
-          <UserLocation />
+
+          {(aboveThreshold) && (
+            <React.Fragment>
+              {(showHOLCMaps) && (
+                <React.Fragment>
+                  <HOLCRasters />
+                  <AreaRasters />
+                </React.Fragment>
+              )}
+              <AreaPolygons />
+
+              {(!showHOLCMaps) && (
+                <React.Fragment>
+                  <CityBoundaries />
+                  <AreaMarkers />
+                </React.Fragment>
+              )}
+              {(zoom >= 9 && zoom <= 11) && (
+                <MapPolygons />
+              )}
+              {(showHOLCMaps) && (
+                <MapSortPolygons />
+              )}
+              <UserLocation />
+            </React.Fragment>
+          )}
         </Map>
 
         <Legend />
 
         <div id="mapControls">
-          <MapToggleControl />
+          <MapSelectionControl />
           <BringMapToFrontButton />
           <div id="zoomControls">
             <ZoomInButton />
@@ -107,6 +135,8 @@ HOLCMap.propTypes = {
   zoom: PropTypes.number.isRequired,
   center: PropTypes.arrayOf(PropTypes.number).isRequired,
   bounds: PropTypes.arrayOf(PropTypes.array),
+  aboveThreshold: PropTypes.bool.isRequired,
+  showHOLCMaps: PropTypes.bool.isRequired,
   className: PropTypes.string.isRequired,
   clickOnMap: PropTypes.func.isRequired,
   style: PropTypes.shape({

@@ -7,7 +7,11 @@ const initialized = (state = false, action) => (
 );
 
 const areaDescriptions = (state = initialState.areaDescriptions, action) => (
-  (action.type === A.LOAD_ADS) ? action.payload : state
+  (action.type === A.LOAD_ADS) ? action.payload.ads : state
+);
+
+const adSelections = (state = initialState.adSelections, action) => (
+  (action.type === A.LOAD_ADS) ? action.payload.selections : state
 );
 
 const selectedCategory = (state = null, action) => {
@@ -104,22 +108,9 @@ const inspectedArea = (state = null, action) => {
   return state;
 };
 
-const visibleCities = (state = [], action) => {
-  if (action.type === A.SHOW_VISIBLE_CITIES) {
-    // get the currently visible ids
-    const currentlyVisibleIds = state.map(c => c.id);
-    // check to see if there's any change
-    if (currentlyVisibleIds.sort() !== action.payload.sort()) {
-      // filter out those that are no longer visible
-      const newVisibleCities = state.filter(c => action.payload.includes(c.id));
-      // add the new ones
-      // somehow get them;
-      return newVisibleCities;
-    }
-    return state;
-  }
-  return state;
-};
+const visibleCities = (state = [], action) => (
+  (action.type === A.UPDATE_VISIBLE_CITIES) ? action.payload : state
+);
 
 const map = (state = initialState.map, action) => {
   if (action.type === A.ZOOM_IN) {
@@ -217,7 +208,7 @@ const map = (state = initialState.map, action) => {
     };
   }
 
-  if (action.type === A.SELECT_CITY_SUCCESS) {
+  if (action.type === A.SELECT_CITY_SUCCESS || action.type === A.UNSELECT_CITY) {
     return {
       ...state,
       highlightedPolygons: [],
@@ -225,11 +216,13 @@ const map = (state = initialState.map, action) => {
   }
 
   if (action.type === A.LOADED_POLYGONS) {
-    const cityIdsFinished = [...new Set(action.payload.map(p => p.ad_id))];
+    const cityIdsFinished = [...new Set(action.payload.polygons.map(p => p.ad_id))];
     const loadingPolygonsFor = state.loadingPolygonsFor.filter(id => !cityIdsFinished.includes(id));
     return {
       ...state,
-      visiblePolygons: action.payload,
+      visiblePolygons: action.payload.polygons,
+      visibleRasterPolygons: action.payload.rasterBoundaries,
+      visibleBoundaries: (action.payload.boundaries) ? action.payload.boundaries.filter(b => !!b) : [],
       loadingPolygonsFor,
     };
   }
@@ -336,9 +329,37 @@ const showDataViewerFull = (state = initialState.showDataViewerFull, action) => 
   (action.type === A.TOGGLE_DATA_VIEWER_FULL) ? !state : state
 );
 
-const showHOLCMaps = (state = true, action) => (
-  (action.type === A.TOGGLE_HOLC_MAPS) ? !state : state
-);
+const showHOLCMaps = (state = true, action) => {
+  if (action.type === A.TOGGLE_HOLC_MAPS) {
+    return !state;
+  }
+
+  if (action.type === A.SHOW_ONLY_POLYGONS) {
+    return false;
+  }
+
+  if (action.type === A.SHOW_MOSAIC_MAPS || action.type === A.SHOW_FULL_MAPS) {
+    return true;
+  }
+
+  return state;
+};
+
+const showFullHOLCMaps = (state = true, action) => {
+  if (action.type === A.TOGGLE_HOLC_MAPS) {
+    return !state;
+  }
+
+  if (action.type === A.SHOW_MOSAIC_MAPS) {
+    return false;
+  }
+
+  if (action.type === A.SHOW_FULL_MAPS) {
+    return true;
+  }
+
+  return state;
+};
 
 const showNationalLegend = (state = true, action) => (
   (action.type === A.TOGGLE_NATIONAL_LEGEND) ? !state : state
@@ -379,6 +400,7 @@ const dimensions = (state = {}, action) => (
 const combinedReducer = combineReducers({
   initialized,
   areaDescriptions,
+  adSelections,
   selectedCategory,
   selectedCity,
   loadingCity,
@@ -396,6 +418,7 @@ const combinedReducer = combineReducers({
   showContactUs,
   showDataViewerFull,
   showHOLCMaps,
+  showFullHOLCMaps,
   showNationalLegend,
   selectedText,
   adSearchHOLCIds,

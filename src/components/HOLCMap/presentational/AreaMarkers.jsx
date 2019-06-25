@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FeatureGroup, CircleMarker, Tooltip } from 'react-leaflet';
 
-const AreaMarkers = ({ labels, fontSize }) => (
+const AreaMarkers = ({ labels }) => (
   <React.Fragment>
     { labels.map(p => (
       <FeatureGroup
@@ -23,7 +23,7 @@ const AreaMarkers = ({ labels, fontSize }) => (
           >
             <span
               style={{
-                fontSize,
+                fontSize: p.fontSize,
                 color: p.color,
               }}
             >
@@ -46,10 +46,8 @@ export default AreaMarkers;
 
 AreaMarkers.propTypes = {
   labels: PropTypes.arrayOf(PropTypes.object),
-  fontSize: PropTypes.number,
 };
 
 AreaMarkers.defaultProps = {
   labels: [],
-  fontSize: 12,
 };

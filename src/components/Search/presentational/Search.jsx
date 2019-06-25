@@ -25,7 +25,7 @@ export default class Search extends React.Component {
       >
         <Typeahead
           options={options}
-          placeholder="Search by city or state"
+          placeholder="Search for city"
           filterOption="searchName"
           value=""
           displayOption={city => city.ad_id}

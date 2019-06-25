@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip, FeatureGroup, Marker, Polyline } from 'react-leaflet';
 
-const ClickableCities = ({ cities, otherLabels, onCitySelected }) => (
+const ClickableCities = ({ cities, otherLabels, zoom, onCitySelected }) => (
   <React.Fragment>
     { cities.map(c => (
       <FeatureGroup
@@ -24,7 +24,7 @@ const ClickableCities = ({ cities, otherLabels, onCitySelected }) => (
         >
           {(c.showLabel) && (
             <Tooltip
-              className={`cityLabel class${c.labelClass}`}
+              className={`cityLabel class${c.labelClass} ${(zoom <= 3) ? `zoom${zoom}` : ''}`}
               direction={c.labelDirection}
               opacity={1}
               permanent
@@ -71,6 +71,7 @@ export default ClickableCities;
 ClickableCities.propTypes = {
   cities: PropTypes.arrayOf(PropTypes.object).isRequired,
   otherLabels: PropTypes.arrayOf(PropTypes.object),
+  zoom: PropTypes.number.isRequired,
   onCitySelected: PropTypes.func.isRequired,
 };
 

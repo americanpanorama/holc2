@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Minimize = ({ onClick }) => (
+const ZoomTo = ({ onClick }) => (
   <svg
     width={20}
     height={20}
@@ -55,12 +55,12 @@ const Minimize = ({ onClick }) => (
   </svg>
 );
 
-export default Minimize;
+export default ZoomTo;
 
-Minimize.propTypes = {
+ZoomTo.propTypes = {
   onClick: PropTypes.func,
 };
 
-Minimize.defaultProps = {
+ZoomTo.defaultProps = {
   onClick: () => false,
 };

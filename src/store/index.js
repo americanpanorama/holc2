@@ -29,7 +29,6 @@ const hashManager = store => next => (action) => {
   const selectedCityData = (selectedCity) ? cities.find(c => c.ad_id === selectedCity) : null;
   const lat = Math.round(center[0] * 1000) / 1000;
   const lng = Math.round(center[1] * 1000) / 1000;
-  console.log(selectedText);
   const newHash = {
     loc: `${zoom}/${lat}/${lng}`,
     maps: (!showHOLCMaps) ? '0' : null,
@@ -38,7 +37,7 @@ const hashManager = store => next => (action) => {
     category: selectedCategory,
     adview: (!showADSelections) ? 'full' : null,
     text: selectedText || null,
-    adviewer: (showDataViewerFull) ? 'full': null,
+    adviewer: (!showDataViewerFull) ? 'sidebar': null,
   };
   if (showADScan) {
     const { zoom: adZoom, center: adCenter } = adScan;
