@@ -42,6 +42,9 @@ hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
   if (key === 'maps' && value === '0') {
     showHOLCMaps = false;
   }
+  if (key === 'mapview' && value === 'graded') {
+    showFullHOLCMaps = false;
+  }
   if (key === 'adimage') {
     showADScan = true;
     const [adZoom, adY, adX] = value.split('/').map(str => parseFloat(str));

@@ -8,9 +8,9 @@ const AreaPolygons = ({ polygons, selectArea, highlightArea, unhighlightArea }) 
       <GeoJSON
         data={p.area_geojson}
         className={`neighborhoodPolygon`}
-        onClick={selectArea}
-        onMouseOver={highlightArea}
-        onMouseOut={unhighlightArea}
+        onClick={(p.hasAD) ? selectArea : () => false }
+        onMouseOver={(p.hasAD) ? highlightArea : () => false }
+        onMouseOut={(p.hasAD) ? unhighlightArea : () => false }
         id={`${p.ad_id}-${p.id}`}
         color={p.strokeColor}
         fillColor={p.fillColor}

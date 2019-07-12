@@ -39,7 +39,12 @@ const MapStateToProps = (state) => {
   let FormComponent;
 
   if (cityData && cityData.form_id) {
-    const { form_id: formId } = cityData;
+    let { form_id: formId } = cityData;
+    if (cityData.name === 'Madison') {
+      const { selectedArea } = state;
+      const uses19371001 = ['D10', 'D9', 'C15'];
+      formId = (uses19371001.includes(selectedArea)) ? 19371001 : 19370826;
+    }
     FormComponent = (showADSelections) ? formComponents.selected[formId]
       : formComponents.full[formId];
   }

@@ -17,6 +17,7 @@ const hashManager = store => next => (action) => {
     map,
     selectedCity,
     showHOLCMaps,
+    showFullHOLCMaps,
     showADSelections,
     showDataViewerFull,
     showADScan,
@@ -32,6 +33,7 @@ const hashManager = store => next => (action) => {
   const newHash = {
     loc: `${zoom}/${lat}/${lng}`,
     maps: (!showHOLCMaps) ? '0' : null,
+    mapview: (showHOLCMaps && !showFullHOLCMaps) ? 'graded' : null, 
     city: (selectedCityData) ? selectedCityData.slug : null,
     area: (!selectedCategory) ? nextState.selectedArea : null,
     category: selectedCategory,

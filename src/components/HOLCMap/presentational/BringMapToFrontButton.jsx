@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { CONTROLS_COLOR } from '../../../../data/constants';
 
 const BringMapToFrontButton = ({ disabled, action }) => {
   if (disabled) {
@@ -13,31 +14,29 @@ const BringMapToFrontButton = ({ disabled, action }) => {
       type="button"
       title="bring a scanned map to the top"
     >
-      Sort Scans
-      {/* JSX Comment 
       <svg
         width={20}
         height={20}
       >
-        <rect
-          x={1}
-          y={6}
-          width={13}
-          height={13}
-          stroke={(!disabled) ? 'white' : '#888'}
-          strokeWidth="1"
-          fill="transparent"
+        <polygon
+          points="0,-5 8,0, 0,5, -8,0"
+          fill={CONTROLS_COLOR}
+          transform="translate(10 15)"
+          stroke="white"
         />
-        <rect
-          x={6}
-          y={1}
-          width={13}
-          height={13}
-          stroke={(!disabled) ? 'white' : '#888'}
-          strokeWidth="1"
-          fill={(!disabled) ? 'white' : '#888'}
+        <polygon
+          points="0,-5 8,0, 0,5, -8,0"
+          fill={CONTROLS_COLOR}
+          transform="translate(10 10)"
+          stroke="white"
         />
-      </svg> */}
+        <polygon
+          points="0,-5 8,0, 0,5, -8,0"
+          fill="white"
+          transform="translate(10 5)"
+        />
+
+      </svg>
     </button>
   );
 };

@@ -7,7 +7,7 @@ const ADSelections = ({ selections, adId, isSearchingADs, selectArea, highlightA
     return (
       <section className="adSelections">
         <h4 className="tip">
-          Area Descriptions for this city have not yet been transcribed.
+          Area Descriptions for this city have not been located and may not exist.
         </h4>
       </section>
     );
@@ -18,8 +18,6 @@ const ADSelections = ({ selections, adId, isSearchingADs, selectArea, highlightA
         Area Descriptions
       </h3>
       <h4 className="tip">
-        Hover over to highlight on map,
-        <br />
         click to select
       </h4>
 

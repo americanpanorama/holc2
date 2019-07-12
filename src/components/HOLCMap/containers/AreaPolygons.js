@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import AreaPolygons from '../presentational/AreaPolygons';
 import { selectArea, highlightArea, unhighlightArea } from '../../../store/Actions';
-import { getPolygons } from '../../../store/selectors';
+import { getPolygons, getSelectedCityData } from '../../../store/selectors';
 
 const mapStateToProps = (state) => {
   const { selectedCity, selectedArea } = state;
@@ -17,7 +17,7 @@ const mapStateToProps = (state) => {
 
     const selectedPolygon = polygons.find(p => p.ad_id === selectedCity && p.id === selectedArea);
 
-    if (selectedPolygon) {
+if (selectedPolygon) {
       selectedPolygon.area_geojson.coordinates.forEach((polygon) => {
         polygon.forEach((polygonpieces, i) => {
           if (i === 0) {

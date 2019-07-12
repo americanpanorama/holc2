@@ -1067,13 +1067,15 @@ export const bringMapToFront = eOrId => ({
 export const clickOnMap = e => (dispatch, getState) => {
   //if sorting, find the lowest map that's being clicked on
   const { map, selectedCity, cities } = getState();
-  const { sorting, visibleRasters, sortingPossibilities } = map;
+  const { sorting, visibleRasterPolygons, sortingPossibilities } = map;
   if (sorting && sortingPossibilities.length === 0) {
     const { lat, lng } = e.latlng;
-    const clickedRasters = visibleRasters.filter(m => m.overlaps
-      && leafletPip.pointInLayer([lng, lat], L.geoJson(m.the_geojson)).length > 0);
+    console.log(visibleRasterPolygons);
+    const clickedRasters = visibleRasterPolygons.filter(m => leafletPip.pointInLayer([lng, lat], L.geoJson(m.the_geojson)).length > 0);
+    console.log(clickedRasters);
     if (clickedRasters.length === 1 || clickedRasters.length === 2) {
-      const mapId = clickedRasters[0].id;
+      const mapId = clickedRasters[0].map_id;
+      console.log(mapId);
       dispatch({
         type: Actions.BRING_MAP_TO_FRONT,
         payload: mapId,

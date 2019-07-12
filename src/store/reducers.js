@@ -233,6 +233,10 @@ const map = (state = initialState.map, action) => {
       sorting: false,
       sortingPossibilities: [],
       sortingLatLng: [],
+      visibleRasterPolygons: [
+        ...state.visibleRasterPolygons.filter(m => m.map_id !== action.payload),
+        ...state.visibleRasterPolygons.filter(m => m.map_id === action.payload),
+      ],
       visibleRasters: [
         ...state.visibleRasters.filter(m => m.id !== action.payload),
         ...state.visibleRasters.filter(m => m.id === action.payload),

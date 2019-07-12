@@ -97,12 +97,10 @@ export default class HOLCMap extends React.Component {
                 </React.Fragment>
               )}
               <AreaPolygons />
+              <CityBoundaries />
 
               {(!showHOLCMaps) && (
-                <React.Fragment>
-                  <CityBoundaries />
-                  <AreaMarkers />
-                </React.Fragment>
+                <AreaMarkers />
               )}
               {(zoom >= 9 && zoom <= 11) && (
                 <MapPolygons />

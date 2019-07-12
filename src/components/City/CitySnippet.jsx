@@ -59,6 +59,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
         { cityData.name + ((displayState) ? `,  ${cityData.state}` : '') }
       </a>
     </h1>
+  {/* JSX Comment 
     { (cityData.population && cityData.population.total) && (
       <div className="populationStats">
         <span className="catName">
@@ -76,6 +77,7 @@ const CitySnippet = ({ cityData, displayState, onCityClick }) => (
         </li>
       ))}
     </ul>
+*/}
   </div>
 );
 

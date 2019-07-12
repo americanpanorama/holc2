@@ -10,6 +10,7 @@ const getAdSearchHOLCIds = state => state.adSearchHOLCIds;
 const getAreaDescriptions = state => state.areaDescriptions;
 const getAdSelections = state => state.adSelections;
 const getCities = state => state.cities;
+const getVisibleCities = state => state.visibleCities;
 const getFormMetadata = state => state.formsMetadata;
 const getMapZoom = state => state.map.zoom;
 const isSortingMaps = state => state.map.sorting;
@@ -82,20 +83,32 @@ export const getAreaMarkers = createSelector(
 );
 
 export const getPolygons = createSelector(
-  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom],
-  (polygons, highlightedPolygons, showHOLCMaps, zoom) => {
+  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getCities, getVisibleCities],
+  (polygons, highlightedPolygons, showHOLCMaps, zoom, cities, visibleCities) => {
     // calculate the style each polygon
     const zFillOpacity = 0.95 - Math.min((zoom - 9) / 4, 1) * 0.75;
 
+    const testing = true;
+
+    const adsInCities = visibleCities.map(adId => ({
+      adId,
+      hasADs: cities.find(c => c.ad_id === adId).hasADs,
+    }));
+
     return polygons.map((p) => {
       let fillColor = constantsColors[`grade${p.grade}`];
-      let fillOpacity = (showHOLCMaps) ? 0 : zFillOpacity;
+      let fillOpacity = (showHOLCMaps && !testing) ? 0 : zFillOpacity;
       let strokeColor = '#888'; //constantsColors[`grade${p.grade}`];
-      let strokeOpacity = (showHOLCMaps) ? 0 : 0.95;
+      let strokeOpacity = 0.95;
       let weight = (showHOLCMaps) ? 0 : 1;
+
+      if (testing) {
+        fillOpacity = 0.3;
+      }
 
       const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}` :
         `areaPolygon-${p.ad_id}-${p.id}`;
+      const hasAD = (adsInCities.find(d => d.adId === p.ad_id)) ? adsInCities.find(d => d.adId === p.ad_id).hasADs : true;
 
       if (highlightedPolygons.length > 0) {
         if (highlightedPolygons.some(hp => hp.adId === p.ad_id && hp.holcId === p.id)) {
@@ -106,6 +119,9 @@ export const getPolygons = createSelector(
           } else {
             fillOpacity = 0;
             fillColor = constantsColorsVibrant[`grade${p.grade}`];
+            weight = (zoom - 8) * 0.5;
+            strokeColor = 'black';
+            strokeOpacity = (zoom <= 13) ? 1 : 1 - Math.min((zoom - 13) / 3, 1);
           }
         } else if (!showHOLCMaps) {
           fillOpacity = Math.max(0.2, zFillOpacity * 0.5);
@@ -116,6 +132,7 @@ export const getPolygons = createSelector(
 
       return {
         ...p,
+        hasAD,
         key,
         fillColor,
         fillOpacity,
@@ -178,6 +195,7 @@ export const getAreaRasters = createSelector(
           neighborhoodId,
           polygonBoundingBox,
         } = visiblePolygons.find(p => p.ad_id === hp.adId && p.id === hp.holcId);
+        console.log(neighborhoodId);
         return ({
           id: neighborhoodId,
           minZoom: 7,
@@ -567,7 +585,7 @@ export const getDownloadData = createSelector(
               year: rasterYear,
               inset,
             } = Rasters.find(r => r.id === mId);
-            if (fileName && state && year) {
+            if (fileName && state && year && !inset) {
               cityDownloadData.rasters.push({
                 fileName,
                 name: rasterName,
@@ -645,9 +663,9 @@ export const getInspectedMiniMapParams = createSelector(
 );
 
 export const getCityBoundaries = createSelector(
-  [getCities, getVisibleBoundaries, getSelectedCity, getShowHOLCMaps],
-  (cities, visibleBoundaries, selectedCity, showHOLCMaps) => {
-    if (showHOLCMaps) {
+  [getCities, getVisibleBoundaries, getSelectedCity, getShowHOLCMaps, getShowFullHOLCMaps],
+  (cities, visibleBoundaries, selectedCity, showHOLCMaps, showFullHOLCMaps) => {
+    if (showHOLCMaps && showFullHOLCMaps) {
       return [];
     }
 

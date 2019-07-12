@@ -27,6 +27,8 @@
 		background-image: url(./static/searchIcon.svg);
 		background-repeat: no-repeat;
 		background-position: 5px 5px;
+		position: relative;
+		z-index: 10;
 		
 		&:focus {
 			width: 600px;
@@ -35,6 +37,10 @@
 
 			&::placeholder {
 				opacity: 1;
+			}
+
+			&+ .searchResults {
+				display: block;
 			}
 		}
 	}
@@ -48,6 +54,13 @@
 			width: 598px;
 			background-color: rgba($controlsColor, 0.9);
 			color: white;
+			max-height: calc(100vh - 150px);
+			overflow-y: scroll;
+			z-index: -10;
+
+			&:focus {
+				display: block;
+			}
 
 			border-top: none;
 			border-right: 1px solid $controlsColor;

@@ -1,15 +1,26 @@
 .city-snippet {
 	background-color: transparent;
 	padding: 0 0 0px 0;
+    height: 74px;
+
+    &:not(:last-child) {
+        border-bottom: 1px solid lighten($gradeD, 10%);
+    }
+
+    &:hover {
+        background-color: rgba(white, 0.1);
+    }
 
 	* {
 		pointer-events: none;
 	}
 
 	h1 {
-		border-bottom: 1px solid lighten($gradeD, 10%);
-		font-size: 1.3em;
-		margin: 0 0 0 100px;
+		/* border-bottom: 1px solid lighten($gradeD, 10%); */
+		font-size: 20px;
+        font-weight: bold;
+
+		margin: 11px 0 0 100px;
 
         a {
             text-decoration: none;

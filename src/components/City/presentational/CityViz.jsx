@@ -26,10 +26,7 @@ const CityViz = ({ width, selectedGrade, gradeStats, selectGrade, unselectGrade 
       <h3>
         Areas by Grade
       </h3>
-      <h4>
-        Hover over grades for explanation &
-        <br />to highlight those areas on the map
-      </h4>
+
       <svg
         width={width}
         height={270}
