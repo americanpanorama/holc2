@@ -88,7 +88,7 @@ export const getPolygons = createSelector(
     // calculate the style each polygon
     const zFillOpacity = 0.95 - Math.min((zoom - 9) / 4, 1) * 0.75;
 
-    const testing = true;
+    const testing = false;
 
     const adsInCities = visibleCities.map(adId => ({
       adId,
@@ -235,7 +235,13 @@ export const getSelectedCityADSelections = createSelector(
     if (!cityData.hasADs) {
       return false;
     }
-    const formMetadata = formsMetadata[cityData.form_id];
+    let { form_id: formId } = cityData;
+    // Madison's unique in using two different forms--the selections only use one form
+    if (formId === 6234766) {
+      formId = 19370826;
+    }
+
+    const formMetadata = formsMetadata[formId];
 
     if (selections) {
       return selections.map((s) => {
@@ -559,13 +565,14 @@ export const getDownloadData = createSelector(
   (cities) => {
     const citiesByState = [];
     cities.forEach((city) => {
-      const { ad_id: adId, name, year, state, mapIds, hasPolygons } = city;
+      const { ad_id: adId, name, year, state, mapIds, hasPolygons, hasADs, slug } = city;
       const fileName = `${state}${name}${year}`.replace(/[^a-zA-Z0-9]/g, '');
       // get the rasters
       if (mapIds.length > 0) {
         const cityDownloadData = {
           adId,
           city: name,
+          slug,
           rasters: [],
           geospatial: [],
           polygons: (hasPolygons)
@@ -585,6 +592,10 @@ export const getDownloadData = createSelector(
               year: rasterYear,
               inset,
             } = Rasters.find(r => r.id === mId);
+            if (hasADs && !raster.parent_id) {
+              cityDownloadData.adsUrl = `${BUCKET_URL}/tiles/${state}/${fileName}/${rasterYear}/ads.zip`;
+              cityDownloadData.adsThumbnailUrl = `${BUCKET_URL}/tiles/${state}/${fileName}/${rasterYear}/adThumbnail.jpg`;
+            }
             if (fileName && state && year && !inset) {
               cityDownloadData.rasters.push({
                 fileName,

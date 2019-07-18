@@ -246,6 +246,31 @@ class Downloads extends React.Component {
                         </ul>
                       </section>
                     )}
+                    {(c.adsUrl) && (
+                      <section>
+                        <h4>
+                          <a
+                            href={c.adsUrl}
+                            download
+                          >
+                            Area Description Images
+                          </a>
+                        </h4>
+
+                        <ul>
+                          <li key={`spatialDataFor${c.adId}`}>
+                            <LazyLoad height={276} offsetVertical={300}>
+                              <a
+                                href={c.adsUrl}
+                                download
+                              >
+                                <img src={c.adsThumbnailUrl} />
+                              </a>
+                            </LazyLoad>
+                          </li>
+                        </ul>
+                      </section>
+                    )}
                   </div>
                 </li>
               ))}

@@ -78,7 +78,7 @@
     }
   }
   section {
-    width: 276px;
+    width: 25%;
 
     h4 {
       text-align: center;
@@ -88,14 +88,20 @@
     }
 
     li {
-      height: 276px;
-      width: 276px;
+      height: 0;
+      width: 100%;
+      padding-bottom: 50%;
+      padding-top: 50%;
 
       display: flex;
       justify-content: center;
       flex-direction: column;
       text-align: center;
       align-items: center;
+
+      img {
+        max-width: 80%;
+      }
 
 
 

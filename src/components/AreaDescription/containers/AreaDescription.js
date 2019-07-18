@@ -37,10 +37,12 @@ const MapStateToProps = (state) => {
   };
 
   let FormComponent;
+  let formId;
 
   if (cityData && cityData.form_id) {
-    let { form_id: formId } = cityData;
-    if (cityData.name === 'Madison') {
+    ({ form_id: formId } = cityData);
+    // Madison's unique in using two different forms
+    if (formId === 6234766) {
       const { selectedArea } = state;
       const uses19371001 = ['D10', 'D9', 'C15'];
       formId = (uses19371001.includes(selectedArea)) ? 19371001 : 19370826;
@@ -51,7 +53,7 @@ const MapStateToProps = (state) => {
   return {
     adData,
     FormComponent,
-    formId: cityData.form_id,
+    formId,
   };
 };
 
