@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const SimpleCategory = ({ num, data, name, selectCategory }) => (
+const SimpleCategory = ({ num, bracketNum, data, name, selectCategory }) => (
   <li key={`AD-${num}`}>
     <span
       className={`catNum ${(selectCategory) ? 'catSelectable' : ''}`}
       onClick={selectCategory}
       id={num}
     >
-      {num}
+      {(bracketNum) ? `[${num}]` : num}
     </span>
     <span
       className={`catName ${(selectCategory) ? 'catSelectable' : ''}`}
       onClick={selectCategory}
       id={num}
     >
-      {name} 
+      {name}
     </span>
     <span className="catData">
       { (data) ? (
@@ -39,12 +39,15 @@ export default SimpleCategory;
 
 SimpleCategory.propTypes = {
   data: PropTypes.string,
-  num: PropTypes.number.isRequired,
+  num: PropTypes.number,
+  bracketNum: PropTypes.bool,
   name: PropTypes.string.isRequired,
   selectCategory: PropTypes.func,
 };
 
 SimpleCategory.defaultProps = {
   data: undefined,
+  num: undefined,
+  bracketNum: false,
   selectCategory: undefined,
 };

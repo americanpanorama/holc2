@@ -6,6 +6,8 @@ import Form1939 from '../Form1939/presentational/Full';
 import Form19370203Curated from '../Form19370203/presentational/Selected';
 import Form19371001Curated from '../Form19371001/presentational/Selected';
 import Form1939Curated from '../Form1939/presentational/Selected';
+import FormYorkFull from '../FormYork/presentational/Full';
+import FormYorkSelected from '../FormYork/presentational/Selected';
 import AreaDescription from '../presentational/AreaDescription';
 
 import { selectCategory } from '../../../store/Actions';
@@ -25,6 +27,7 @@ const MapStateToProps = (state) => {
       19370826: Form19370203,
       19371001: Form19371001,
       1939: Form1939,
+      9675: FormYorkFull,
     },
     selected: {
       1: FormQualitative,
@@ -33,6 +36,7 @@ const MapStateToProps = (state) => {
       19370826: Form19370203Curated,
       19371001: Form19371001Curated,
       1939: Form1939Curated,
+      9675: FormYorkSelected,
     },
   };
 

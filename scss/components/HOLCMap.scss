@@ -59,7 +59,7 @@
   .mapPolygon {
     fill: transparent;
     stroke: $headerRed;
-    stroke-width: 0.5;
+    stroke-width: 0;
 
     &:hover {
       stroke-width: 1.5;
