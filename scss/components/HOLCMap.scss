@@ -347,6 +347,14 @@
 
 .cityBoundary {
   pointer-events: none !important;
+
+  &.selectable {
+    pointer-events: auto !important;
+
+    &:hover {
+      stroke-width: 4;
+    }
+  }
 }
 
 

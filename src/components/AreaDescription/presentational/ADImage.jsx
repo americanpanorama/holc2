@@ -38,6 +38,8 @@ export default class ADImage extends React.Component {
 
   render() {
     const { center, zoom, maxBounds, url } = this.props.adData;
+    console.log(maxBounds);
+
     return (
       <div id="adImage">
         <Map
@@ -46,7 +48,6 @@ export default class ADImage extends React.Component {
           minZoom={1}
           maxZoom={7}
           zoomControl={false}
-          //maxBounds={maxBounds}
           onMoveEnd={this.onScanMoved}
           className="adimage"
           ref={this.adScan}
@@ -57,6 +58,7 @@ export default class ADImage extends React.Component {
             detectRetina
             maxNativeZoom={4}
             maxZoom={8}
+            bounds={maxBounds}
             noWrap
           />
         </Map>

@@ -364,6 +364,7 @@ export const getSelectedCategoryData = createSelector(
       const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'base' });
       const [cat, subcat] = selectedCategory.split('-');
       const { form_id: formId } = cityData;
+      // acount for Madison's multiple forms if it's the selected city
       Object.keys(areaDescriptions)
         .sort(collator.compare)
         .forEach((holcId) => {
@@ -680,13 +681,19 @@ export const getCityBoundaries = createSelector(
       return [];
     }
 
+    const adIdsWithoutADs = cities
+      .filter(c => !c.hasADs)
+      .map(c => c.ad_id);
+
     return visibleBoundaries
       .map(b => ({
+        adId: b.ad_id,
         boundaryGeojson: b.the_geojson,
         weight: (!selectedCity || b.ad_id === selectedCity) ? 1 : 0.5,
         color: (!selectedCity || b.ad_id === selectedCity) ? 'black' : 'grey',
         fillColor: 'white',
         fillOpacity: (!selectedCity || b.ad_id === selectedCity) ? 0 : 0.5,
+        selectable: adIdsWithoutADs.includes(b.ad_id) && b.ad_id !== selectedCity,
         key: `boundaryFor-${b.ad_id}`,
       }));
   },

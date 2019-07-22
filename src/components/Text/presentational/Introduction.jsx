@@ -37,6 +37,7 @@ const Introduction = () => (
     </ul>
     <h3>Historical Studies of HOLC, Segregation, and Home Finance</h3>
     <ul>
+    <li>Price Fishback, Jonathan Rose, and Kenneth Snowden, <cite>Well Worth Saving: How the New Deal Safeguarded Homeownership</cite> (Chicago: Unversity of Chicago Press, 2013).</li>
     <li>David M. P. Freund, <cite>Colored Property: State Policy and White Racial Politics in Suburban America</cite> (Chicago: University of Chicago Press, 2007).</li>
     <li>Margaret Garb, <cite>City of American Dreams: A History of Home Ownership and Housing Reform in Chicago, 1871-1919</cite>.&nbsp; (Chicago: University of Chicago Press, 2005).</li>
     <li>Amy E. Hillier, &ldquo;Redlining and the Home Owners&rsquo; Loan Corporation,&rdquo; <cite>Journal of Urban History</cite> 29 (May 2003): 394-420.</li>
@@ -47,6 +48,7 @@ const Introduction = () => (
     <li>Kenneth T. Jackson, &ldquo;Race Ethnicity, and Real Estate Appraisal: The Home Owners Loan Corporation and the Federal Housing Administration,&rdquo; <cite>Journal of Urban History</cite> 6 (August 1980): 419-452.</li>
     <li>Kenneth T. Jackson, <cite>Crabgrass Frontier: The Suburbanization of the United States</cite> (Oxford: Oxford University Press, 1985).</li>
     <li>Jennifer S. Light, &ldquo;Nationality and Neighborhood Risk at the Origins of FHA Underwriting,&rdquo; <cite>Journal of Urban History</cite> 36 (June 2010): 634-671.</li>
+    <li>Todd M. Michney and LaDale Winling, "New Perspectives on New Deal Housing Policy: Explicating and Mapping HOLC Loans to African Americans," <cite>Journal of Urban History</cite> preprint (January 9, 2019).</li>
     <li>Louis Lee Woods II, &ldquo;The Federal Home Loan Bank Board, Redlining, and the National Proliferation of Racial Lending Discrimination, 1921-1950,&rdquo; <cite>Journal of Urban History</cite> 38 (November 2012): 1036-1059.</li>
     </ul>
     <h3>Historical Community Studies Featuring Analysis of HOLC</h3>

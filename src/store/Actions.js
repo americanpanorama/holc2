@@ -17,6 +17,7 @@ const getCityFilePath = (adId, cities) => {
 };
 
 const getEventId = (eOrId, type = 'string') => {
+  console.log(eOrId);
   let id = eOrId.id || eOrId;
   if (!eOrId.id && typeof eOrId === 'object') {
     const ct = eOrId.currentTarget || eOrId.target;
@@ -458,26 +459,29 @@ export const selectArea = eOrId => (dispatch, getState) => {
   const { bounds, visiblePolygons } = map;
   const cityData = getSelectedCityData(getState());
 
-  const newCenterAndZoom = centerAndZoomIncluding(calculateInsetBounds(bounds, dimensions),
-    getAreaPolygonBB(adId, holcId, visiblePolygons), dimensions);
-  if (newCenterAndZoom) {
-    const { lat, lng, zoom } = newCenterAndZoom;
-    actions.push({
-      type: Actions.MOVE_MAP,
-      payload: {
-        ...map,
-        zoom,
-        highlightedPolygons: [{
-          adId,
-          holcId,
-        }],
-        center: [lat, lng],
-        movingTo: {
+  console.log(bounds);
+  if (bounds && bounds[0]) {
+    const newCenterAndZoom = centerAndZoomIncluding(calculateInsetBounds(bounds, dimensions),
+      getAreaPolygonBB(adId, holcId, visiblePolygons), dimensions);
+    if (newCenterAndZoom) {
+      const { lat, lng, zoom } = newCenterAndZoom;
+      actions.push({
+        type: Actions.MOVE_MAP,
+        payload: {
+          ...map,
           zoom,
+          highlightedPolygons: [{
+            adId,
+            holcId,
+          }],
           center: [lat, lng],
+          movingTo: {
+            zoom,
+            center: [lat, lng],
+          },
         },
-      },
-    });
+      });
+    }
   }
 
   // load the city if necessary then the neighborhood
