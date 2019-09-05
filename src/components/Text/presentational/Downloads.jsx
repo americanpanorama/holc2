@@ -77,13 +77,13 @@ class Downloads extends React.Component {
 
         <div className="fullDownloads">
           <a
-            href="#"
+            href="./static/fullshpfile.zip"
             download
           >
             {' Shapefile '}
           </a>
           <a
-            href="#"
+            href="./static/fullDownload.geojson"
             download
           >
             {' GeoJSON'}
@@ -92,7 +92,7 @@ class Downloads extends React.Component {
 
 
         <p>
-          Data for individual cities is available below. The shapefile and GeoJSON spatial data includes transcriptions of the area descriptions of the city if they are available.
+          Data for individual cities is available below. The GeoJSON spatial data includes transcriptions of the area descriptions of the city if they are available.
         </p>
 
         <div className="filter">

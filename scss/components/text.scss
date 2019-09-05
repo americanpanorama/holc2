@@ -52,6 +52,27 @@
       font-size: 1.5em;
     }
 
+    .intro {
+      a, .link {
+        font-weight: 400;
+        color: $headerRed;
+        text-decoration: underline;
+      }
+      .neighborhoodMap {
+        width: 300px;
+        height: 300px;
+      }
+      figure {
+        text-align: center;
+
+        figCaption {
+          color: #666;
+          font-family: 'Lato', sans-serif;
+          font-size: 0.9em;
+        }
+      }
+    }
+
     #about {
       strong {
         font-family: 'Lato', sans-serif;

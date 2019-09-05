@@ -5,8 +5,7 @@ const mapStateToProps = (state) => {
   const { initialized, showDataViewerFull, selectedCategory, selectedText, showContactUs } = state;
   return {
     initialized,
-    showMap: !(showDataViewerFull && !!selectedCategory)
-      && !selectedText && !showContactUs,
+    showMap: !(showDataViewerFull && !!selectedCategory) && !selectedText && !showContactUs,
   };
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import HoverIntet from 'react-hoverintent'
+import HoverIntet from 'react-hoverintent';
 import NeighborhoodMap from '../containers/NeighborhoodMap';
 
 const CategoryDatum = (props) => {

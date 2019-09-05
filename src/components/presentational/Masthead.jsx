@@ -4,7 +4,7 @@ import Hamburger from '../Buttons/presentational/Hamburger';
 
 export default class Masthead extends React.Component {
   constructor(props) {
-    super(props);
+    super(props); 
 
     this.state = {
       menuOpen: this.props.media !== 'phone' && this.props.media !== 'tablet-portrait',
@@ -32,7 +32,7 @@ export default class Masthead extends React.Component {
   }
 
   render() {
-    const { media, landingPage } = this.props;
+    const { media } = this.props;
     const { menuOpen } = this.state;
 
     return (
@@ -46,55 +46,53 @@ export default class Masthead extends React.Component {
             Redlining in New Deal America
           </span>
         </h1>
-        {(!landingPage) && (
-          <nav>
-            {(media === 'phone' || media === 'tablet-portrait') && (
-              <div
-                className="menuToggle"
-                onClick={this.onMenuToggle}
-              >
-                <Hamburger />
-              </div>
-            )}
-            {(menuOpen) && (
-              <ul>
-                <li>
-                  <a
-                    href="http://dsl.richmond.edu/panorama/redlining/#text=intro"
-                    onClick={this.onSelectText}
-                    id="intro"
-                  >
-                    Introduction
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="http://dsl.richmond.edu/panorama/redlining/#text=downloads"
-                    onClick={this.onSelectText}
-                    id="downloads"
-                  >
-                    Downloads & Data
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="http://dsl.richmond.edu/panorama/redlining/#text=about"
-                    onClick={this.onSelectText}
-                    id="about"
-                  >
-                    About
-                  </a>
-                </li>
-                <li
+        <nav>
+          {(media === 'phone' || media === 'tablet-portrait') && (
+            <div
+              className="menuToggle"
+              onClick={this.onMenuToggle}
+            >
+              <Hamburger />
+            </div>
+          )}
+          {(menuOpen) && (
+            <ul>
+              <li>
+                <a
+                  href="http://dsl.richmond.edu/panorama/redlining/#text=intro"
                   onClick={this.onSelectText}
-                  id="contactUs"
+                  id="intro"
                 >
-                Contact Us
-                </li>
-              </ul>
-            )}
-          </nav>
-        )}
+                  Introduction
+                </a>
+              </li>
+              <li>
+                <a
+                  href="http://dsl.richmond.edu/panorama/redlining/#text=downloads"
+                  onClick={this.onSelectText}
+                  id="downloads"
+                >
+                  Downloads & Data
+                </a>
+              </li>
+              <li>
+                <a
+                  href="http://dsl.richmond.edu/panorama/redlining/#text=about"
+                  onClick={this.onSelectText}
+                  id="about"
+                >
+                  About
+                </a>
+              </li>
+              <li
+                onClick={this.onSelectText}
+                id="contactUs"
+              >
+              Contact Us
+              </li>
+            </ul>
+          )}
+        </nav>
       </header>
     );
   }
@@ -102,7 +100,6 @@ export default class Masthead extends React.Component {
 
 Masthead.propTypes = {
   media: PropTypes.string.isRequired,
-  landingPage: PropTypes.bool.isRequired,
   selectText: PropTypes.func,
 };
 

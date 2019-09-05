@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Map, TileLayer, GeoJSON, FeatureGroup, CircleMarker, Tooltip } from 'react-leaflet';
 
 const NeighborhoodMap = (props) => {
+  console.log(props);
   const {
     bounds,
     holcId,
@@ -27,19 +28,19 @@ const NeighborhoodMap = (props) => {
       style={style}
       key={`neighborhoodMapFor-${adId}-${holcId}`}
     >
-      {(cityRasterParams) ? (
+      <TileLayer
+        url={basemap}
+        zIndex={-1}
+        tileSize={512}
+        zoomOffset={-1}
+        detectRetina
+      />
+
+      {(cityRasterParams) && (
         <TileLayer
           url={cityRasterParams.url}
           maxNativeZoom={cityRasterParams.maxZoom}
           className="holcRaster"
-          detectRetina
-        />
-      ) : (
-        <TileLayer
-          url={basemap}
-          zIndex={-1}
-          tileSize={512}
-          zoomOffset={-1}
           detectRetina
         />
       )}

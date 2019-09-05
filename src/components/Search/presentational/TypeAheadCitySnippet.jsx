@@ -4,7 +4,9 @@ import CitySnippet from '../../City/CitySnippet';
 export default class TypeAheadCitySnippet extends React.Component {
   render() {
     return (
-      <div className='searchResults'>
+      <div 
+        className='searchResults'
+      >
         {this.props.options.map((cityData) => (
           <CitySnippet
             cityData={ cityData }

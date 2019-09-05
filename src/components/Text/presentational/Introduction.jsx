@@ -1,11 +1,344 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import NeighborhoodMap from '../../AreaDescription/presentational/NeighborhoodMap';
 
-const Introduction = () => (
-  <React.Fragment>
-    <h2>Introduction</h2>
-    <p><cite>Mapping Inequality</cite> updates the study of New Deal America, the federal government, housing, and inequality for the twenty-first century. It offers unprecedented online access to the national collection of "security maps" and area descriptions produced between 1935 and 1940 by one of the New Deal's most important agencies, the Home Owners' Loan Corporation or HOLC (pronounced "holk"). </p>
-    <p>HOLC recruited mortgage lenders, developers, and real estate appraisers in nearly 250 cities to create maps that color-coded credit worthiness and risk on neighborhood and metropolitan levels. These maps and their accompanying documentation helped set the rules for nearly a century of real estate practice. They have also served as critical evidence in countless urban studies in the fields of history, sociology, economics, and law.  Indeed, more than a half-century of research has shown housing to be for the twentieth century what slavery was to the antebellum period, namely the broad foundation of both American prosperity and racial inequality.  Through offering a digital library of the state's role in housing development, <cite>Mapping Inequality</cite> illustrates vividly the interplay between racism, administrative culture, economics, and the built environment.</p>
-    <p><cite>Mapping Inequality</cite> introduces viewers to the records of the Home Owners Loan Corporation on a scale that is unprecedented. Visitors can browse over 150 interactive maps and roughly 5000 individual area descriptions to get a view of Depression-era America as developers, realtors, tax assessors, and surveyors saw it&#8212;a set of interlocking color-lines, racial groups, and environmental risks.  (Nearly all of the maps and area descriptions are available here, though a handful haven't yet been added.) They can also use the maps and area descriptions to draw connections between past state actions (and inactions) and contemporary American problems.</p>
+const Introduction = ({selectArea}) => (
+  <div className="intro">
+    <h2>
+      Introduction
+    </h2>
+    <p>
+      Among the thousands of area descriptions created by agents of the federal government's Home Owners' Loan Corporation between 1935 and 1940, the one that was written for what is now called the Carver Heights neighhborhood in Savannah, Georgia, stands out. HOLC staff members, using data and evaluations organized by local real estate professionals--lenders, developers, and real estate appraisers--in each city, assigned grades to residential neighborhoods that reflected their "mortgage security" that would then be visualized on color-coded maps. Neighborhoods receiving the highest grade of "A"--colored green on the maps--were deemed minimal risks for banks and other mortgage lenders when they were determining who should received loans and which areas in the city were safe investments. Those receiving the lowest grade of "D," colored red, were considered "hazardous." 
+    </p>
+    <figure>
+      <img src='./static/decatur.jpg' />
+      <figcaption>
+        HOLC's map for Decatur, Illinois
+      </figcaption>
+    </figure>
+    <p>
+      Conservative, responsible lenders, in HOLC judgment, would "refuse to make loans in these areas [or] only on a conservative basis." HOLC created area descriptions to help to organize the data they used to assign the grades. Among that information was the neighborhood's quality of housing, the recent history of sale and rent values, and, crucially, the racial and ethnic identity and class of residents that served as the basis of the neighborhood's grade. These maps and their accompanying documentation helped set the rules for nearly a century of real estate practice.
+    </p>
+    <p>
+      To return to Savannah, HOLC's agents there described the residents of Carver Heights as "
+      <span
+        className="link"
+        onClick={selectArea}
+        id="37-C12"
+      >
+        a fair class of negroes and low type of white
+      </span>
+      ."
+      Originally, they assigned a grade of "D" to Carver Heights. But their "consensus of opinion later changed" and they gave it a "C." The change of grade followed from a change of perspective. They made an effort to not just see the neighborhood from their perspective as white men. "In other words," they explained in the neighborhood's area description, "it was considered from a negro standpoint of home ownership, rather than a white, since there are more negroes than whites in the neighborhood."
+    </p>
+
+    <p>
+      Making an effort to consider anything from a "negro standpoint" is what made the work of Savannah's agents unique among the massive amount of materials from HOLC visualized and organized in <cite>Mapping Inequality</cite>. Arguably the HOLC agents in the other two hundred-plus cities graded through this program adopted a consistently white, elite standpoint or perspective. HOLC assumed and insisted that the residency of African Americans and immigrants, as well as working-class whites, compromised the values of homes and the security of mortgages. In this they followed the guidelines set forth by Frederick Babcock, the central figure in early twentieth-century real estate appraisal standards, in his <cite>Underwriting Manual</cite>: "
+        <a 
+          href="https://hdl.handle.net/2027/mdp.39015018409246?urlappend=%3Bseq=89"
+          target="_blank"
+        >
+          The infiltration of inharmonious racial groups ... tend to lower the levels of land values and to lessen the desirability of residential areas
+        </a>
+       ."
+    </p>
+
+    <p>
+      As you explore the materials Mapping Inequality, you will quickly encounter exactly that kind of language, descriptions of the "infiltration" of what were quite often described as "subversive," "undesirable," "inharmonious," or "lower grade" populations, for they are everywhere in the HOLC archive. Of the Bedford–Stuyvesant in Brooklyn, for instant, agents explained that "
+      <span
+        className="link"
+        onClick={selectArea}
+        id="99-D8"
+      >
+        Colored infiltration a definitely adverse influence on neighborhood desirability although Negroes will buy properties at fair prices and usually rent rooms
+      </span>
+      ."
+      In the Tompkinsville neighborhood in Staten Island, "
+      <span
+        className="link"
+        onClick={selectArea}
+        id="107-D3"
+      >
+        Italian infiltration depress residential desirability in this area
+      </span>
+      ." In a south Philadelphia neighborhood "
+      <span
+        className="link"
+        onClick={selectArea}
+        id="138-C14"
+      >
+        Infiltration of Jewish into area have depressed values
+      </span>
+      ." The assessors of a Minneapolis neighborhood attributed the decline of a "
+      <span
+        className="link"
+        onClick={selectArea}
+        id="81-D6"
+      >
+        once a very substantial and desirable area" to the "gradual infiltration of negroes and Asiatics
+      </span>
+      ." In Berkeley, California, an area north of UC Berkeley "
+      <span
+        className="link"
+        onClick={selectArea}
+        id="17-D2"
+      >
+        could be classed as High Yellow [C], but for infiltration of Orientals and gradual infiltration of Negroes form south to north
+      </span>
+      ." Such judgments were made in cities from every region of the country. The "infiltration of negroes" informed the grades of neighborhoods in
+      {' '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="10-D5"
+      >
+        Birmingham
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="17-C2"
+      >
+        Oakland
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="91-A2"
+      >
+        Charlotte
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="125-C17"
+      >
+        Youngstown
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="53-D26"
+      >
+        Indianapolis
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="115-D26"
+      >
+        Cleveland
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="16-C125"
+      >
+        Los Angeles
+      </span>
+      {', and '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id=""
+      >
+        Chicago
+      </span>
+      ; the "infiltration of Jews" or "infiltration of Jewish families" in
+      {' '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="16-C77"
+      >
+        Los Angeles
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="194-C6"
+      >
+        Binghamton
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="226-C32"
+      >
+        Kansas City
+      </span>
+      {', and '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="45-C276"
+      >
+        Chicago
+      </span>
+      ; the "infiltration of Italians" in
+      {' '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="114-C8"
+      >
+        Akron
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="45-C103"
+      >
+        Chicago
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="115-D25"
+      >
+        Cleveland
+      </span>
+      {', and '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="226-C42"
+      >
+        Kansas City
+      </span>
+      . The infiltration of
+      {' '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="115-C54"
+      >
+        Polish
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="114-C20"
+      >
+        Hungarian
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="45-B93"
+      >
+        Czech
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="10-C3"
+      >
+        Greek
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="19-C2"
+      >
+        Mexican
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="115-D12"
+      >
+        Russian
+      </span>
+      {', '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="114-C23"
+      >
+        Slavic
+      </span>
+      {', and '}
+      <span
+        className="link"
+        onClick={selectArea}
+        id="115-D6"
+      >
+        Syrian
+      </span>
+      {' '}
+      families was cataloged in other cities, always lowering the grade of neighborhoods.
+    </p>
+  {/* JSX Comment 
+    <NeighborhoodMap
+      holcId="D8"
+      adId={99}
+      bounds={[
+              [
+                40.672,
+                -73.958
+              ],
+              [
+                40.697,
+                -73.918
+              ]
+            ]}
+      highlightedAdId={99}
+      highlightedHolcId="D8"
+      basemap="https://api.mapbox.com/styles/v1/ur-dsl/cjtyox5ms3ycd1flvhg7kihdi/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidXItZHNsIiwiYSI6ImNqdGs3MHhxdDAwd2E0NHA2bmxoZjM1Y2IifQ.y1wfhup4U2U8KvHuOpFCng"
+      neighborhoodRasterParams={{
+              url: "//s3.amazonaws.com/holc/polygon_tiles/2722/{z}/{x}/{y}.png",
+              maxNativeZoom: 15
+            }}
+      style={{
+              right: 410
+            }}
+    
+    />
+    <NeighborhoodMap
+      holcId="C14"
+      adId={138}
+      bounds={[
+    [
+      39.93,
+      -75.248
+    ],
+    [
+      39.963,
+      -75.192
+    ]
+  ]}
+      highlightedAdId={138}
+      highlightedHolcId="C14"
+      basemap="https://api.mapbox.com/styles/v1/ur-dsl/cjtyox5ms3ycd1flvhg7kihdi/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidXItZHNsIiwiYSI6ImNqdGs3MHhxdDAwd2E0NHA2bmxoZjM1Y2IifQ.y1wfhup4U2U8KvHuOpFCng"
+      neighborhoodRasterParams={{
+              url: "//s3.amazonaws.com/holc/polygon_tiles/5659/{z}/{x}/{y}.png",
+              maxNativeZoom: 15
+            }}
+    
+    />
+
+    */}
+
+    <p>
+      These grades were a tool for redlining: making it difficult or impossible for people in certain areas to access mortgage financing and thus become homeowners. Redlining directed both public and private capital to native-born white families and away from African American and immigrant families. As homeownership was arguably the most significant means of intergenerational wealth building in the United States in the twentieth century, these redlining practices from eight decades ago had long-term effects in creating wealth inequalities that we still see today. <cite>Mapping Inequality</cite>, we hope, will allow and encourage you to grapple with this history of government policies contributing to inequality.
+    </p>
+
     <h3>Archiving Inequality for the Digital Age</h3>
     <p>Like so many other government agencies during the New Deal, HOLC and its parent bureau, the Federal Home Loan Bank Board, shaped Americans' lives and livelihoods profoundly during and after the Great Depression of the 1930s. Both proved critical to protecting and expanding home ownership, to standardizing lending practices, and to encouraging residential and commercial real estate investment in a flagging economy.  Across the middle third of the twentieth century, arguably the most prosperous decades in American history, these agencies worked with public and private sector partners to create millions of jobs and help millions of Americans buy or keep their homes. At the very same time, federal housing programs helped codify and expand practices of racial and class segregation.  They ensured, moreover, that rampant real estate speculation and environmental degradation would accompany America's remarkable economic recovery and growth.</p>
     <p><cite>Mapping Inequality</cite> brings one of the country's most important archives to the public.  HOLC's documents contain a wealth of information about how government officials, lenders, and real estate interests surveyed and ensured the economic health of American cities.  And with the help of ongoing research, we continue to learn at what cost such measures were realized.</p>
@@ -64,7 +397,11 @@ const Introduction = () => (
     <li>Rose Helper, <cite>Racial Policies and Practices of Real Estate Brokers</cite>. (Minneapolis: University of Minnesota Press, 1969).</li>
     <li>Douglas S. Massey and Nancy A. Denton, <cite>American Apartheid: Segregation and the Making of the Underclass</cite> (Cambridge: Harvard University Press, 1993).</li>
     </ul>
-  </React.Fragment>
+  </div>
 );
 
 export default Introduction;
+
+Introduction.propTypes = {
+  selectArea: PropTypes.func.isRequired,
+};

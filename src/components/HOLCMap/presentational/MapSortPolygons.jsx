@@ -113,7 +113,7 @@ const AreaPolygons = ({ overlappingMaps, sortingLatLng, fontSize, bringMapToFron
                     {r.name}
                     <br />
                     <img
-                      src={r.rectifiedUrl.replace('rectified.zip', 'georectified-thumbnail.png')}
+                      src={r.url.replace('{z}/{x}/{y}.png', 'georectified-thumbnail.png')}
                     />
                   </li>
                 ))}

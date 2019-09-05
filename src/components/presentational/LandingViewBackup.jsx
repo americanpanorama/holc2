@@ -24,9 +24,6 @@ class LandingView extends React.Component {
 
     return (
       <div id="landingView">
-        <div className="landingImg">
-          <img src="./static/durhamMosaic.png" />
-        </div>
         <header>
           <div className="container">
             <h1>
@@ -38,7 +35,7 @@ class LandingView extends React.Component {
               </span>
             </h1>
 
-            <p className="elevatorIntro">Here you can explore more than 200 interactive redlining maps created by the Home Owners' Loan Corporation in the 1930s. These maps and the materials used to create them offer an extraordinary view of  discriminatory real estate practices that contributed to inequalities of wealth and race so profoundly that we feel their legacy to this day.</p>
+            <p className="elevatorIntro"><cite>Mapping Inequality</cite> introduces viewers to the records of the Home Owners' Loan Corporation on a scale that is unprecedented. Here you can explore more than 200 interactive maps and thousands of "area descriptions."  These materials afford an extraordinary view of the contours of wealth and racial inequality in Depression-era American cities and offer insights into discriminatory policies and practices that had such a profound impact that we feel their legacy to this day.</p>
 
             <form onSubmit={this.handleEnter}>
               <Button

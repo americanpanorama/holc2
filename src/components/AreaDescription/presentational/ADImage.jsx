@@ -38,7 +38,6 @@ export default class ADImage extends React.Component {
 
   render() {
     const { center, zoom, maxBounds, url } = this.props.adData;
-    console.log(maxBounds);
 
     return (
       <div id="adImage">

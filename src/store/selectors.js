@@ -157,15 +157,6 @@ export const getRasters = createSelector(
     }
 
     const overlappingIds = rasters
-      .sort((a, b) => {
-        if (cityData && cityData.mapIds.includes(a.id)) {
-          return 1;
-        }
-        if (cityData && cityData.mapIds.includes(b.id)) {
-          return -1;
-        }
-        return 0;
-      })
       .filter(raster => raster.overlaps)
       .map(raster => raster.id);
 
@@ -195,7 +186,6 @@ export const getAreaRasters = createSelector(
           neighborhoodId,
           polygonBoundingBox,
         } = visiblePolygons.find(p => p.ad_id === hp.adId && p.id === hp.holcId);
-        console.log(neighborhoodId);
         return ({
           id: neighborhoodId,
           minZoom: 7,
@@ -365,66 +355,167 @@ export const getSelectedCategoryData = createSelector(
       const [cat, subcat] = selectedCategory.split('-');
       const { form_id: formId } = cityData;
       // acount for Madison's multiple forms if it's the selected city
-      Object.keys(areaDescriptions)
-        .sort(collator.compare)
-        .forEach((holcId) => {
-          const { holc_grade: holcGrade, areaDesc } = areaDescriptions[holcId];
+      // Madison is a pain in the ass
+      if (cityData.name === 'Madison') {
+        const AugToOctCats = {
+          2: 1,
+          3: 1,
+          4: 1,
+          14: 5,
+          '5-a': 2,
+          '5-b': 2,
+          '5-c': 2,
+          '5-d': 2,
+          '5-e': 2,
+          '5-f': 2,
+          '5-g': 2,
+          '12-a': 4,
+          '12-b': 4,
+        };
+        const AugToOctSubcats = {
+          2: 'a',
+          3: 'b',
+          4: 'c',
+          '5-a': 'a',
+          '5-b': 'b',
+          '5-c': 'c',
+          '5-d': 'd',
+          '5-e': 'e',
+          '5-f': 'f',
+          '5-g': 'g',
+          '12-a': 'a',
+          '12-b': 'b',
+        };
 
-          if (areaDesc && areaDesc[cat] && ['A', 'B', 'C', 'D'].includes(holcGrade)) {
-            if (!subcat) {
-              values[holcGrade].push({
-                holcId,
-                value: areaDesc[cat],
-              });
-              title = (formId !== 1) ? `${cat} ${FormsMetadata[formId][cat]}` : 'Area Descriptions';
-              instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat])
-                ? FormsInstructions[formId][cat] : null;
-            } else {
-              values[holcGrade].push({
-                holcId,
-                value: areaDesc[cat][subcat],
-              });
-              title = `${cat}${subcat} ${FormsMetadata[formId][cat].header} ${FormsMetadata[formId][cat].subcats[subcat]}`;
-              instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat]
-                && FormsInstructions[formId][cat].subcats &&
-                FormsInstructions[formId][cat].subcats[subcat])
-                ? FormsInstructions[formId][cat].subcats[subcat] : null;
+        const OctToAugCats = {
+          '1-a': 2,
+          '1-b': 3,
+          '1-c': 4,
+          '2-a': 5,
+          '2-b': 5,
+          '2-c': 5,
+          '2-d': 5,
+          '2-e': 5,
+          '2-f': 5,
+          '2-g': 5,
+          '4-a': 12,
+          '4-b': 12,
+          5: 14,
+        };
+        const OctToAugSubcats = {
+          '2-a': 'a',
+          '2-b': 'b',
+          '2-c': 'c',
+          '2-d': 'd',
+          '2-e': 'e',
+          '2-f': 'f',
+          '2-g': 'g',
+          '4-a': 'a',
+          '4-b': 'b',
+        };
+        // figure out which form to use, which luckily you can parse from the category selected
+        const formToUse = (cat > 5 || (['2', '3', '4'].includes(cat) && !subcat) || (cat === '5' && subcat)) ? 19370826 : 19371001;
+        const uses19371001 = ['D10', 'D9', 'C15'];
+        title = (!subcat)
+          ? `${FormsMetadata[formToUse][cat]}`
+          : `${FormsMetadata[formToUse][cat].header} ${FormsMetadata[formToUse][cat].subcats[subcat]}`;
+        Object.keys(areaDescriptions)
+          .sort(collator.compare)
+          .forEach((holcId) => {
+            const { holc_grade: holcGrade, areaDesc } = areaDescriptions[holcId];
+
+            let catToUse = cat;
+            let subCatToUse = subcat;
+            if (formToUse === 19370826 && uses19371001.includes(holcId)) {
+              catToUse = AugToOctCats[selectedCategory];
+              subCatToUse = AugToOctSubcats[selectedCategory];
+            }
+            if (formToUse === 19371001 && !uses19371001.includes(holcId)) {
+              catToUse = OctToAugCats[selectedCategory];
+              subCatToUse = OctToAugSubcats[selectedCategory];
+            }
+
+            if (areaDesc && areaDesc[catToUse] && ['A', 'B', 'C', 'D'].includes(holcGrade)) {
+              if (['2-c', '2-d', '5-c', '5-d'].includes(selectedCategory)) {
+                values[holcGrade].push({
+                  holcId,
+                  value: `${(areaDesc[catToUse] && areaDesc[catToUse][subCatToUse]['1']) ? areaDesc[catToUse][subCatToUse]['1'] : ''}; ${(areaDesc[catToUse] && areaDesc[catToUse][subCatToUse]['2']) ? areaDesc[catToUse][subCatToUse]['2'] : ''}`,
+                });
+              } else if (!subCatToUse) {
+                values[holcGrade].push({
+                  holcId,
+                  value: areaDesc[catToUse],
+                });
+              } else {
+                values[holcGrade].push({
+                  holcId,
+                  value: areaDesc[catToUse][subCatToUse],
+                });
+              }
+            }
+          });
+      } else {
+        Object.keys(areaDescriptions)
+          .sort(collator.compare)
+          .forEach((holcId) => {
+            const { holc_grade: holcGrade, areaDesc } = areaDescriptions[holcId];
+
+            if (areaDesc && areaDesc[cat] && ['A', 'B', 'C', 'D'].includes(holcGrade)) {
+              if (!subcat) {
+                values[holcGrade].push({
+                  holcId,
+                  value: areaDesc[cat],
+                });
+                title = (formId !== 1) ? `${cat} ${FormsMetadata[formId][cat]}` : 'Area Descriptions';
+                instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat])
+                  ? FormsInstructions[formId][cat] : null;
+              } else {
+                values[holcGrade].push({
+                  holcId,
+                  value: areaDesc[cat][subcat],
+                });
+                title = `${cat}${subcat} ${FormsMetadata[formId][cat].header} ${FormsMetadata[formId][cat].subcats[subcat]}`;
+                instructions = (FormsInstructions[formId] && FormsInstructions[formId][cat]
+                  && FormsInstructions[formId][cat].subcats &&
+                  FormsInstructions[formId][cat].subcats[subcat])
+                  ? FormsInstructions[formId][cat].subcats[subcat] : null;
+              }
+            }
+          });
+
+        let subcatToTest = subcat;
+
+        for (let checkcat = (!subcatToTest || subcatToTest === 'a') ? parseInt(cat, 10) - 1 : parseInt(cat, 10);
+          !prevCat && checkcat >= 1;
+          checkcat -= 1) {
+          for (let checksubcat = (!subcatToTest || subcatToTest === 'a') ? 'z' : String.fromCharCode(subcatToTest.charCodeAt() - 1);
+            !prevCat && checksubcat >= 'a';
+            checksubcat = String.fromCharCode(checksubcat.charCodeAt() - 1), subcatToTest = undefined) {
+            if (typeof FormsMetadata[formId][checkcat] === 'string') {
+              prevCat = checkcat.toString();
+            }
+            if (FormsMetadata[formId][checkcat] && FormsMetadata[formId][checkcat].subcats
+              && typeof FormsMetadata[formId][checkcat].subcats[checksubcat] === 'string') {
+              prevCat = `${checkcat}-${checksubcat}`;
             }
           }
-        });
-
-      let subcatToTest = subcat;
-
-      for (let checkcat = (!subcatToTest || subcatToTest === 'a') ? parseInt(cat, 10) - 1 : parseInt(cat, 10);
-        !prevCat && checkcat >= 1;
-        checkcat -= 1) {
-        for (let checksubcat = (!subcatToTest || subcatToTest === 'a') ? 'z' : String.fromCharCode(subcatToTest.charCodeAt() - 1);
-          !prevCat && checksubcat >= 'a';
-          checksubcat = String.fromCharCode(checksubcat.charCodeAt() - 1), subcatToTest = undefined) {
-          if (typeof FormsMetadata[formId][checkcat] === 'string') {
-            prevCat = checkcat.toString();
-          }
-          if (FormsMetadata[formId][checkcat] && FormsMetadata[formId][checkcat].subcats
-            && typeof FormsMetadata[formId][checkcat].subcats[checksubcat] === 'string') {
-            prevCat = `${checkcat}-${checksubcat}`;
-          }
         }
-      }
 
-      subcatToTest = subcat;
+        subcatToTest = subcat;
 
-      for (let checkcat = (!subcatToTest) ? parseInt(cat, 10) + 1 : parseInt(cat, 10);
-        !nextCat && checkcat < 30;
-        checkcat += 1) {
-        for (let checksubcat = (!subcatToTest || subcatToTest === 'z') ? 'a' : String.fromCharCode(subcatToTest.charCodeAt() + 1);
-          !nextCat && checksubcat <= 'z';
-          checksubcat = String.fromCharCode(checksubcat.charCodeAt() + 1), subcatToTest = undefined) {
-          if (typeof FormsMetadata[formId][checkcat] === 'string') {
-            nextCat = checkcat.toString();
-          }
-          if (FormsMetadata[formId][checkcat] && FormsMetadata[formId][checkcat].subcats
-            && typeof FormsMetadata[formId][checkcat].subcats[checksubcat] === 'string') {
-            nextCat = `${checkcat}-${checksubcat}`;
+        for (let checkcat = (!subcatToTest) ? parseInt(cat, 10) + 1 : parseInt(cat, 10);
+          !nextCat && checkcat < 30;
+          checkcat += 1) {
+          for (let checksubcat = (!subcatToTest || subcatToTest === 'z') ? 'a' : String.fromCharCode(subcatToTest.charCodeAt() + 1);
+            !nextCat && checksubcat <= 'z';
+            checksubcat = String.fromCharCode(checksubcat.charCodeAt() + 1), subcatToTest = undefined) {
+            if (typeof FormsMetadata[formId][checkcat] === 'string') {
+              nextCat = checkcat.toString();
+            }
+            if (FormsMetadata[formId][checkcat] && FormsMetadata[formId][checkcat].subcats
+              && typeof FormsMetadata[formId][checkcat].subcats[checksubcat] === 'string') {
+              nextCat = `${checkcat}-${checksubcat}`;
+            }
           }
         }
       }
@@ -546,17 +637,20 @@ export const getOverlappingMaps = createSelector(
     }
     const categoricalColors = ['rgb(158, 218, 229)', 'rgb(174, 199, 232)', 'rgb(255, 127, 14)', 'rgb(255, 187, 120)', 'rgb(44, 160, 44)', 'rgb(152, 223, 138)', 'rgb(31, 119, 180)', 'rgb(214, 39, 40)', 'rgb(255, 152, 150)', 'rgb(148, 103, 189)', 'rgb(197, 176, 213)', 'rgb(140, 86, 75)', 'rgb(196, 156, 148)', 'rgb(227, 119, 194)', 'rgb(247, 182, 210)', 'rgb(127, 127, 127)', 'rgb(199, 199, 199)', 'rgb(188, 189, 34)', 'rgb(219, 219, 141)', 'rgb(23, 190, 207)'];
     const allOverlappingRasters = rasters.filter(m => m.overlaps);
-    const overlappingRasters = allOverlappingRasters.map((m, i) => {
-      const weight = 1 + 4 * i / allOverlappingRasters.length;
-      const sortOrder = allOverlappingRasters.length - i;
-      return {
-        ...m,
-        the_geojson: visibleRasterPolygons.find(vrp => vrp.map_id === m.id).the_geojson,
-        fillColor: categoricalColors[i % 20],
-        weight,
-        sortOrder,
-      };
-    });
+    const overlappingRasters = allOverlappingRasters
+      .map((m, i) => {
+        const weight = 1 + 4 * i / allOverlappingRasters.length;
+        const sortOrder = allOverlappingRasters.length - i;
+        return {
+          ...m,
+          the_geojson: (visibleRasterPolygons.find(vrp => vrp.map_id === m.id))
+            ? visibleRasterPolygons.find(vrp => vrp.map_id === m.id).the_geojson : null,
+          fillColor: categoricalColors[i % 20],
+          weight,
+          sortOrder,
+        };
+      })
+      .filter(or => or.the_geojson);
     return overlappingRasters;
   },
 );
@@ -596,7 +690,7 @@ export const getDownloadData = createSelector(
             if (hasADs && !raster.parent_id) {
               cityDownloadData.adsUrl = `${BUCKET_URL}/tiles/${state}/${fileName}/${rasterYear}/ads.zip`;
               cityDownloadData.adsThumbnailUrl = `${BUCKET_URL}/tiles/${state}/${fileName}/${rasterYear}/adThumbnail.jpg`;
-            }
+            } 
             if (fileName && state && year && !inset) {
               cityDownloadData.rasters.push({
                 fileName,

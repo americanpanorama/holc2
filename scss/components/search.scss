@@ -39,8 +39,8 @@
 				opacity: 1;
 			}
 
-			&+ .searchResults {
-				display: block;
+			&+ .searchResults.hide {
+				color: green;
 			}
 		}
 	}

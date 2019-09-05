@@ -5,7 +5,7 @@ import { constantsColors } from '../../../../data/constants';
 
 const mapStateToProps = (state) => {
   const { bounds, zoom, lat, lng, highlightedAdId, highlightedHolcId } = getInspectedMiniMapParams(state);
-  const { basemap, map, selectedCity, showHOLCMaps, selectedArea, dimensions } = state;
+  const { basemap, map, selectedCity, showHOLCMaps, showFullHOLCMaps, selectedArea, dimensions } = state;
   const { visibleRasters, highlightedPolygons, visiblePolygons } = map;
 
   let cityRasterParams;
@@ -21,7 +21,7 @@ const mapStateToProps = (state) => {
   // this will need insets too
   if (cityRaster && showHOLCMaps) {
     cityRasterParams = {
-      url: cityRaster.url,
+      url: (showFullHOLCMaps) ? cityRaster.url : cityRaster.url.replace('/tiles/', '/tiles_mosaic/'),
       maxZoom: cityRaster.maxZoom,
       minZoom: cityRaster.minZoom,
     };

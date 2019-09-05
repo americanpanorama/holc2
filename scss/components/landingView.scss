@@ -9,7 +9,9 @@
   padding: 0;
 
   line-height: 1.4;
-  background: url(./static/imageBG1920x1080.jpg) $headerRed no-repeat center center fixed;
+  background-color: #ddd;
+  /* background: url(./static/imageBG1920x1080.jpg) $headerRed no-repeat center center fixed;
+  background: url(./static/hill1920x1080.jpg) $headerRed no-repeat center center fixed;
   background-size: cover;
   @include for-phone-only {
     background-image: url(./static/imageBG750x422.jpg);
@@ -19,12 +21,31 @@
   }
   @include for-tablet-landscape-up {
     background-image: url(./static/imageBG1200x675.jpg);
+    background-image: url(./static/hill1200x675.jpg)
   }
   @include for-desktop-up {
     background-image: url(./static/imageBG1920x1080.jpg);
+    background-image: url(./static/hill1920x1080.jpg)
+  } */
+
+  .landingImg {
+    width: 50%;
+    height: 100%;
+    display: inline-block;
+    float: left;
+    overflow: visible;
+
+    img {
+      width: 100%;
+      margin-left: 10%;
+    }
   }
 
+
   header {
+    margin-left: 50%;
+    width: 50%;
+    float: right;
     height: 67%;
     margin: 0;
     padding: 0;
@@ -39,6 +60,31 @@
       left: 50%;
       transform: translate(-50%, -33%);
       max-width: 1000px;
+      
+      color: black;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    form {
+      font-family: "Lato", sans-serif;
+      text-align: center;
+      input, label {
+        color: #aaa;
+        display: inline;
+        margin: 5px;
+      }
+
+      button {
+        border-color: $headerRed;
+        background-color: lighten($headerRed, 20%) !important;
+        color: black;
+      }
+
+      button:hover {
+        color: white;
+        border-color: $controlsColor;
+        border-color: white;
+      }
     }
     h1 {
       margin: 0;
@@ -76,7 +122,7 @@
 
     .elevatorIntro {
       
-      font-size: calc(16px + (14 - 11) * ((100vw - 300px) / (1600 - 300)));
+      font-size: calc(12px + (14 - 11) * ((100vw - 300px) / (1600 - 300)));
       line-height: 1.9;
       margin: 30px 20px;
 

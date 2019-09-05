@@ -4,7 +4,6 @@ import { selectText } from '../../store/Actions';
 
 const mapStateToProps = state => ({
   media: state.dimensions.media,
-  landingPage: state.landingPage,
 });
 
 const mapDispatchToProps = {

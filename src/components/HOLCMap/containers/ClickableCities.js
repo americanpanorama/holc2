@@ -6,7 +6,7 @@ import dorlings from '../../../../data/Dorlings.json';
 import { constantsColors } from '../../../../data/constants';
 
 const mapStateToProps = (state) => {
-  const { map, cities } = state;
+  const { map, cities, donutCityMarkers } = state;
   const { zoom } = map;
 
   if (map.aboveThreshold) {
@@ -55,6 +55,53 @@ const mapStateToProps = (state) => {
       });
 
       if (city.area && city.area.total) {
+        const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
+          const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+
+          return {
+            x: centerX + (radius * Math.cos(angleInRadians)),
+            y: centerY + (radius * Math.sin(angleInRadians)),
+          };
+        };
+
+        const describeArc = (startAngle, endAngle) => {
+          const x = 100;
+          const y = 100;
+          const outerR = 100;
+          const innerR = outerR / 3;
+          const startOuter = polarToCartesian(x, y, outerR, endAngle);
+          const endOuter = polarToCartesian(x, y, outerR, startAngle);
+          const startInner = polarToCartesian(x, y, innerR, endAngle);
+          const endInner = polarToCartesian(x, y, innerR, startAngle);
+
+          const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+
+          const d = [
+            'M', startOuter.x, startOuter.y,
+            'A', outerR, outerR, 0, largeArcFlag, 0, endOuter.x, endOuter.y,
+            'L', endInner.x, endInner.y,
+            'A', innerR, innerR, 0, largeArcFlag, 1, startInner.x, startInner.y,
+          ].join(' ');
+
+          return d;
+        };
+
+        const getLine = (startAngle, endAngle) => {
+          const x = 100;
+          const y = 100;
+          const outerR = 100;
+          const innerR = outerR / 3;
+          const endOuter = polarToCartesian(x, y, outerR, startAngle);
+          const endInner = polarToCartesian(x, y, innerR, startAngle);
+
+          return {
+            x1: endOuter.x,
+            y1: endOuter.y,
+            x2: endInner.x,
+            y2: endInner.y,
+          };
+        };
+
         const rs = {
           d: Math.sqrt(city.area.d / city.area.total) * 100,
           c: Math.sqrt((city.area.d + city.area.c) / city.area.total) * 100,
@@ -62,26 +109,41 @@ const mapStateToProps = (state) => {
           a: 100,
         };
 
-        const svgString = `
+        const svgString = (!donutCityMarkers) ? `
           <svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>
             <circle cx='100' cy='100' r='${rs.d}' fill='${constantsColors.gradeD}' />
             <path d='M 100, 100 m 0, -${rs.c} a ${rs.c}, ${rs.c}, 0, 1, 0, 1, 0 Z m 0 ${rs.c - rs.d} a ${rs.d}, ${rs.d}, 0, 1, 1, -1, 0 Z' fill='${constantsColors.gradeC}'/>
             <path d='M 100, 100 m 0, -${rs.b} a ${rs.b}, ${rs.b}, 0, 1, 0, 1, 0 Z m 0 ${rs.b - rs.c} a ${rs.c}, ${rs.c}, 0, 1, 1, -1, 0 Z' fill='${constantsColors.gradeB}'/>
             <path d='M 100, 100 m 0, -${rs.a} a ${rs.a}, ${rs.a}, 0, 1, 0, 1, 0 Z m 0 ${rs.a - rs.b} a ${rs.b}, ${rs.b}, 0, 1, 1, -1, 0 Z' fill='${constantsColors.gradeA}'/>
+          </svg>` :
+          `<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'>
+            <path d='${describeArc(0, city.area.a / city.area.total * 360)}' fill='${constantsColors.gradeA}' />
+            <path d='${describeArc(city.area.a / city.area.total * 360, (city.area.a + city.area.b) / city.area.total * 360)}' fill='${constantsColors.gradeB}' />
+            <path d='${describeArc((city.area.a + city.area.b) / city.area.total * 360, (city.area.a + city.area.b + city.area.c) / city.area.total * 360)}' fill='${constantsColors.gradeC}' />
+            <path d='${describeArc((city.area.a + city.area.b + city.area.c) / city.area.total * 360, 360)}' fill='${constantsColors.gradeD}' />
+            <circle cx='100' cy='100' r='99' fill='transparent' stroke='black' stroke-width='2' />
+            <circle cx='100' cy='100' r='33.333' fill='transparent' stroke='black'  stroke-width='2'  />
+            <line x1='${getLine(0, city.area.a / city.area.total * 360).x1}' y1='${getLine(0, city.area.a / city.area.total * 360).y1}' x2='${getLine(0, city.area.a / city.area.total * 360).x2}' y2='${getLine(0, city.area.a / city.area.total * 360).y2}' stroke='black'  stroke-width='2' />
+            <line x1='${getLine(city.area.a / city.area.total * 360, (city.area.a + city.area.b) / city.area.total * 360).x1}' y1='${getLine(city.area.a / city.area.total * 360, (city.area.a + city.area.b) / city.area.total * 360).y1}' x2='${getLine(city.area.a / city.area.total * 360, (city.area.a + city.area.b) / city.area.total * 360).x2}' y2='${getLine(city.area.a / city.area.total * 360, (city.area.a + city.area.b) / city.area.total * 360).y2}' stroke='black'  stroke-width='2' />
+            <line x1='${getLine((city.area.a + city.area.b) / city.area.total * 360, (city.area.a + city.area.b + city.area.c) / city.area.total * 360).x1}' y1='${getLine((city.area.a + city.area.b) / city.area.total * 360, (city.area.a + city.area.b + city.area.c) / city.area.total * 360).y1}' x2='${getLine((city.area.a + city.area.b) / city.area.total * 360, (city.area.a + city.area.b + city.area.c) / city.area.total * 360).x2}' y2='${getLine((city.area.a + city.area.b) / city.area.total * 360, (city.area.a + city.area.b + city.area.c) / city.area.total * 360).y2}' stroke='black'  stroke-width='2' />
+            <line x1='${getLine((city.area.a + city.area.b + city.area.c) / city.area.total * 360, 360).x1}' y1='${getLine((city.area.a + city.area.b + city.area.c) / city.area.total * 360, 360).y1}' x2='${getLine((city.area.a + city.area.b + city.area.c) / city.area.total * 360, 360).x2}' y2='${getLine((city.area.a + city.area.b + city.area.c) / city.area.total * 360, 360).y2}' stroke='black'  stroke-width='2' />
+
           </svg>`;
+
         const iconUrl = encodeURI(`data:image/svg+xml,${svgString.trim().replace(/ +(?= )/g, '')}`).replace(/#/g, '%23');
 
+        //<path d='${describeArc(100, 100, 100, 0, city.area.a / city.area.total * 360)}' fill='${constantsColors.gradeA}'/>
         // default is below
         let radians = Math.PI * 0.5;
         let direction = 'center';
 
         // above
-        if (['Woonsocket', 'Newport News', 'Niagara Falls', 'Philadelphia', 'Winston-Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton/Johnson City', 'Oakland'].includes(city.name)) {
+        if (['Woonsocket', 'Newport News', 'Niagara Falls', 'Philadelphia', 'Winston-Salem', 'Trenton', 'Stamford, Darien, and New Canaan', 'Schenectady', 'Bay City', 'Battle Creek', 'Warren', 'Binghamton-Johnson City', 'Oakland'].includes(city.name)) {
           radians = Math.PI * 1.5;
         }
 
         // west
-        if (['Essex Co.', 'Hartford', 'St.Louis', 'St. Louis', 'Omaha', 'Minneapolis'].includes(city.name)) {
+        if (['Essex Co.', 'Hartford', 'St.Louis', 'St. Louis', 'Omaha', 'Minneapolis', 'Union Co.'].includes(city.name)) {
           radians = 0;
           direction = 'left';
         }
@@ -112,7 +174,7 @@ const mapStateToProps = (state) => {
 
         if (zoom <= 7) {
           // above
-          if (['Manchester', 'Cleveland', 'Holyoke Chicopee', 'East Hartford', 'Chicago', 'Milwaukee Co.', 'Tampa', 'Dallas', 'South Bend', 'SouthBend' ].includes(city.name)) {
+          if (['Manchester', 'Cleveland', 'Holyoke Chicopee', 'East Hartford', 'Chicago', 'Milwaukee Co.', 'Tampa', 'Dallas', 'South Bend', 'SouthBend'].includes(city.name)) {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
@@ -120,10 +182,17 @@ const mapStateToProps = (state) => {
             radians = Math.PI * 1.5;
             direction = 'center';
           }
+
           // east
-          if (['New Castle', 'Racine'].includes(city.name)) {
+          if (['New Castle', 'Racine', 'Camden', 'Trenton'].includes(city.name)) {
             radians = Math.PI * 2;
             direction = 'right';
+          }
+
+           // west
+          if (['Bethlehem'].includes(city.name)) {
+            radians = 0;
+            direction = 'left';
           }
 
           // northwest
@@ -143,8 +212,14 @@ const mapStateToProps = (state) => {
           }
 
           // southwest
-          if (['Waterbury', 'Akron'].includes(city.name)) {
+          if (['Waterbury', 'Akron', 'Union Co.'].includes(city.name)) {
             radians = Math.PI * 0.25;
+            direction = 'left';
+          }
+
+          // south southwest
+          if (['Union Co.'].includes(city.name)) {
+            radians = Math.PI * 0.1;
             direction = 'left';
           }
 
@@ -167,9 +242,7 @@ const mapStateToProps = (state) => {
           }
 
           // west
-          if ([
-
-            'Essex Co.', 'Saginaw', 'San Francisco', 'York'].includes(city.name)) {
+          if (['Essex Co.', 'Saginaw', 'San Francisco', 'York', 'WilkesBarre', 'Wilkes-Barre', ].includes(city.name)) {
             radians = 0;
             direction = 'left';
           }
@@ -208,10 +281,10 @@ const mapStateToProps = (state) => {
             direction = 'left';
           }
 
-          if (['Lancaster', 'Harrisburg', 'Woonsocket', 'Bethlehem', 'WilkesBarre', 'Wilkes-Barre', 'Hamilton', 'Lake Co. Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
+          if (['Union Co.', 'Essex Co.', 'Lancaster', 'Harrisburg', 'Woonsocket', 'Bethlehem', 'Hamilton', 'Lake Co. Gary', 'Grand Rapids', 'Flint', 'Muskegon', 'Warren', 'Johnstown', 'East Hartford', 'Holyoke Chicopee', 'Poughkeepsie', 'Waterbury', 'New Britain', 'Trenton', 'Racine', 'Battle Creek', 'Kalamazoo', 'Lansing', 'Kenosha'].includes(city.name)) {
             city.showLabel = false;
           }
-          if (city.name === 'Springfield' && city.state === 'OH') {
+          if ((city.name === 'Springfield' && city.state === 'OH') || (city.name === 'Jackson' && city.state === 'MI')) {
             city.showLabel = false;
           }
         }
@@ -236,7 +309,7 @@ const mapStateToProps = (state) => {
           }
 
           // west
-          if (['Birmingham', 'Chicago'].includes(city.name)) {
+          if (['Birmingham', 'Chicago', 'Lincoln', 'Waco', 'Austin'].includes(city.name)) {
             radians = 0;
             direction = 'left';
           }
@@ -263,7 +336,7 @@ const mapStateToProps = (state) => {
             direction = 'right';
           }
           // southeast 
-          if ([ 'Norfolk', 'Augusta', 'Macon', 'Baltimore'].includes(city.name)) {
+          if ([ 'Norfolk', 'Augusta', 'Macon'].includes(city.name)) {
             radians = Math.PI * 0.25;
             direction = 'right';
           }
@@ -274,13 +347,13 @@ const mapStateToProps = (state) => {
           }
 
           // southwest
-          if (['Waco'].includes(city.name)) {
+          if ([, 'Baltimore'].includes(city.name)) {
             radians = Math.PI * 0.25;
             direction = 'left';
           }
 
 
-          if (['Harrisburg', 'Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston-Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex Co.', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton/Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
+          if (['WilkesBarre', 'Wilkes-Barre', 'Charleston', 'Beaumont', 'Port Arthur', 'Davenport', 'Chester', 'Harrisburg', 'Council Bluffs', 'Atlantic City', 'Providence', 'Asheville', 'Oshkosh', 'Schenectady', 'Niagara Falls', 'Pontiac', 'Bay City', 'Lima', 'Troy', 'Toledo', 'Akron', 'Fort Wayne', 'Indianapolis', 'Cleveland', 'Roanoke', 'Buffalo', 'Newport News', 'Columbus', 'Dayton', 'Greensboro', 'Covington', 'Evansville', 'Chattanooga', 'Winston-Salem', 'Cofington', 'East St. Louis', 'Joliet', 'Decatur', 'SouthBend', 'South Bend', 'Aurora', 'Dubuque', 'Terre Haute', 'Richmond', 'Philadelphia', 'Madison', 'Bergen Co.', 'Wheeling', 'Springfield', 'Portsmouth', 'Lorain', 'Canton', 'Essex Co.', 'Youngstown', 'Hartford', 'Syracuse', 'Rockford', 'New Haven', 'Elmira', 'New Castle', 'Erie', 'Altoona', 'Binghamton-Johnson City', 'Muncie', 'Lynchburg', 'Albany', 'Utica', 'Camden'].includes(city.name)) {
             city.showLabel = false;
           }
           if ((city.name === 'Columbus' && city.state === 'GA') || (city.name === 'Rochester' && city.state === 'MN')) {
@@ -346,7 +419,7 @@ const mapStateToProps = (state) => {
           }
 
           // southwest
-          if (['St. Petersburg', 'Wichita'].includes(city.name)) {
+          if (['St. Petersburg', 'Wichita', 'Lincoln'].includes(city.name)) {
             radians = Math.PI * 0.25;
             direction = 'left';
           }
@@ -358,7 +431,7 @@ const mapStateToProps = (state) => {
           }
 
 
-          if (['York', 'Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St. Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
+          if (['Peoria', 'York', 'Huntington', 'Waco', 'Montgomery', 'San Jose', 'Sacramento', 'Brockton', 'Charlotte', 'Augusta', 'Dallas', 'Memphis', 'Des Moines', 'Shreveport', 'Galveston', 'Pittsburgh', 'Charleston', 'Rochester', 'Manchester',  'Nashville', 'LittleRock', 'Little Rock', 'St. Joseph', 'St. Josesph', 'Louisville', 'Columbia', 'Macon', 'Greater Kansas City', 'Milwaukee Co.', 'Waterloo'].includes(city.name)) {
             city.showLabel = false;
           }
           if (false) {
@@ -386,6 +459,13 @@ const mapStateToProps = (state) => {
           // city.labelOffset = [Math.cos(radians) * (rDist / 2), Math.sin(radians) * (rDist / 2)];
           city.labelDirection = direction;
         }
+      }
+
+      if (city.name === 'Greater Kansas City') {
+        city.name = 'Kansas City';
+      }
+      if (city.name === 'Milwaukee Co.') {
+        city.name = 'Milwaukee';
       }
 
 //        && city.population && city.population.total && city.population.total >= 500000);

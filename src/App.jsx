@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 
-import { windowResized, loadInitialData } from './store/Actions';
+import { windowResized, loadInitialData, hashChanged } from './store/Actions';
 
 // components (views)
 import Masthead from './components/containers/Masthead';
@@ -11,7 +11,6 @@ import DataViewer from './components/DataViewer/containers/DataViewer';
 import DataViewerFull from './components/DataViewer/containers/DataViewerFull';
 import LoadingNotification from './components/containers/LoadingNotification';
 import Text from './components/Text/containers/Text';
-import LandingView from './components/containers/LandingView';
 
 import Store from './store';
 
@@ -22,6 +21,7 @@ export default class App extends React.Component {
 
   componentDidMount() {
     window.addEventListener('resize', windowResized);
+    //window.addEventListener('hashchange', hashChanged);
   }
 
   render() {
@@ -47,7 +47,6 @@ export default class App extends React.Component {
         {(!showMap) && (
           <Text />
         )}
-        <LandingView />
       </React.Fragment>
     );
   }

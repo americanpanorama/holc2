@@ -17,7 +17,6 @@ const getCityFilePath = (adId, cities) => {
 };
 
 const getEventId = (eOrId, type = 'string') => {
-  console.log(eOrId);
   let id = eOrId.id || eOrId;
   if (!eOrId.id && typeof eOrId === 'object') {
     const ct = eOrId.currentTarget || eOrId.target;
@@ -38,7 +37,7 @@ const calculateOffsetBounds = (bounds, dimensions) => {
   const { windowWidth: mapWidth, dataViewerWidth, media } = dimensions;
   let { n, s, e, w } = getNSWE(bounds);
   if (media !== 'phone' && media !== 'tablet-portrait') {
-    const horizontalOffsetRatio = (dataViewerWidth + 40) / mapWidth;
+    const horizontalOffsetRatio = 1 / (1 - (dataViewerWidth + 60) / mapWidth) - 1;
     w -= (e - w) * horizontalOffsetRatio;
   } else {
     // this bit of extra offset creates some paddinb between the bounds and the data viewer
@@ -109,6 +108,13 @@ const centerAndZoomIntersects = (boundsA, boundsB, dimensions) => {
   }
 
   return null;
+};
+
+const areaIsVisible = (boundsA, boundsB, dimensions) => {
+  if (boundsB && boundsB[0] && boundsB[0][0]) {
+    return L.latLngBounds(boundsA).contains(boundsB) || L.latLngBounds(boundsA).overlaps(boundsB);
+  }
+  return false;
 };
 
 const getAreaPolygon = (adId, holcId, visiblePolygons) => (
@@ -195,7 +201,7 @@ export const loadInitialData = () => (dispatch, getState) => {
 
           return Promise.all([
             fetch(`./static/polygons/${path}`),
-            fetch(`./static/ADs/${path}`),
+            fetch(`./static/areadescriptions/${path}`),
           ])
             .then(responses => Promise.all(responses.map(r => r.json())))
             .then((responsesJSON) => {
@@ -263,6 +269,10 @@ export const loadInitialData = () => (dispatch, getState) => {
         type: Actions.GEOLOCATION_ERROR,
         payload: error,
       });
+    }, {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 100000,
     });
   }
   if (hashValues.city) {
@@ -272,7 +282,7 @@ export const loadInitialData = () => (dispatch, getState) => {
 
     return Promise.all([
       fetch(`./static/polygons/${path}`),
-      fetch(`./static/ADs/${path}`),
+      fetch(`./static/areadescriptions/${path}`),
     ])
       .then(responses => Promise.all(responses.map(r => r.json())))
       .then((responsesJSON) => {
@@ -344,7 +354,7 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
   const { loadingPolygonsFor, zoom: currentZoom } = map;
 
   const path = getCityFilePath(id, cities);
-  const { bounds } = cities.find(c => c.ad_id === id);
+  const { bounds, mapIds } = cities.find(c => c.ad_id === id);
   const { lat, lng, zoom } = coords || calculateCenterAndZoom(bounds, dimensions);
 
   // if it's alreeady loaded or is being loaded test to see if you need to zoom
@@ -357,6 +367,10 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
           zoom,
           center: [lat, lng],
           aboveThreshold: true,
+          visibleRasters: [
+            ...map.visibleRasters.filter(m => !mapIds.includes(m.id)),
+            ...map.visibleRasters.filter(m => mapIds.includes(m.id)),
+          ],
           movingTo: {
             zoom,
             center: [lat, lng],
@@ -390,8 +404,8 @@ export const selectCity = (eOrId, coords) => (dispatch, getState) => {
   ]));
 
   const filesToLoad = (loadingPolygonsFor !== id)
-    ? [`./static/ADs/${path}`, `./static/polygons/${path}`]
-    : [`./static/ADs/${path}`];
+    ? [`./static/areadescriptions/${path}`, `./static/polygons/${path}`]
+    : [`./static/areadescriptions/${path}`];
 
   return Promise.all(filesToLoad.map(ftl => fetch(ftl)))
     .then(responses => Promise.all(responses.map(r => r.json())))
@@ -431,7 +445,7 @@ export const unselectCity = () => ({
 
 export const inspectArea = (eOrId) => {
   const ids = getEventId(eOrId);
-  const [adId, holcId] = ids.split('-').map((v, i) => (
+  const [adId, holcId] = ids.split(/-(.+)/).map((v, i) => (
     (i === 0) ? parseInt(v, 10) : v
   ));
   return {
@@ -450,7 +464,7 @@ export const selectArea = eOrId => (dispatch, getState) => {
   }
 
   const ids = getEventId(eOrId);
-  const [adId, holcId] = ids.split('-').map((v, i) => (
+  const [adId, holcId] = ids.split(/-(.+)/).map((v, i) => (
     (i === 0) ? parseInt(v, 10) : v
   ));
 
@@ -458,10 +472,14 @@ export const selectArea = eOrId => (dispatch, getState) => {
   const { selectedCity, selectedCategory, selectedArea, cities, showADScan, map, dimensions } = getState();
   const { bounds, visiblePolygons } = map;
   const cityData = getSelectedCityData(getState());
+  const { bounds: cityBounds, mapIds } = cities.find(c => c.ad_id === adId);
 
-  console.log(bounds);
-  if (bounds && bounds[0]) {
-    const newCenterAndZoom = centerAndZoomIncluding(calculateInsetBounds(bounds, dimensions),
+  let newCenterAndZoom = false;
+
+  // zoom to include the area if necessary from the map.
+  // otherwise if it's not visibile (e.g. linked from the intro) go to the city
+  if (bounds && bounds[0] && areaIsVisible(bounds, cityBounds, dimensions)) {
+    newCenterAndZoom = centerAndZoomIncluding(calculateInsetBounds(bounds, dimensions),
       getAreaPolygonBB(adId, holcId, visiblePolygons), dimensions);
     if (newCenterAndZoom) {
       const { lat, lng, zoom } = newCenterAndZoom;
@@ -475,18 +493,66 @@ export const selectArea = eOrId => (dispatch, getState) => {
             holcId,
           }],
           center: [lat, lng],
+          visibleRasterPolygons: [
+            ...map.visibleRasterPolygons.filter(m => !mapIds.includes(m.map_id)),
+            ...map.visibleRasterPolygons.filter(m => mapIds.includes(m.map_id)),
+          ],
+          visibleRasters: [
+            ...map.visibleRasters.filter(m => !mapIds.includes(m.id)),
+            ...map.visibleRasters.filter(m => mapIds.includes(m.id)),
+          ],
           movingTo: {
             zoom,
             center: [lat, lng],
           },
         },
       });
+    } else {
+      actions.push({
+        type: Actions.MOVE_MAP,
+        payload: {
+          ...map,
+          visibleRasterPolygons: [
+            ...map.visibleRasterPolygons.filter(m => !mapIds.includes(m.map_id)),
+            ...map.visibleRasterPolygons.filter(m => mapIds.includes(m.map_id)),
+          ],
+          visibleRasters: [
+            ...map.visibleRasters.filter(m => !mapIds.includes(m.id)),
+            ...map.visibleRasters.filter(m => mapIds.includes(m.id)),
+          ],
+        },
+      });
     }
+  } else {
+    const { lat: newLat, lng: newLng, zoom: newZoom } = calculateCenterAndZoom(cityBounds, dimensions);
+    dispatch(batchActions([
+      {
+        type: Actions.SELECT_CITY_REQUEST,
+        payload: adId,
+      },
+      {
+        type: Actions.MOVE_MAP,
+        payload: {
+          ...map,
+          zoom: newZoom,
+          center: [newLat, newLng],
+          aboveThreshold: true,
+          visibleRasters: [
+            ...map.visibleRasters.filter(m => !mapIds.includes(m.id)),
+            ...map.visibleRasters.filter(m => mapIds.includes(m.id)),
+          ],
+          movingTo: {
+            zoom: newZoom,
+            center: [newLat, newLng],
+          },
+        },
+      },
+    ]));
   }
 
   // load the city if necessary then the neighborhood
   if (selectedCity !== adId) {
-    return fetch(`./static/ADs/${getCityFilePath(adId, cities)}`)
+    return fetch(`./static/areadescriptions/${getCityFilePath(adId, cities)}`)
       .then(response => response.json())
       .then((ads) => {
         actions.push(
@@ -601,7 +667,7 @@ export const zoomToCity = eOrId => (dispatch, getState) => {
 
 export const highlightArea = eOrId => (dispatch, getState) => {
   const ids = getEventId(eOrId);
-  const [adId, holcId] = ids.split('-').map((v, i) => (
+  const [adId, holcId] = ids.split(/-(.+)/).map((v, i) => (
     (i === 0) ? parseInt(v, 10) : v
   ));
   const highlightedPolygons = [{
@@ -795,7 +861,7 @@ export const updateMap = mapState => (dispatch, getState) => {
 
     return Promise.all([
       fetch(`./static/polygons/${path}`),
-      fetch(`./static/ADs/${path}`),
+      fetch(`./static/areadescriptions/${path}`),
     ])
       .then(responses => Promise.all(responses.map(r => r.json())))
       .then((responsesJSON) => {
@@ -988,12 +1054,21 @@ export const toggleDataViewerFull = () => ({
   type: Actions.TOGGLE_DATA_VIEWER_FULL,
 });
 
-export const toggleLandingPage = () => ({
-  type: Actions.TOGGLE_LANDING_PAGE,
-});
+export const toggleLandingPage = (dontShowAgain) => {
+  if (dontShowAgain) {
+    localStorage.setItem('noLandingPageMappingInequality', true);
+  }
+  return {
+    type: Actions.TOGGLE_LANDING_PAGE,
+  };
+};
 
 export const toggleNationalLegend = () => ({
   type: Actions.TOGGLE_NATIONAL_LEGEND,
+});
+
+export const toggleCityMarkerStyle = () => ({
+  type: Actions.TOGGLE_CITY_MARKER_STYLE,
 });
 
 export const resetMapView = () => (dispatch, getState) => {
@@ -1074,12 +1149,9 @@ export const clickOnMap = e => (dispatch, getState) => {
   const { sorting, visibleRasterPolygons, sortingPossibilities } = map;
   if (sorting && sortingPossibilities.length === 0) {
     const { lat, lng } = e.latlng;
-    console.log(visibleRasterPolygons);
     const clickedRasters = visibleRasterPolygons.filter(m => leafletPip.pointInLayer([lng, lat], L.geoJson(m.the_geojson)).length > 0);
-    console.log(clickedRasters);
     if (clickedRasters.length === 1 || clickedRasters.length === 2) {
       const mapId = clickedRasters[0].map_id;
-      console.log(mapId);
       dispatch({
         type: Actions.BRING_MAP_TO_FRONT,
         payload: mapId,
@@ -1096,7 +1168,7 @@ export const clickOnMap = e => (dispatch, getState) => {
             payload: selectedCityId,
           });
 
-          return fetch(`./static/ADs/${path}`)
+          return fetch(`./static/areadescriptions/${path}`)
             .then(response => response.json())
             .then((ads) => {
               dispatch(batchActions([
@@ -1119,7 +1191,7 @@ export const clickOnMap = e => (dispatch, getState) => {
       dispatch({
         type: Actions.SORT_MAP_POSSIBILITIES,
         payload: {
-          ids: clickedRasters.map(r => r.id),
+          ids: clickedRasters.map(r => r.map_id),
           latLng: [lat, lng],
         },
       });
@@ -1154,7 +1226,176 @@ export const selectText = e => (dispatch, getState) => {
   });
 };
 
+export const changeFromHash = () => (dispatch, getState) => {
+  const actions = [];
+  // get the current values 
+  const {
+    map,
+    selectedCity,
+    selectedArea,
+    selectedCategory,
+    showADSelections,
+    showDataViewerFull,
+    showHOLCMaps,
+    showFullHOLCMaps,
+    showADScan,
+    adScan,
+    selectedText,
+    cities,
+  } = getState();
+  const { zoom, center } = map;
+  let adZoom;
+  let adCenter;
+  if (showADScan) {
+    ({ zoom: adZoom, center: adCenter } = adScan);
+  }
+  const selectedCityData = (selectedCity) ? getSelectedCityData(selectedCity) : null;
+
+  const { hash } = window.location;
+  const hashValues = {};
+  hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
+    const [key, value] = pair.split('=');
+    hashValues[key] = value;
+    if (key === 'loc') {
+      const [newZoom, lat, lng] = value.split('/').map(str => parseFloat(str));
+      if (zoom !== newZoom || center[0] !== lat || center[1] !== lng) {
+        actions.push({
+          type: Actions.MOVE_MAP,
+          payload: {
+            ...map,
+            zoom: newZoom,
+            center: [lat, lng],
+            aboveThreshold: (newZoom >= 9),
+            movingTo: {
+              zoom,
+              center: [lat, lng],
+            },
+          },
+        });
+      }
+    }
+    if (key === 'city' && selectedCity && selectedCity.slug !== value) {
+      actions.push({
+        
+      })
+    }
+    if (key === 'adview' && value === 'full' && showADSelections) {
+      actions.push({
+        type: Actions.TOGGLE_AD_SELECTION,
+      });
+    }
+    if (key === 'adviewer' && value === 'sidebar' && showDataViewerFull) {
+      actions.push({
+        type: Actions.TOGGLE_DATA_VIEWER_FULL,
+      });
+    }
+    if (key === 'maps' && value === '0' && showHOLCMaps) {
+      actions.push({
+        type: Actions.TOGGLE_HOLC_MAPS,
+      });
+    }
+    if (key === 'mapview' && value === 'graded' && showFullHOLCMaps) {
+      actions.push({
+        type: Actions.SHOW_MOSAIC_MAPS,
+      });
+    }
+    if (key === 'area' && value !== selectedArea) {
+      actions.push({
+        type: Actions.SELECT_AREA,
+        payload: value,
+      });
+      actions.push({
+        type: Actions.HIGHLIGHT_AREAS,
+        payload: [{
+          adId: getState().selectedCity,
+          holcId: value,
+        }],
+      });
+    }
+    if (key === 'adimage') {
+      const [newAdZoom, adY, adX] = value.split('/').map(str => parseFloat(str));
+      if (!showADScan) {
+        actions.push({
+          type: Actions.TOGGLE_AD_SCAN,
+        });
+      } else if (showADScan && (adZoom !== newAdZoom || adCenter[0] !== adY || adCenter[1] !== adX)) {
+        actions.push({
+          type: Actions.MOVE_ADSCAN,
+          payload: {
+            zoom: newAdZoom,
+            center: [adY, adX],
+          },
+        });
+      }
+    }
+    if (key === 'category' && value !== selectedCategory) {
+      actions.push({
+        type: Actions.SELECT_CATEGORY,
+        payload: getEventId(value),
+      });
+    }
+    if (key === 'text' && value !== selectedText) {
+      actions.push({
+        type: Actions.SELECT_TEXT,
+        payload: value,
+      });
+    }
+  });
+
+  if (!showADSelections && !Object.keys(hashValues).includes('adview')) {
+    actions.push({
+      type: Actions.TOGGLE_AD_SELECTION,
+    });
+  }
+
+  if (!showDataViewerFull && !Object.keys(hashValues).includes('adviewer')) {
+    actions.push({
+      type: Actions.TOGGLE_DATA_VIEWER_FULL,
+    });
+  }
+
+  if (!showHOLCMaps && !Object.keys(hashValues).includes('maps')) {
+    actions.push({
+      type: Actions.TOGGLE_HOLC_MAPS,
+    });
+  }
+
+  if (!showFullHOLCMaps && !Object.keys(hashValues).includes('mapview')) {
+    actions.push({
+      type: Actions.SHOW_FULL_MAPS,
+    });
+  }
+
+  if (selectedText && !Object.keys(hashValues).includes('text')) {
+    actions.push({
+      type: Actions.SELECT_TEXT,
+      payload: null,
+    });
+  }
+
+  if (showADScan && !Object.keys(hashValues).includes('adimage')) {
+    actions.push({
+      type: Actions.TOGGLE_AD_SCAN,
+    });
+  }
+
+  if (selectedArea && !Object.keys(hashValues).includes('area')) {
+    actions.push({
+      type: Actions.UNSELECT_AREA,
+    });
+    dispatch({
+      type: Actions.UNHIGHLIGHT_AREA,
+    });
+  }
+
+  if (actions.length > 0) {
+    dispatch(batchActions(actions));
+  }
+
+};
+
 export const gradeUnselected = () => TheStore.dispatch(selectGrade(null));
 export const toggleMaps = () => TheStore.dispatch(toggleMapsOnOff());
 export const toggleCityStats = () => TheStore.dispatch(toggleCityStatsOnOff());
 export const windowResized = () => TheStore.dispatch(recalculateDimensions());
+export const hashChanged = () => TheStore.dispatch(changeFromHash());

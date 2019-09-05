@@ -20,11 +20,22 @@ const mapStateToProps = (state) => {
   };
 
   const { form_id: formId, ad_id: adId } = getSelectedCityData(state);
+  let FormComponent;
+  let SecondFormComponent;
+  // Madison's unique in using two different forms
+  if (formId === 6234766) {
+    FormComponent = formComponents['19370826'];
+    SecondFormComponent = formComponents['19371001'];
+  } else {
+    FormComponent = formComponents[formId];
+  }
 
   return {
     searchingADsFor: state.searchingADsFor,
     adId,
-    FormComponent: formComponents[formId],
+    formId,
+    FormComponent,
+    SecondFormComponent,
   };
 };
 

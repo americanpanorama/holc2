@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Button = ({ label, disabled, className, id, action, style }) => (
+const Button = ({ label, disabled, className, id, action, style, type }) => (
   <button
     onClick={action}
     className={className}
     disabled={disabled}
-    type="button"
+    type={type}
     style={style}
     id={id}
   >
@@ -22,6 +22,7 @@ Button.propTypes = {
   label: PropTypes.string.isRequired,
   action: PropTypes.func,
   id: PropTypes.number,
+  type: PropTypes.string,
   style: PropTypes.object,
 };
 
@@ -31,4 +32,5 @@ Button.defaultProps = {
   action: () => false,
   style: {},
   id: null,
+  type: 'button'
 };

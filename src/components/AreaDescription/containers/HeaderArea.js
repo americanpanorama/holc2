@@ -8,7 +8,7 @@ const mapStateToProps = (state) => {
   return {
     holcId: state.selectedArea,
     adId: state.selectedCity,
-    name: (areaData.polygon) ? areaData.polygon.name : null,
+    name: (areaData.areaDesc) ? areaData.areaDesc.name : null,
   };
 };
 

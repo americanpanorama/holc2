@@ -51,11 +51,11 @@ const hashManager = store => next => (action) => {
     .filter(k => newHash[k])
     .map(k => `${k}=${newHash[k]}`).join('&')}`;
   if (document.location.hash !== hash) {
-    document.location.replace(hash);
+    document.location.assign(hash);
   }
   return theNext;
 };
 
-const store = applyMiddleware(ReduxThunk, logger, hashManager)(createStore)(enableBatching(appReducer), initialState);
+const store = applyMiddleware(ReduxThunk, hashManager)(createStore)(enableBatching(appReducer), initialState);
 
 export default store;

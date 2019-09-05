@@ -92,22 +92,6 @@ const selectedArea = (state = null, action) => {
   return state;
 };
 
-const inspectedArea = (state = null, action) => {
-  if (action.type === A.INSPECT_AREA) {
-    return action.payload;
-  }
-  if (action.type === A.SELECT_AREA || action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_CITY_SUCCESS
-    || action.type === A.UNSELECT_AREA || action.type === A.UNSELECT_CITY) {
-    return null;
-  }
-
-  if (action.type === A.MOVE_MAP && action.payload.zoom < 9) {
-    return null;
-  }
-
-  return state;
-};
-
 const visibleCities = (state = [], action) => (
   (action.type === A.UPDATE_VISIBLE_CITIES) ? action.payload : state
 );
@@ -373,7 +357,7 @@ const selectedText = (state = false, action) => {
   if (action.type === A.SELECT_TEXT) {
     return action.payload;
   }
-  if (action.type === A.SELECT_CITY_REQUEST) {
+  if (action.type === A.SELECT_CITY_REQUEST || action.type === A.SELECT_AREA) {
     return null;
   }
   return state;
@@ -393,6 +377,10 @@ const adSearchHOLCIds = (state = initialState.adSearchHOLCIds, action) => {
   return state;
 };
 
+const donutCityMarkers = (state = false, action) => (
+  (action.type === A.TOGGLE_CITY_MARKER_STYLE) ? !state : state
+);
+
 // immutable--loaded from data that doesn't change
 const cities = (state = {}) => state;
 const formsMetadata = (state = initialState.formsMetadata) => state;
@@ -410,7 +398,6 @@ const combinedReducer = combineReducers({
   loadingCity,
   selectedGrade,
   selectedArea,
-  inspectedArea,
   showCityStats,
   visibleCities,
   map,
@@ -430,6 +417,7 @@ const combinedReducer = combineReducers({
   formsMetadata,
   dimensions,
   landingPage,
+  donutCityMarkers,
 });
 
 export default combinedReducer;

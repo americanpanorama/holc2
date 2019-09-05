@@ -35,7 +35,6 @@ const DataViewer = ({ show, style, toggleCityStats, buttonLabel }) => {
     return (
       <button
         className="toggle cityStats"
-        //style={props.style}
         onClick={toggleCityStats}
         type="button"
       >

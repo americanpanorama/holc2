@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 export default class ADSearchSnippet extends React.Component {
   render() {
-    const { searchingADsFor, adId, options, FormComponent, onOptionSelected, highlightArea, unhighlightArea } = this.props;
+    const { searchingADsFor, adId, options, formId, FormComponent, SecondFormComponent, onOptionSelected, highlightArea, unhighlightArea } = this.props;
 
     if (!searchingADsFor || searchingADsFor.length <= 1) {
       return null;
@@ -36,6 +36,7 @@ export default class ADSearchSnippet extends React.Component {
         <h4>
           Search Results
         </h4>
+
         {options.map((d) => {
           const searchResults = {};
           Object.keys(d.areaDesc).forEach((cat) => {
@@ -72,12 +73,20 @@ export default class ADSearchSnippet extends React.Component {
                 {`${d.holcId} ${(d.name) ? d.name : ''}`}
               </h4>
 
-              <FormComponent
-                adData={searchResults}
-              />
+              {/* Madison's unique in using two different forms */}
+              {(formId === 6234766 && ['D10', 'D9', 'C15'].includes(d.holcId)) ? (
+                <SecondFormComponent
+                  adData={searchResults}
+                />
+              ) : (
+                <FormComponent
+                  adData={searchResults}
+                />
+              )}
             </div>
           );
         })}
+        
       </div>
     );
   }
@@ -89,6 +98,8 @@ ADSearchSnippet.propTypes = {
   adId: PropTypes.number.isRequired,
   options: PropTypes.arrayOf(PropTypes.object).isRequired,
   FormComponent: PropTypes.func.isRequired,
+  SecondFormComponent: PropTypes.func,
+  formId: PropTypes.number.isRequired,
   onOptionSelected: PropTypes.func.isRequired,
   highlightArea: PropTypes.func.isRequired,
   unhighlightArea: PropTypes.func.isRequired,
@@ -96,4 +107,5 @@ ADSearchSnippet.propTypes = {
 
 ADSearchSnippet.defaultProps = {
   searchingADsFor: null,
+  SecondFormComponent: null,
 };

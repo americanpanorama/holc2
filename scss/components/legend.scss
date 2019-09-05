@@ -12,6 +12,14 @@
   z-index: 2000;
   font-family: 'Lato', sans-serif;
   font-weight: 400;
+  cursor: none;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none; 
+
+  &::-webkit-scrollbar { 
+    display: none;  
+  }
 
   svg {
     float: left;
@@ -49,6 +57,8 @@
       }
     }
   }
+
+
 }
 
 #showNationalLegend {
@@ -64,4 +74,38 @@
   border-bottom-right-radius: 0;
   border: none;
   height: 36px;
+}
+
+.mask {
+  fill: $textBackground;
+  fill-opacity: 0.65;
+}
+
+.citySymbol {
+  height: 100px;
+  width: 50px;
+  pointer-events: auto;
+  float: left;
+  cursor: pointer;
+
+  .tooltiptext {
+    position: fixed;
+    left: 80px;
+    display: inline-block;
+    visibility: hidden;
+    max-width: 320px;
+    padding: 8px;
+    background-color: $controlsColor;
+    color: #fff;
+    border-radius: 6px;
+   
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+  }
+
+  /* Show the tooltip text when you mouse over the tooltip container */
+  &:hover .tooltiptext {
+    visibility: visible;
+  }  
 }

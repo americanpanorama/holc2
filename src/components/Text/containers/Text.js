@@ -5,7 +5,7 @@ import { selectText } from '../../../store/Actions';
 import About from '../presentational/About';
 import ContactUs from '../presentational/ContactUs';
 import Downloads from './Downloads';
-import Introduction from '../presentational/Introduction';
+import Introduction from '../containers/Introduction';
 
 
 const mapStateToProps = (state) => {
