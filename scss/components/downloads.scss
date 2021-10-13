@@ -1,114 +1,101 @@
 #downloads {
-  h2.stateName {
-    background-color: #555;
-    color: white !important;
-  }
-
-  h3 {
-    margin: 40px 0 0 0;
-    border-bottom: 1px solid $headerRed;
-  }
-  h5.citation {
-    font-size: 1em;
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-
-    a {
-      text-decoration: underline dotted;
+    h2.stateName {
+        background-color: #555;
+        color: white !important;
     }
-  }
-  ul, li {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  p {
-    margin: 15px 0;
-  }
-
-  .fullDownloads {
-    text-align: center;
-    font-family: 'Lato', sans-serif;
-    
-
-    a {
-      margin: 20px;
-      background-color: #ddd;
-      color: #4B4E6D;
-      border-color: #4B4E6D;
-      font-weight: bold;
-      width: 200px;
-      text-align: center;
-      padding: 5px 20px;
-      margin: 10px;
-      border: 1px solid #4B4E6D;
-      border-radius: 4px;
-
-      &:hover {
-        background-color: white;
-      }
-
-
+    h3 {
+        margin: 40px 0 0 0;
+        border-bottom: 1px solid $headerRed;
     }
-  }
-  .cityDownloads {
-    display: flex;
-
-    @include for-phone-only {
-      flex-wrap: wrap;
+    h5.citation {
+        font-size: 1em;
+        font-family: 'Lato', sans-serif;
+        font-weight: 400;
+        a {
+            text-decoration: underline dotted;
+        }
     }
-  }
-  .stateDownloads {
-    margin-top: 20px;
-  }
-  .citation {
-    padding-left: 40px;
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-  }
-  .license, .filter {
-    text-align: center;
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    
-    input {
-      width: 300px;
-      border-color: $headerRed;
-    }
-  }
-  section {
-    width: 25%;
-
-    h4 {
-      text-align: center;
-      a {
-        text-decoration: underline dotted;
-      }
-    }
-
+    ul,
     li {
-      height: 0;
-      width: 100%;
-      padding-bottom: 50%;
-      padding-top: 50%;
-
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      text-align: center;
-      align-items: center;
-
-      img {
-        max-width: 80%;
-      }
-
-
-
-      &:hover {
-        background-color: $controlsColorLightGrey;
-        border-radius: 10px;
-      }
+        list-style: none;
+        margin: 0;
+        padding: 0;
     }
-  }
+    p {
+        margin: 15px 0;
+        a {
+            color: #1eaedb;
+        }
+    }
+    .fullDownloads {
+        text-align: center;
+        font-family: 'Lato', sans-serif;
+        a {
+            margin: 20px;
+            background-color: #ddd;
+            color: #4B4E6D;
+            border-color: #4B4E6D;
+            font-weight: bold;
+            width: 200px;
+            text-align: center;
+            padding: 5px 20px;
+            margin: 10px;
+            border: 1px solid #4B4E6D;
+            border-radius: 4px;
+            &:hover {
+                background-color: white;
+            }
+        }
+    }
+    .cityDownloads {
+        display: flex;
+        @include for-phone-only {
+            flex-wrap: wrap;
+        }
+    }
+    .stateDownloads {
+        margin-top: 20px;
+    }
+    .citation {
+        padding-left: 40px;
+        font-family: 'Lato', sans-serif;
+        font-weight: 400;
+    }
+    .license,
+    .filter {
+        text-align: center;
+        font-family: 'Lato', sans-serif;
+        font-weight: 400;
+        input {
+            width: 300px;
+            border-color: $headerRed;
+        }
+    }
+    section {
+        width: 25%;
+        h4 {
+            text-align: center;
+            a {
+                text-decoration: underline dotted;
+            }
+        }
+        li {
+            height: 0;
+            width: 100%;
+            padding-bottom: 50%;
+            padding-top: 50%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+            img {
+                max-width: 80%;
+            }
+            &:hover {
+                background-color: $controlsColorLightGrey;
+                border-radius: 10px;
+            }
+        }
+    }
 }

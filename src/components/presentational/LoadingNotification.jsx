@@ -8,6 +8,10 @@ const LoadingNotification = ({ text }) => {
 
   return (
     <div id="loadingNotification">
+      <img
+        src="./static/loader.svg"
+        className="spinner"
+      />
       {text}
     </div>
   );

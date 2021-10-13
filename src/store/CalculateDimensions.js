@@ -10,7 +10,7 @@ const calculateDimensions = () => {
     dataViewerWidth: 0,
     mainPaneWidth: 0,
     dataViewerTitleHeight: 0,
-  }
+  };
 
   dimensions.windowHeight = window.innerHeight;
   dimensions.windowWidth = window.innerWidth;
@@ -32,7 +32,6 @@ const calculateDimensions = () => {
   }
 
   dimensions.headerStyle = {
-    //width: dimensions.headerWidth,
     height: dimensions.headerHeight,
   };
 
@@ -59,10 +58,6 @@ const calculateDimensions = () => {
 
   dimensions.dataViewerStyle = {
     maxHeight: dimensions.dataViewerHeight,
-    // width: dimensions.dataViewerWidth,
-    // left: dimensions.dataViewerRight,
-    // top: dimensions.headerHeight + dimensions.containerPadding,
-    // right: dimensions.dataViewerLeft || 'auto',
   };
 
   dimensions.cityStatsButtonStyle = {
@@ -112,23 +107,12 @@ const calculateDimensions = () => {
 
   dimensions.adFullViewWidth = Math.min(400, dimensions.windowWidth / 4);
 
-  dimensions.tilesHeight = dimensions.windowHeight - dimensions.headerHeight - 2*dimensions.containerPadding;
-  dimensions.dataViewerWidth = (dimensions.media !== 'phone')? Math.min(700, dimensions.windowWidth / 3) : dimensions.windowWidth;
+  dimensions.tilesHeight = dimensions.windowHeight - dimensions.headerHeight - 2 * dimensions.containerPadding;
+  dimensions.dataViewerWidth = (dimensions.media !== 'phone') ? Math.max(400, Math.min(700, dimensions.windowWidth / 3)) : dimensions.windowWidth;
   dimensions.mainPaneWidth = (document.getElementsByClassName('main-pane').length > 0) ? document.getElementsByClassName('main-pane')[0].offsetWidth : dimensions.windowWidth * 0.644 - 2*dimensions.containerPadding;
   dimensions.dataViewerTitleHeight = (document.getElementsByClassName('dataViewerTitle').length > 0) ? document.getElementsByClassName('dataViewerTitle')[0].offsetHeight: 30;
 
-  // if (dimensions.windowWidth <= 599) {
-  //   dimensions.media = 'phone';
-  // } else if (dimensions.windowWidth >= 1800) {
-  //   dimensions.media = 'bigDesktop';
-  // } else if (dimensions.windowWidth >= 1200) {
-  //   dimensions.media = 'desktop';
-  // } else if (dimensions.windowWidth >= 900) {
-  //   dimensions.media = 'tabletLandscape';
-  // } else {
-  //   dimensions.media = 'tablet';
-  // }
-
+  dimensions.dataViewerFullColumnWidth = Math.min(400, dimensions.windowWidth / 4);
   return dimensions;
 };
 

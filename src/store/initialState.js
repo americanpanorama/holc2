@@ -1,15 +1,16 @@
 import * as L from 'leaflet';
+import { parseJsonSourceFileConfigFileContent } from 'typescript';
 
 import Cities from '../../data/Cities.json';
 import FormsMetadata from '../../data/formsMetadata.json';
 import calculateDimensions from './CalculateDimensions';
 
 const shuffleArray = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
 };
 
 const dimensions = calculateDimensions();
@@ -26,130 +27,133 @@ let showADScan = false;
 let showDataViewerFull = media !== 'phone';
 let selectedText = null;
 let adScan;
+let edition = '';
+let points = [];
 
 const { hash } = window.location;
 hash.replace(/^#\/?|\/$/g, '').split('&').forEach((pair) => {
-  const [key, value] = pair.split('=');
-  if (key === 'loc') {
-    [zoom, lat, lng] = value.split('/').map(str => parseFloat(str));
-  }
-  if (key === 'adview' && value === 'full') {
-    showADSelections = false;
-  }
-  if (key === 'adviewer' && value === 'sidebar') {
-    showDataViewerFull = false;
-  }
-  if (key === 'maps' && value === '0') {
-    showHOLCMaps = false;
-  }
-  if (key === 'mapview' && value === 'graded') {
-    showFullHOLCMaps = false;
-  }
-  if (key === 'adimage') {
-    showADScan = true;
-    const [adZoom, adY, adX] = value.split('/').map(str => parseFloat(str));
-    adScan = {
-      zoom: adZoom,
-      center: [adY, adX],
-    };
-  }
-  if (key === 'category') {
-    selectedCategory = value;
-  }
-  if (key === 'text') {
-    selectedText = value;
-  }
+    const [key, value] = pair.split('=');
+    if (key === 'loc') {
+        [zoom, lat, lng] = value.split('/').map(str => parseFloat(str));
+    }
+    if (key === 'adview' && value === 'full') {
+        showADSelections = false;
+    }
+    if (key === 'adviewer' && value === 'sidebar') {
+        showDataViewerFull = false;
+    }
+    if (key === 'maps' && value === '0') {
+        showHOLCMaps = false;
+    }
+    if (key === 'mapview' && value === 'graded') {
+        showFullHOLCMaps = false;
+    }
+    if (key === 'adimage') {
+        showADScan = true;
+        const [adZoom, adY, adX] = value.split('/').map(str => parseFloat(str));
+        adScan = {
+            zoom: adZoom,
+            center: [adY, adX],
+        };
+    }
+    if (key === 'category') {
+        selectedCategory = value;
+    }
+    if (key === 'text') {
+        selectedText = value;
+    }
+    if (key === 'edition') {
+        edition = value;
+    }
+    if (key === 'points') {
+        points = value.split('|').map(d => d.split('/').map(d => parseFloat(d)));
+    }
 });
 
 // initialize the position for the adscan if it isn't specified in the url
 if (!adScan) {
-  const utilityMap = new L.Map(document.createElement('div'), {
-    center: [0, 0],
-    zoom: 0,
-  });
+    const utilityMap = new L.Map(document.createElement('div'), {
+        center: [0, 0],
+        zoom: 0,
+    });
 
-  // defaults for phone
-  let adZoom = 2;
-  let adCenter = [65.22, -123.57];
-  if (media !== 'phone') {
-    const bounds = [[-10, -180], [90, -60]];
-    const horizontalOffsetRatio = ((dataViewerWidth + 40) / mapWidth) / ((mapWidth - (dataViewerWidth + 40)) / mapWidth);
-    const verticalOffsetRatio = 0;
-    const offsetLng = bounds[0][1] - (bounds[1][1] - bounds[0][1]) * horizontalOffsetRatio;
-    const offsetLat = bounds[0][0] - (bounds[1][0] - bounds[0][0]) * verticalOffsetRatio;
+    // defaults for phone
+    let adZoom = 2;
+    let adCenter = [65.22, -123.57];
+    if (media !== 'phone') {
+        const bounds = [
+            [-10, -180],
+            [90, -60]
+        ];
+        const horizontalOffsetRatio = ((dataViewerWidth + 40) / mapWidth) / ((mapWidth - (dataViewerWidth + 40)) / mapWidth);
+        const verticalOffsetRatio = 0;
+        const offsetLng = bounds[0][1] - (bounds[1][1] - bounds[0][1]) * horizontalOffsetRatio;
+        const offsetLat = bounds[0][0] - (bounds[1][0] - bounds[0][0]) * verticalOffsetRatio;
 
-    // [[-90, -180], [90, 37]]
-    const featureGroup = new L.FeatureGroup([
-      new L.Marker([offsetLat, offsetLng]),
-      new L.Marker(bounds[1]),
-    ]);
-    const sheetBounds = featureGroup.getBounds();
-    const { lat: adY, lng: adX } = sheetBounds.getCenter();
-    adCenter = [adY, adX];
+        // [[-90, -180], [90, 37]]
+        const featureGroup = new L.FeatureGroup([
+            new L.Marker([offsetLat, offsetLng]),
+            new L.Marker(bounds[1]),
+        ]);
+        const sheetBounds = featureGroup.getBounds();
+        const { lat: adY, lng: adX } = sheetBounds.getCenter();
+        adCenter = [adY, adX];
 
-    // offset the bounds to take account of the dataViewer
-    adZoom = utilityMap.getBoundsZoom(sheetBounds, false, [-1 * mapWidth, -1 * mapHeight]);
-  }
+        // offset the bounds to take account of the dataViewer
+        adZoom = utilityMap.getBoundsZoom(sheetBounds, false, [-1 * mapWidth, -1 * mapHeight]);
+    }
 
-  adScan = {
-    zoom: adZoom,
-    center: adCenter,
-  };
+    adScan = {
+        zoom: adZoom,
+        center: adCenter,
+    };
 }
 
 const center = [lat, lng];
 
-// const basemap = (zoom < 9)
-//   ? 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png'
-//   //: 'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png';
-//   : 'https://api.mapbox.com/styles/v1/nayers/cjjkbhzhcebop2rlq5hv0vghf/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmF5ZXJzIiwiYSI6ImNqMXM1ZDFidDAwYjUzM212eHEyNzYyd2oifQ.I_na3uloyQM89sp3pnzcnQ';
-
-const basemap = 'https://api.mapbox.com/styles/v1/ur-dsl/cjtyox5ms3ycd1flvhg7kihdi/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidXItZHNsIiwiYSI6ImNqdGs3MHhxdDAwd2E0NHA2bmxoZjM1Y2IifQ.y1wfhup4U2U8KvHuOpFCng';
-
 export default {
-  selectedArea: null,
-  selectedCategory,
-  selectedCity: null,
-  selectedGrade: null,
-  selectedText,
-  showADScan,
-  showADSelections,
-  showContactUs: false,
-  showCityStats: true,
-  showFullHOLCMaps,
-  showHOLCMaps,
-  showNationalLegend: true,
-  showDataViewerFull,
-  adSelections: [],
-  areaDescriptions: null,
-  basemap,
-  loadingCity: null,
-  adScan,
-  map: {
-    movingTo: null,
-    zoom,
-    center,
-    bounds: [],
-    aboveThreshold: false,
-    visibleRasters: [],
-    visibleRasterPolygons: [],
-    selectableRasterBoundaries: [],
-    visibleBoundaries: [],
-    visiblePolygons: [],
-    highlightedPolygons: [],
-    loadingPolygonsFor: [],
-    userPosition: null,
-    geolocating: false,
-    sorting: false,
-    sortingPossibilities: [],
-    sortingLatLng: [],
-  },
-  searchingADsFor: null,
-  adSearchHOLCIds: [],
-  cities: Cities,
-  formsMetadata: FormsMetadata,
-  dimensions,
-  landingPage: localStorage.noLandingPageMappingInequality !== 'true' && dimensions.media !== 'phone' && dimensions.media !== 'tablet-portrait',
-  initialized: false,
-  donutCityMarkers: false,
+    selectedArea: null,
+    selectedCategory,
+    selectedCity: null,
+    selectedGrade: null,
+    selectedText,
+    showADScan,
+    showADSelections,
+    showContactUs: false,
+    showCityStats: true,
+    showFullHOLCMaps,
+    showHOLCMaps,
+    showNationalLegend: true,
+    showDataViewerFull,
+    adSelections: [],
+    areaDescriptions: null,
+    loadingCity: null,
+    adScan,
+    map: {
+        zoom,
+        center,
+        bounds: [],
+        aboveThreshold: false,
+        visibleRasters: [],
+        visibleRasterPolygons: [],
+        selectableRasterBoundaries: [],
+        visibleBoundaries: [],
+        visiblePolygons: [],
+        highlightedPolygons: [],
+        loadingPolygonsFor: [],
+        userPosition: null,
+        geolocating: false,
+        sorting: false,
+        sortingPossibilities: [],
+        sortingLatLng: [],
+    },
+    searchingADsFor: null,
+    adSearchHOLCIds: [],
+    cities: Cities,
+    formsMetadata: FormsMetadata,
+    dimensions,
+    initialized: false,
+    donutCityMarkers: false,
+    edition,
+    points,
 };

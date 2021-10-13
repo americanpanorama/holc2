@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Map } from 'react-leaflet';
+import { Map, TileLayer } from 'react-leaflet';
+import MapboxGlLayer from '../mapboxGL/react-mapbox-gl-leaflet';
 
 import BaseMap from '../containers/BaseMap';
 import USMask from '../containers/USMask';
@@ -15,6 +16,7 @@ import CityBoundaries from '../containers/CityBoundaries';
 import MapPolygons from '../containers/MapPolygons';
 import AreaMarkers from '../containers/AreaMarkers';
 import UserLocation from '../containers/UserLocation';
+import Points from '../containers/Points';
 import MapSelectionControl from '../containers/MapSelectionControl';
 import ZoomInButton from '../containers/ZoomInButton';
 import ZoomOutButton from '../containers/ZoomOutButton';
@@ -55,7 +57,6 @@ export default class HOLCMap extends React.Component {
         zoom,
         center,
         bounds,
-        movingTo: null,
       }));
     }
   }
@@ -77,7 +78,18 @@ export default class HOLCMap extends React.Component {
           maxBounds={[[15, -170], [60, -41]]}
           onClick={clickOnMap}
         >
-          <BaseMap />
+        
+          <MapboxGlLayer
+            accessToken="pk.eyJ1IjoidXItZHNsIiwiYSI6ImNqdGs3MHhxdDAwd2E0NHA2bmxoZjM1Y2IifQ.y1wfhup4U2U8KvHuOpFCng"
+            style='mapbox://styles/ur-dsl/cjtyox5ms3ycd1flvhg7kihdi?key=cjtyox5ms3ycd1flvhg7kihdi'
+            attribution={'© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>'}
+          />
+          {/* <MapboxGlLayer
+            accessToken="pk.eyJ1IjoidXItZHNsIiwiYSI6ImNqdGs3MHhxdDAwd2E0NHA2bmxoZjM1Y2IifQ.y1wfhup4U2U8KvHuOpFCng"
+            style='mapbox://styles/ur-dsl/ckgl685wx057n19mug70whcyb'
+            attribution={'© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>'}
+          /> */}
+
           {(!aboveThreshold) && (
             <React.Fragment>
               <USMask />
@@ -107,8 +119,10 @@ export default class HOLCMap extends React.Component {
                 <MapSortPolygons />
               )}
               <UserLocation />
+              <Points />
             </React.Fragment>
           )}
+
         </Map>
 
         <Legend />

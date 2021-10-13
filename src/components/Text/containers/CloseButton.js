@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import Button from '../../AreaDescription/presentational/Button';
-import { selectText } from '../../../store/Actions';
+import { closeText } from '../../../store/Actions';
 
 const mapStateToProps = () => ({
   className: 'close',
@@ -8,7 +8,7 @@ const mapStateToProps = () => ({
 });
 
 const mapDispatchToProps = {
-  action: selectText,
+  action: closeText,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Button);

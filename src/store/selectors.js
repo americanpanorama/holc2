@@ -83,8 +83,8 @@ export const getAreaMarkers = createSelector(
 );
 
 export const getPolygons = createSelector(
-  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getCities, getVisibleCities],
-  (polygons, highlightedPolygons, showHOLCMaps, zoom, cities, visibleCities) => {
+  [getVisiblePolygons, getHighlightedPolygons, getShowHOLCMaps, getMapZoom, getCities, getVisibleCities, getSelectedCity, getSelectedArea],
+  (polygons, highlightedPolygons, showHOLCMaps, zoom, cities, visibleCities, selectedCity, selectedArea) => {
     // calculate the style each polygon
     const zFillOpacity = 0.95 - Math.min((zoom - 9) / 4, 1) * 0.75;
 
@@ -92,7 +92,7 @@ export const getPolygons = createSelector(
 
     const adsInCities = visibleCities.map(adId => ({
       adId,
-      hasADs: cities.find(c => c.ad_id === adId).hasADs,
+      hasADs: cities.find(c => c.ad_id === adId).hasImages || cities.find(c => c.ad_id === adId).hasADs,
     }));
 
     return polygons.map((p) => {
@@ -106,8 +106,8 @@ export const getPolygons = createSelector(
         fillOpacity = 0.3;
       }
 
-      const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}` :
-        `areaPolygon-${p.ad_id}-${p.id}`;
+      const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}`
+        : `areaPolygon-${p.ad_id}-${p.id}`;
       const hasAD = (adsInCities.find(d => d.adId === p.ad_id)) ? adsInCities.find(d => d.adId === p.ad_id).hasADs : true;
 
       if (highlightedPolygons.length > 0) {
@@ -139,6 +139,7 @@ export const getPolygons = createSelector(
         strokeColor,
         strokeOpacity,
         weight,
+        isSelected: selectedArea && p.id === selectedArea && p.ad_id === selectedCity,
       };
     });
   },
@@ -776,7 +777,7 @@ export const getCityBoundaries = createSelector(
     }
 
     const adIdsWithoutADs = cities
-      .filter(c => !c.hasADs)
+      .filter(c => !c.hasADs && !c.hasImages)
       .map(c => c.ad_id);
 
     return visibleBoundaries

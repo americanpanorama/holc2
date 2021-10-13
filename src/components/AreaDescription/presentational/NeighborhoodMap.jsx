@@ -1,23 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Map, TileLayer, GeoJSON, FeatureGroup, CircleMarker, Tooltip } from 'react-leaflet';
+import BaseMap from '../../HOLCMap/containers/BaseMap';
 
 const NeighborhoodMap = (props) => {
-  console.log(props);
   const {
     bounds,
     holcId,
     adId,
     highlightedHolcId,
     highlightedAdId,
-    basemap,
     cityRasterParams,
     neighborhoodRasterParams,
     polygons,
     style,
+    y,
+    windowHeight,
   } = props;
   if (!bounds || !bounds[0] || holcId !== highlightedHolcId || adId !== highlightedAdId) {
     return null;
+  }
+
+  // adjust the style to ensure that the map is optimally positioned not exceeding the size of the
+  // window or overflowing beyond the bottom
+  let calculatedStyle = style;
+  const padding = 30;
+  const borderWidth = 2;
+  if (calculatedStyle.height + padding * 2 > windowHeight) {
+    calculatedStyle = {
+      ...calculatedStyle,
+      height: windowHeight - padding * 2 - borderWidth * 2,
+      width: windowHeight - padding * 2 - borderWidth * 2,
+    };
+  }
+  const yOverflow = y + calculatedStyle.height + padding - windowHeight;
+  if (yOverflow > 0) {
+    calculatedStyle = {
+      ...calculatedStyle,
+      top: yOverflow * -1 - padding + borderWidth,
+    };
   }
 
   return (
@@ -25,16 +46,10 @@ const NeighborhoodMap = (props) => {
       bounds={bounds}
       zoomControl={false}
       className="neighborhoodMap greyscale"
-      style={style}
+      style={calculatedStyle}
       key={`neighborhoodMapFor-${adId}-${holcId}`}
     >
-      <TileLayer
-        url={basemap}
-        zIndex={-1}
-        tileSize={512}
-        zoomOffset={-1}
-        detectRetina
-      />
+      <BaseMap />
 
       {(cityRasterParams) && (
         <TileLayer
@@ -101,7 +116,6 @@ NeighborhoodMap.propTypes = {
   adId: PropTypes.number.isRequired,
   highlightedHolcId: PropTypes.string,
   highlightedAdId: PropTypes.number,
-  basemap: PropTypes.string.isRequired,
   cityRasterParams: PropTypes.shape({
     url: PropTypes.string,
     maxZoom: PropTypes.number,
@@ -113,6 +127,8 @@ NeighborhoodMap.propTypes = {
   }),
   polygons: PropTypes.array,
   style: PropTypes.object.isRequired,
+  y: PropTypes.number,
+  windowHeight: PropTypes.number.isRequired,
 };
 
 NeighborhoodMap.defaultProps = {
@@ -122,4 +138,5 @@ NeighborhoodMap.defaultProps = {
   cityRasterParams: undefined,
   neighborhoodRasterParams: undefined,
   polygons: [],
+  y: null,
 };

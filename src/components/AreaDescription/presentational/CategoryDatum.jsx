@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import HoverIntet from 'react-hoverintent';
 import NeighborhoodMap from '../containers/NeighborhoodMap';
 
 const CategoryDatum = (props) => {
+  const theElement = useRef(null);
+  const [elementY, setElementY] = useState(0);
   const {
     holcId,
     value,
@@ -15,16 +17,21 @@ const CategoryDatum = (props) => {
     CategoryComponent,
   } = props;
 
+  const onMouseOver = (eOrId) => {
+    const { offsetTop } = (theElement.current.element);
+    const { scrollTop } = (theElement.current.element.offsetParent);
+    setElementY(offsetTop - scrollTop);
+    highlightArea(eOrId);
+  };
+
   return (
     <HoverIntet
-      onMouseOver={highlightArea}
+      onMouseOver={onMouseOver}
       onMouseOut={unhighlightArea}
-      
+      ref={theElement}
     >
       <li
         onClick={selectArea}
-        // onMouseEnter={highlightArea}
-        // onMouseLeave={unhighlightArea}
         id={`${adId}-${holcId}`}
       >
         <CategoryComponent
@@ -35,6 +42,7 @@ const CategoryDatum = (props) => {
           <NeighborhoodMap
             holcId={holcId}
             adId={adId}
+            y={elementY}
           />
         )}
       </li>

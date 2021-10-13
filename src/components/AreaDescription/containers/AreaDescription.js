@@ -58,6 +58,7 @@ const MapStateToProps = (state) => {
     adData,
     FormComponent,
     formId,
+    showADScan: state.showADScan,
   };
 };
 

@@ -5,7 +5,7 @@ import { constantsColors } from '../../../../data/constants';
 
 const mapStateToProps = (state) => {
   const { bounds, zoom, lat, lng, highlightedAdId, highlightedHolcId } = getInspectedMiniMapParams(state);
-  const { basemap, map, selectedCity, showHOLCMaps, showFullHOLCMaps, selectedArea, dimensions } = state;
+  const { map, selectedCity, showHOLCMaps, showFullHOLCMaps, selectedArea, dimensions } = state;
   const { visibleRasters, highlightedPolygons, visiblePolygons } = map;
 
   let cityRasterParams;
@@ -14,6 +14,8 @@ const mapStateToProps = (state) => {
   // get the style
   let style = {
     left: dimensions.adFullViewWidth + 10,
+    width: dimensions.dataViewerFullColumnWidth * 2 - 20,
+    height: dimensions.dataViewerFullColumnWidth * 2 - 20,
   };
 
   const cityRaster = visibleRasters.find(vr => vr.id === selectedCity);
@@ -38,11 +40,13 @@ const mapStateToProps = (state) => {
     }
   }
   if (inspectedPolygon) {
-    const { adId, holcId} = inspectedPolygon;
+    const { adId, holcId } = inspectedPolygon;
     const { neighborhoodId, grade } = visiblePolygons.find(p => p.ad_id === adId && p.id === holcId);
     if (grade === 'C' || grade === 'D') {
       style = {
         right: dimensions.adFullViewWidth * 1 + 10,
+        width: dimensions.dataViewerFullColumnWidth * 2 - 20,
+        height: dimensions.dataViewerFullColumnWidth * 2 - 20,
       };
     }
 
@@ -58,11 +62,11 @@ const mapStateToProps = (state) => {
       polygons = visiblePolygons.map((p) => {
         const fillColor = constantsColors[`grade${p.grade}`];
         let fillOpacity = Math.max(0.2, zFillOpacity * 0.5);
-        let strokeColor = '#888'; //constantsColors[`grade${p.grade}`];
+        let strokeColor = '#888';
         const strokeOpacity = 0.5;
         let weight = 0.5;
-        const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}` :
-          `areaPolygonNeighborhoodMap-${p.ad_id}-${p.id}`;
+        const key = (p.arbId) ? `areaPolygon-${p.ad_id}-${p.arbId}`
+          : `areaPolygonNeighborhoodMap-${p.ad_id}-${p.id}`;
 
         if (adId === p.ad_id && holcId === p.id) {
           weight = 3;
@@ -90,11 +94,11 @@ const mapStateToProps = (state) => {
     lng,
     highlightedAdId,
     highlightedHolcId,
-    basemap,
     cityRasterParams,
     neighborhoodRasterParams,
     polygons,
     style,
+    windowHeight: dimensions.windowHeight - 45,
   };
 };
 

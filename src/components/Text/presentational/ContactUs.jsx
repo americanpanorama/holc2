@@ -21,6 +21,7 @@ export default class ContactUs extends React.Component {
       ].join('&');
 
     xhr.onreadystatechange = function() {
+      console.log(xhr);
       if (xhr.readyState == 4 && xhr.status == 200) {
         document.getElementsByClassName("contactUsForm")[0].innerHTML = "<p>We have received your message. Thank you for contacting us.</p>";
       }

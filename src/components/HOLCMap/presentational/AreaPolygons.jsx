@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LayerGroup, GeoJSON } from 'react-leaflet';
 
-const AreaPolygons = ({ polygons, selectArea, highlightArea, unhighlightArea }) => (
+const AreaPolygons = ({ polygons, selectArea, unselectArea, highlightArea, unhighlightArea }) => (
   <LayerGroup>
     { polygons.map(p => (
       <GeoJSON
         data={p.area_geojson}
-        className={`neighborhoodPolygon`}
-        onClick={(p.hasAD) ? selectArea : () => false }
+        className="neighborhoodPolygon"
+        onClick={(p.isSelected) ? unselectArea : (p.hasAD) ? selectArea : () => false }
         onMouseOver={(p.hasAD) ? highlightArea : () => false }
         onMouseOut={(p.hasAD) ? unhighlightArea : () => false }
         id={`${p.ad_id}-${p.id}`}
@@ -29,6 +29,7 @@ export default AreaPolygons;
 AreaPolygons.propTypes = {
   polygons: PropTypes.arrayOf(PropTypes.object),
   selectArea: PropTypes.func.isRequired,
+  unselectArea: PropTypes.func.isRequired,
   highlightArea: PropTypes.func.isRequired,
   unhighlightArea: PropTypes.func.isRequired,
 };

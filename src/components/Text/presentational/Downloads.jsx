@@ -90,6 +90,10 @@ class Downloads extends React.Component {
           </a>
         </div>
 
+        <p>
+          On our GitHub site, we have the more data and metadata for <cite>Mapping Inequality</cite>, including <a href='https://github.com/americanpanorama/HOLC_Area_Description_Data/tree/master/CensusTracts' target='_blank'>geojson and shape files that map the HOLC areas to census tracts</a>, <a href='https://github.com/americanpanorama/HOLC_Area_Description_Data' target='_blank'>the area description text in a csv file</a>, and <a href='https://github.com/americanpanorama/panorama-holc/blob/master/data/formsMetadata.json' target='_blank'>the metadata as json mapping area description labels to the data</a>.
+        </p>
+
 
         <p>
           Data for individual cities is available below. The GeoJSON spatial data includes transcriptions of the area descriptions of the city if they are available.

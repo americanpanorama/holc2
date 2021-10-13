@@ -1,102 +1,113 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Hamburger from '../Buttons/presentational/Hamburger';
 
-export default class Masthead extends React.Component {
-  constructor(props) {
-    super(props); 
+const Masthead = ({ media, edition, selectText }) => {
+  const [mediaWas, setMediaWas] = useState(media);
+  const [isMenuOpen, setIsMenuOpen] = useState(media !== 'phone' && media !== 'tablet-portrait');
 
-    this.state = {
-      menuOpen: this.props.media !== 'phone' && this.props.media !== 'tablet-portrait',
-    };
-
-    this.onMenuToggle = this.onMenuToggle.bind(this);
-    this.onSelectText = this.onSelectText.bind(this);
+  if (media !== mediaWas) {
+    setIsMenuOpen(media !== 'phone' && media !== 'tablet-portrait');
+    setMediaWas(media);
   }
 
-  onMenuToggle() {
-    this.setState({
-      menuOpen: !this.state.menuOpen,
-    });
-  }
-
-  onSelectText(e) {
-    const { media, selectText } = this .props;
+  const onSelectText = (e) => {
     e.preventDefault();
     e.stopPropagation();
     selectText(e.target.id);
     const menuOpen = (media !== 'phone' && media !== 'tablet-portrait');
-    this.setState({
-      menuOpen,
-    });
-  }
+    setIsMenuOpen(menuOpen);
+  };
 
-  render() {
-    const { media } = this.props;
-    const { menuOpen } = this.state;
-
-    return (
-      <header id="masthead">
-        <div id="headerBackground" />
-        <h1>
-          <span className="header-main">
-            Mapping Inequality
-          </span>
-          <span className="header-sub">
-            Redlining in New Deal America
-          </span>
-        </h1>
-        <nav>
-          {(media === 'phone' || media === 'tablet-portrait') && (
-            <div
-              className="menuToggle"
-              onClick={this.onMenuToggle}
-            >
-              <Hamburger />
-            </div>
-          )}
-          {(menuOpen) && (
-            <ul>
-              <li>
-                <a
-                  href="http://dsl.richmond.edu/panorama/redlining/#text=intro"
-                  onClick={this.onSelectText}
-                  id="intro"
-                >
-                  Introduction
-                </a>
-              </li>
-              <li>
-                <a
-                  href="http://dsl.richmond.edu/panorama/redlining/#text=downloads"
-                  onClick={this.onSelectText}
-                  id="downloads"
-                >
-                  Downloads & Data
-                </a>
-              </li>
-              <li>
-                <a
-                  href="http://dsl.richmond.edu/panorama/redlining/#text=about"
-                  onClick={this.onSelectText}
-                  id="about"
-                >
-                  About
-                </a>
-              </li>
-              <li
-                onClick={this.onSelectText}
-                id="contactUs"
+  return (
+    <header
+      id="masthead" 
+      className={(edition) ? `edition ${edition}` : ''}
+    >
+      <div id="headerBackground" />
+      <h1>
+        {(!edition || edition !== 'placesAndSpaces') ? (
+          <a href='//dsl.richmond.edu/panorama/redlining/'>
+            <span className="header-main">
+              Mapping Inequality
+            </span>
+            <span className="header-sub">
+              Redlining in New Deal America
+            </span>
+          </a>
+        ) : (
+          <React.Fragment>
+            <span className="header-main">
+              Mapping Inequality
+            </span>
+            <span className="header-sub">
+              Places and Spaces Edition
+            </span>
+          </React.Fragment>
+        )}
+      </h1>
+      <nav>
+        {(media === 'phone' || media === 'tablet-portrait') && (
+          <div
+            className="menuToggle"
+            onClick={() => { setIsMenuOpen(!isMenuOpen); }}
+            role="button"
+          >
+            <Hamburger />
+          </div>
+        )}
+        {(isMenuOpen) && (
+          <ul>
+            <li>
+              <a
+                href="http://dsl.richmond.edu/panorama/redlining/#text=intro"
+                onClick={onSelectText}
+                id="intro"
               >
-              Contact Us
-              </li>
-            </ul>
-          )}
-        </nav>
-      </header>
-    );
-  }
-}
+                Introduction
+              </a>
+            </li>
+            <li>
+              <a
+                href="http://dsl.richmond.edu/panorama/redlining/#text=downloads"
+                onClick={onSelectText}
+                id="downloads"
+              >
+                Downloads & Data
+              </a>
+            </li>
+            <li>
+              <a
+                href="http://dsl.richmond.edu/panorama/redlining/#text=about"
+                onClick={onSelectText}
+                id="about"
+              >
+                About
+              </a>
+            </li>
+            <li
+              onClick={onSelectText}
+              id="contactUs"
+            >
+            Contact Us
+            </li>
+            <li
+              id="americanPanorama"
+            >
+              <a
+                href="http://dsl.richmond.edu/panorama#maps"
+              >
+                American Panorama
+              </a>
+            </li>
+          </ul>
+        )}
+      </nav>
+    </header>
+  );
+};
+
+export default Masthead;
 
 Masthead.propTypes = {
   media: PropTypes.string.isRequired,

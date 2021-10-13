@@ -58,6 +58,14 @@
 			overflow-y: scroll;
 			z-index: -10;
 
+		  -ms-overflow-style: none;
+		  scrollbar-width: none; 
+
+		  &::-webkit-scrollbar { 
+		    display: none;  
+		  }
+
+
 			&:focus {
 				display: block;
 			}
